@@ -1,2 +1,2 @@
 # BenzinApp-Front-End
-The official site of BenzinApp! Written in [language to be decided].
+The official site of BenzinApp! Written in Next.js & NextUI.
