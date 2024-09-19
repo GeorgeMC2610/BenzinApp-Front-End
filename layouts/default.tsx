@@ -10,7 +10,7 @@ export default function DefaultLayout({
   return (
     <div className="relative flex flex-col h-screen">
       <Head />
-      <Navbar />
+      <Navbar /> {/* Navbar is part of the layout now */}
       <main className="container mx-auto max-w-7xl px-6 flex-grow pt-16">
         {children}
       </main>
@@ -21,7 +21,7 @@ export default function DefaultLayout({
           href="https://github.com/georgemc2610/"
           title="nextui.org homepage"
         >
-          <span className="text-default-600">Create with love by the BenzinApp team</span>
+          <span className="text-default-600">Created with love by the BenzinApp team</span>
         </Link>
       </footer>
     </div>

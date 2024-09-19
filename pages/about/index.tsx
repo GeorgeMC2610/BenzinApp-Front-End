@@ -25,7 +25,7 @@ export default function DocsPage() {
 
           <Divider className="my-6" />
           
-          <Button color="default" className="mt-6">
+          <Button className="bg-blue-900 mt-6">
             Get Started with BenzinApp
           </Button>
         </div>

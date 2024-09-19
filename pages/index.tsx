@@ -11,7 +11,7 @@ import DefaultLayout from "@/layouts/default";
 export default function IndexPage() {
   return (
     <DefaultLayout>
-      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+      <section className="flex flex-col items-center justify-center gap-4 py-8 animate-fade-down md:py-10">
         <div className="inline-block max-w-xl text-center justify-center">
           <h1 className={title()}>Fuel statistics, </h1>
           <h1 className={title({ color: ("green") })}>simplified.&nbsp;</h1>
@@ -25,7 +25,7 @@ export default function IndexPage() {
           <Link
             isExternal
             className={buttonStyles({
-              color: "primary",
+              color: "success",
               radius: "full",
               variant: "shadow",
             })}
