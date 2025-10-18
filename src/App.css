@@ -1,0 +1,807 @@
+/* BenzinApp Style Variables - Warm Orange/Peach Theme */
+:root {
+  --primary-color: #F5A962;
+  --primary-hover: #E89647;
+  --secondary-color: #FF9A62;
+  --text-primary: #2D1B0E;
+  --text-secondary: #5C4A3A;
+  --text-tertiary: #8C7A6A;
+  --border-color: #F5E6D3;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FFF8F0;
+  --bg-accent: #FFEFD5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+.App {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+/* Navbar Styles */
+.navbar-custom {
+  background-color: white;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+}
+
+.brand-text {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.nav-link-custom {
+  color: var(--text-secondary) !important;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  transition: color 0.2s ease;
+}
+
+.nav-link-custom:hover {
+  color: var(--text-primary) !important;
+}
+
+.btn-register {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  font-weight: 500;
+  padding: 0.5rem 1.125rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-register:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 6rem 0 4rem;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F0 100%);
+}
+
+.badge-pill {
+  display: inline-block;
+  padding: 0.25rem 0.875rem;
+  background-color: #FFF4E6;
+  border: 1px solid #FFE4C4;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+}
+
+.badge-text {
+  color: #D17A3B;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.hero-title {
+  font-size: 3.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn-demo {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  padding: 0.625rem 1.125rem;
+  border-radius: 0.5rem;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+  transition: all 0.2s ease;
+}
+
+.btn-demo:hover {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-signup {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  font-weight: 500;
+  padding: 0.625rem 1.125rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-signup:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-preview {
+  position: relative;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.dashboard-preview img {
+  border: 1px solid var(--border-color);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Social Proof Section */
+.social-proof-section {
+  padding: 4rem 0;
+  background-color: var(--bg-primary);
+}
+
+.company-logo {
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-accent);
+  border-radius: 0.5rem;
+}
+
+.company-logo:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* Features Section */
+.features-section {
+  padding: 6rem 0;
+  background-color: var(--bg-primary);
+}
+
+.section-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #FFF4E6;
+  border-radius: 1rem;
+  color: #D17A3B;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.section-title {
+  font-size: 2.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.section-subtitle {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feature-card {
+  background-color: var(--bg-primary);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color) !important;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -4px rgba(16, 24, 40, 0.08) !important;
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.feature-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.feature-description {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 6rem 0;
+  background-color: var(--bg-secondary);
+}
+
+.cta-card {
+  background: linear-gradient(135deg, #F5A962 0%, #FF8C42 100%);
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(245, 169, 98, 0.3);
+}
+
+.cta-title {
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.cta-subtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.cta-card .btn {
+  padding: 0.625rem 1.125rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.cta-card .btn-outline-secondary {
+  background-color: white !important;
+  border-color: white !important;
+  color: var(--primary-color) !important;
+}
+
+.cta-card .btn-outline-secondary:hover {
+  background-color: var(--bg-secondary) !important;
+  transform: translateY(-2px);
+}
+
+.cta-card .btn-primary {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: white !important;
+  color: white !important;
+}
+
+.cta-card .btn-primary:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-2px);
+}
+
+/* Footer */
+.footer-section {
+  padding: 3rem 0;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+}
+
+/* About Page Styles */
+.about-page {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+.about-header {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F0 100%);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.about-title {
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.about-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.about-content {
+  background-color: var(--bg-primary);
+}
+
+.content-card {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 3rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+}
+
+.content-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.content-text {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.content-text:last-child {
+  margin-bottom: 0;
+}
+
+/* User Page Styles */
+.user-page {
+  min-height: 100vh;
+  background-color: var(--bg-secondary);
+}
+
+.user-header {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F0 100%);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.user-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.user-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 0;
+}
+
+.user-content {
+  background-color: var(--bg-secondary);
+}
+
+/* User Dashboard Cards */
+.car-info-card,
+.fuel-graph-card,
+.costs-card,
+.consumption-card,
+.statistics-card {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.car-info-card:hover,
+.fuel-graph-card:hover,
+.costs-card:hover,
+.consumption-card:hover,
+.statistics-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.car-name {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.fuel-icon {
+  font-size: 1.25rem;
+  color: var(--primary-color);
+}
+
+.last-filled {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Dropdown Styling */
+.dropdown-toggle {
+  background-color: white;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.dropdown-toggle:hover,
+.dropdown-toggle:focus {
+  background-color: var(--bg-secondary);
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+}
+
+/* Graph Container */
+.graph-container {
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  min-height: 300px;
+}
+
+.graph-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.chart-wrapper {
+  height: 250px;
+  position: relative;
+}
+
+/* Costs Card */
+.costs-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.costs-chart {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.pie-chart {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--primary-color) 0deg 335deg,
+    #ff6b6b 335deg 360deg
+  );
+  position: relative;
+}
+
+.pie-chart::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  background-color: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pie-percentages {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.percentage {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.fuel-percentage {
+  position: absolute;
+  top: 20%;
+  left: 20%;
+}
+
+.malfunctions-percentage {
+  position: absolute;
+  top: 60%;
+  right: 20%;
+}
+
+.costs-legend {
+  text-align: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-color.fuel {
+  background-color: var(--primary-color);
+}
+
+.legend-color.malfunctions {
+  background-color: #ff6b6b;
+}
+
+.legend-color.services {
+  background-color: #6c757d;
+}
+
+.legend-text {
+  color: var(--text-secondary);
+}
+
+/* Fuel Fills Table */
+.fuel-fills-table {
+  margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+.fuel-fills-table thead th {
+  background-color: var(--bg-accent);
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.fuel-fills-table tbody td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.fuel-fills-table tbody tr:hover {
+  background-color: var(--bg-accent);
+}
+
+.fuel-fills-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Statistics Cards */
+.consumption-card,
+.statistics-card,
+.fuel-fills-table-card {
+  height: 100%;
+}
+
+.consumption-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  text-align: center;
+}
+
+.consumption-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.consumption-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.consumption-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.consumption-stats,
+.statistics-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Action Buttons */
+.action-buttons {
+  margin-top: 2rem;
+}
+
+.action-btn {
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+  }
+
+  .section-title {
+    font-size: 1.875rem;
+  }
+
+  .cta-title {
+    font-size: 1.875rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .hero-section {
+    padding: 4rem 0 2rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .features-section {
+    padding: 4rem 0;
+  }
+
+  .cta-section {
+    padding: 4rem 0;
+  }
+
+  .about-title {
+    font-size: 2.25rem;
+  }
+
+  .about-subtitle {
+    font-size: 1.125rem;
+  }
+
+  .content-card {
+    padding: 2rem;
+  }
+
+  .content-title {
+    font-size: 1.75rem;
+  }
+
+  .content-text {
+    font-size: 1rem;
+  }
+
+  .user-title {
+    font-size: 2rem;
+  }
+
+  .user-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .car-name {
+    font-size: 1.5rem;
+  }
+
+  .chart-wrapper {
+    height: 200px;
+  }
+
+  .costs-chart {
+    width: 100px;
+    height: 100px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .action-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .consumption-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .consumption-value {
+    font-size: 1.25rem;
+  }
+
+  .consumption-label {
+    font-size: 0.7rem;
+  }
+
+  .fuel-fills-table {
+    font-size: 0.8rem;
+  }
+
+  .fuel-fills-table thead th {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .fuel-fills-table tbody td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .pie-percentages {
+    gap: 0.25rem;
+  }
+
+  .percentage {
+    font-size: 0.65rem;
+  }
+}
