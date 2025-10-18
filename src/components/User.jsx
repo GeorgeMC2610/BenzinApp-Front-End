@@ -1,5 +1,7 @@
 import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import DashboardNavbar from './DashboardNavbar';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -105,17 +107,9 @@ function User() {
 
   return (
     <div className="user-page">
-      {/* Header */}
-      <section className="user-header py-4">
-        <Container>
-          <Row>
-            <Col>
-              <h1 className="user-title">Home</h1>
-              <p className="user-subtitle">Logged in as: user_car</p>
-            </Col>
-          </Row>
-        </Container>
-      </section>
+
+      {/* Dashboard Navbar */}
+      <DashboardNavbar />
 
       {/* Main Content */}
       <section className="user-content py-4">
@@ -336,12 +330,17 @@ function User() {
             {/* Action Buttons */}
             <Col lg={12}>
               <div className="action-buttons d-flex gap-3 justify-content-center">
-                <Button variant="outline-primary" size="lg" className="action-btn">
-                  View Fuel Fill History
-                </Button>
-                <Button variant="primary" size="lg" className="action-btn">
-                  Add New Fuel Fill
-                </Button>
+                <Link to="/fuel-fills" className="brand-link">
+                  <Button variant="outline-secondary" size="lg" className="action-btn">
+                    View Fuel Fill History
+                  </Button>
+                </Link>
+
+                <Link to="/add-fuel-fill" className="brand-link">
+                  <Button variant="primary" size="lg" className="action-btn">
+                    Add New Fuel Fill
+                  </Button>
+                </Link>
               </div>
             </Col>
           </Row>

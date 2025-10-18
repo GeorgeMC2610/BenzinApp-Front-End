@@ -14,10 +14,11 @@ function Navbar() {
             <Nav.Link as={Link} to="/about" className="nav-link-custom px-3">About</Nav.Link>
             <Nav.Link as={Link} to="/user" className="nav-link-custom px-3">Dashboard</Nav.Link>
             <Nav.Link href="#contact" className="nav-link-custom px-3">Contact</Nav.Link>
-            <Nav.Link href="#login" className="nav-link-custom px-3">Log In</Nav.Link>
+            <Nav.Link as={Link} to="/login" className="nav-link-custom px-3">Log In</Nav.Link>
             <Button 
               variant="primary" 
-              href="#register" 
+              as={Link}
+              to="/register"
               className="btn-register ms-lg-2 mt-2 mt-lg-0"
             >
               Register

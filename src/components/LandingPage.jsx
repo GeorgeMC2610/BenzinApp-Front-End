@@ -1,4 +1,5 @@
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 function LandingPage() {
   return (
@@ -19,13 +20,13 @@ function LandingPage() {
                 Perfect for older vehicles without trip computers or drivers who care about every detail.
               </p>
               <div className="d-flex gap-3 justify-content-center flex-wrap">
-                <Button size="lg" variant="outline-secondary" className="btn-demo">
+                <Button size="lg" variant="outline-secondary" className="btn-demo" as={Link} to="/login">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className="me-2">
                     <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
                   </svg>
-                  Demo
+                  Log In
                 </Button>
-                <Button size="lg" variant="primary" className="btn-signup">
+                <Button size="lg" variant="primary" className="btn-signup" as={Link} to="/register">
                   Sign up
                 </Button>
               </div>
@@ -134,10 +135,10 @@ function LandingPage() {
                 Join thousands of car owners who trust BenzinApp to keep their vehicles running smoothly.
               </p>
               <div className="d-flex gap-3 justify-content-center flex-wrap">
-                <Button size="lg" variant="outline-secondary">
+                <Button size="lg" variant="outline-secondary" as={Link} to="/about">
                   Learn more
                 </Button>
-                <Button size="lg" variant="primary">
+                <Button size="lg" variant="primary" as={Link} to="/register">
                   Get started for free
                 </Button>
               </div>
