@@ -1,7 +1,7 @@
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import DashboardNavbar from './DashboardNavbar';
+import DrawerMenu from './DrawerMenu';
 
 function Malfunctions() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,10 +70,11 @@ function Malfunctions() {
 
   return (
     <div className="malfunctions-page">
-      <DashboardNavbar />
+      <DrawerMenu />
       
       {/* Main Content */}
-      <section className="page-content py-4">
+      <div className="drawer-content">
+        <section className="malfunctions-content py-4">
         <Container>
           <Row>
             <Col>
@@ -185,7 +186,8 @@ function Malfunctions() {
             </Col>
           </Row>
         </Container>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

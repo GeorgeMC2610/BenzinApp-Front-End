@@ -384,6 +384,24 @@ body {
   background-color: var(--bg-secondary);
 }
 
+/* Homogenized page styling for all dashboard pages */
+.fuel-fills-page,
+.malfunctions-page,
+.services-page,
+.trips-page,
+.fuel-fill-record-page {
+  min-height: 100vh;
+  background-color: var(--bg-secondary);
+}
+
+.fuel-fills-content,
+.malfunctions-content,
+.services-content,
+.trips-content,
+.fuel-fill-record-content {
+  background-color: var(--bg-secondary);
+}
+
 /* User Dashboard Cards */
 .car-info-card,
 .fuel-graph-card,
@@ -1137,10 +1155,17 @@ body {
 
 .page-header {
   background-color: white;
+  border: 1px solid var(--border-color);
   border-radius: 1rem;
   padding: 1.5rem;
   padding-top: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.page-header:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .page-subtitle {
@@ -1602,4 +1627,395 @@ body {
     font-size: 0.65rem;
     padding: 0.2rem 0.5rem;
   }
+}
+
+/* Specific Fuel Fill Record Styles */
+.fuel-fill-record-page {
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.fuel-fill-record-card {
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-primary);
+}
+
+.date-section {
+  background: linear-gradient(135deg, var(--bg-accent) 0%, var(--bg-secondary) 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.date-info {
+  margin-bottom: 1rem;
+}
+
+.date-day-of-week {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.date-month-day {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.date-year {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.fuel-station-info {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.fuel-type {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.station-name {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.metrics-card {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--bg-primary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metrics-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.metrics-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.125rem;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.metric-item:last-child {
+  border-bottom: none;
+}
+
+.metric-label {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.comments-section {
+  margin-top: 2rem;
+}
+
+.comments-card {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--bg-secondary);
+}
+
+.comments-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.125rem;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+.comments-text {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.action-buttons {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+  min-width: 150px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments for fuel fill record page */
+@media (max-width: 767.98px) {
+  .date-section {
+    padding: 1.5rem;
+  }
+  
+  .date-month-day {
+    font-size: 2rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+}
+
+/* Fuel Fill Link Styles */
+.fuel-fill-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.fuel-fill-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* Drawer Menu Styles */
+.drawer-menu-mobile {
+  position: fixed;
+  top: 100px;
+  left: 20px;
+  z-index: 1050;
+}
+
+.drawer-toggle-btn {
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.drawer-toggle-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.hamburger-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.drawer-menu-desktop {
+  position: fixed;
+  left: 0;
+  top: 80px;
+  height: calc(100vh - 80px);
+  width: 280px;
+  z-index: 1000;
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.drawer-sidebar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.drawer-nav {
+  flex: 1;
+  padding: 0.5rem;
+  overflow-y: auto;
+}
+
+.drawer-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.drawer-nav-item:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
+.drawer-nav-item.active {
+  background-color: var(--bg-accent);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.drawer-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background-color: var(--primary-color);
+  border-radius: 0 2px 2px 0;
+}
+
+.nav-icon {
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+  width: 24px;
+  text-align: center;
+}
+
+.nav-label {
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+/* Mobile Offcanvas Styles */
+.drawer-offcanvas {
+  --bs-offcanvas-width: 280px;
+  border: none;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+}
+
+.drawer-offcanvas-header {
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 1.25rem;
+}
+
+.drawer-offcanvas-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.drawer-offcanvas-body {
+  padding: 0.5rem;
+}
+
+.drawer-nav-mobile {
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-nav-mobile .drawer-nav-item {
+  margin: 0.25rem 0;
+}
+
+/* Content adjustment for drawer */
+.drawer-content {
+  margin-left: 280px;
+  min-height: calc(100vh - 80px);
+  background-color: var(--bg-primary);
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.drawer-content-mobile {
+  margin-left: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .drawer-menu-desktop {
+    display: none !important;
+  }
+  
+  .drawer-content {
+    margin-left: 0;
+    margin-top: 0;
+  }
+  
+  .drawer-menu-mobile {
+    display: block;
+  }
+}
+
+@media (min-width: 992px) {
+  .drawer-menu-mobile {
+    display: none;
+  }
+  
+  .drawer-content {
+    margin-left: 280px;
+    margin-top: 0;
+  }
+}
+
+/* Smooth transitions */
+.drawer-nav-item,
+.drawer-toggle-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus states for accessibility */
+.drawer-nav-item:focus,
+.drawer-toggle-btn:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling for drawer nav */
+.drawer-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.drawer-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.drawer-nav::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 2px;
+}
+
+.drawer-nav::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-tertiary);
 }

@@ -13,6 +13,7 @@ import Services from './components/Services';
 import AddService from './components/AddService';
 import Trips from './components/Trips';
 import AddTrip from './components/AddTrip';
+import SpecificFuelFillRecord from './components/SpecificFuelFillRecord';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -36,6 +37,7 @@ function App() {
           <Route path="/add-service" element={<AddService />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/add-trip" element={<AddTrip />} />
+          <Route path="/fuel-fill/:id" element={<SpecificFuelFillRecord />} />
         </Routes>
       </div>
     </Router>

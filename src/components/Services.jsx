@@ -1,7 +1,7 @@
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import DashboardNavbar from './DashboardNavbar';
+import DrawerMenu from './DrawerMenu';
 
 function Services() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,10 +70,11 @@ function Services() {
 
   return (
     <div className="services-page">
-      <DashboardNavbar />
+      <DrawerMenu />
       
       {/* Main Content */}
-      <section className="page-content py-4">
+      <div className="drawer-content">
+        <section className="services-content py-4">
         <Container>
           <Row>
             <Col>
@@ -185,7 +186,8 @@ function Services() {
             </Col>
           </Row>
         </Container>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

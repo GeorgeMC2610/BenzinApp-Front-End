@@ -1,7 +1,7 @@
 import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import DashboardNavbar from './DashboardNavbar';
+import DrawerMenu from './DrawerMenu';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -107,12 +107,11 @@ function User() {
 
   return (
     <div className="user-page">
-
-      {/* Dashboard Navbar */}
-      <DashboardNavbar />
-
+      <DrawerMenu />
+      
       {/* Main Content */}
-      <section className="user-content py-4">
+      <div className="drawer-content">
+        <section className="user-content py-4">
         <Container>
           <Row className="g-4">
             {/* Car Info Card */}
@@ -263,35 +262,35 @@ function User() {
                       </thead>
                       <tbody>
                         <tr>
-                          <td>2025-01-15</td>
+                          <td><Link to="/fuel-fill/1" className="fuel-fill-link">2025-01-15</Link></td>
                           <td>€70.00</td>
                           <td>95 Octane</td>
                           <td>Shell Station</td>
                           <td>8.2</td>
                         </tr>
                         <tr>
-                          <td>2024-12-28</td>
+                          <td><Link to="/fuel-fill/2" className="fuel-fill-link">2024-12-28</Link></td>
                           <td>€68.50</td>
                           <td>95 Octane</td>
                           <td>BP Station</td>
                           <td>7.9</td>
                         </tr>
                         <tr>
-                          <td>2024-12-10</td>
+                          <td><Link to="/fuel-fill/3" className="fuel-fill-link">2024-12-10</Link></td>
                           <td>€72.30</td>
                           <td>95 Octane</td>
                           <td>Esso Station</td>
                           <td>8.5</td>
                         </tr>
                         <tr>
-                          <td>2024-11-25</td>
+                          <td><Link to="/fuel-fill/4" className="fuel-fill-link">2024-11-25</Link></td>
                           <td>€65.80</td>
                           <td>95 Octane</td>
                           <td>Shell Station</td>
                           <td>7.6</td>
                         </tr>
                         <tr>
-                          <td>2024-11-08</td>
+                          <td><Link to="/fuel-fill/5" className="fuel-fill-link">2024-11-08</Link></td>
                           <td>€69.20</td>
                           <td>95 Octane</td>
                           <td>BP Station</td>
@@ -345,7 +344,8 @@ function User() {
             </Col>
           </Row>
         </Container>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import DashboardNavbar from './DashboardNavbar';
+import DrawerMenu from './DrawerMenu';
 
 function FuelFills() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -137,10 +137,11 @@ function FuelFills() {
 
   return (
     <div className="fuel-fills-page">
-      <DashboardNavbar />
+      <DrawerMenu />
       
       {/* Main Content */}
-      <section className="page-content py-4">
+      <div className="drawer-content">
+        <section className="fuel-fills-content py-4">
         <Container>
           <Row>
             <Col>
@@ -216,7 +217,7 @@ function FuelFills() {
                         <tbody>
                           {monthData.fills.map(fill => (
                             <tr key={fill.id}>
-                              <td>{fill.date}</td>
+                              <td><Link to={`/fuel-fill/${fill.id}`} className="fuel-fill-link">{fill.date}</Link></td>
                               <td>{fill.mileage.toLocaleString()} km</td>
                               <td>€{fill.cost.toFixed(2)}</td>
                               <td>{fill.liters}L</td>
@@ -255,7 +256,8 @@ function FuelFills() {
             </Col>
           </Row>
         </Container>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }
