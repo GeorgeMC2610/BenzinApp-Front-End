@@ -33,6 +33,26 @@ body {
   background-color: white;
   border-bottom: 1px solid var(--border-color);
   box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+  z-index: 1020 !important;
+}
+
+/* Ensure navbar stays below drawer menu */
+.navbar-custom.sticky-top {
+  z-index: 1020 !important;
+}
+
+/* Sticky drawer menu container */
+.drawer-menu-desktop {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 280px;
+  z-index: 1025;
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  float: left;
+  flex-shrink: 0;
 }
 
 .brand-text {
@@ -1815,7 +1835,7 @@ body {
   position: fixed;
   top: 100px;
   left: 20px;
-  z-index: 1050;
+  z-index: 1060;
 }
 
 .drawer-toggle-btn {
@@ -1840,17 +1860,6 @@ body {
   font-weight: bold;
 }
 
-.drawer-menu-desktop {
-  position: fixed;
-  left: 0;
-  top: 80px;
-  height: calc(100vh - 80px);
-  width: 280px;
-  z-index: 1000;
-  background-color: var(--bg-primary);
-  border-right: 1px solid var(--border-color);
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-}
 
 .drawer-sidebar {
   height: 100%;
@@ -1918,6 +1927,7 @@ body {
 /* Mobile Offcanvas Styles */
 .drawer-offcanvas {
   --bs-offcanvas-width: 280px;
+  --bs-offcanvas-zindex: 1070;
   border: none;
   box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
 }
@@ -1950,10 +1960,11 @@ body {
 /* Content adjustment for drawer */
 .drawer-content {
   margin-left: 280px;
-  min-height: calc(100vh - 80px);
+  min-height: 100vh;
   background-color: var(--bg-primary);
   margin-top: 0;
   padding-top: 0;
+  overflow-x: hidden;
 }
 
 .drawer-content-mobile {
@@ -1986,6 +1997,13 @@ body {
   .drawer-content {
     margin-left: 280px;
     margin-top: 0;
+  }
+  
+  /* Ensure proper layout with sticky drawer */
+  .drawer-menu-desktop {
+    position: sticky;
+    top: 0;
+    height: 100vh;
   }
 }
 
