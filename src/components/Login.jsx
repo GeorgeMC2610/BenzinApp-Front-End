@@ -1,6 +1,7 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import TokenHelper from '../services/TokenHelper';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -21,12 +22,41 @@ function Login() {
     console.log('Login attempt:', formData);
   };
 
+  const testTokenSave = () => {
+    TokenHelper.getInstance().setToken('test-token-12345');
+    console.log('Token saved.');
+  }
+
+  const testTokenRetrieval = () => {
+    const retrievedToken = TokenHelper.getInstance().token;
+    console.log('Retrieved Token:', retrievedToken);
+  }
+
   return (
     <div className="login-page">
       <Container>
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={4}>
             <div className="login-container">
+
+              <Button
+                type="button"
+                className="login-btn w-100 mb-3"
+                onClick={testTokenSave}
+                size="lg"
+              >
+                Test Saving of the token
+              </Button>
+
+              <Button
+                type="button"
+                className="login-btn w-100 mb-3"
+                onClick={testTokenRetrieval}
+                size="lg"
+              >
+                Test Token Retrieval
+              </Button>
+
               {/* Logo/Brand */}
               <div className="text-center mb-4">
                 <Link to="/" className="brand-link">
