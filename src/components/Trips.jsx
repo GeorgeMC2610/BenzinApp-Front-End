@@ -2,6 +2,8 @@ import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'reac
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faCar } from '@fortawesome/free-solid-svg-icons';
 
 function Trips() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,7 +102,9 @@ function Trips() {
       <Card.Body className="p-0">
         {tripList.length === 0 ? (
           <div className="text-center p-4">
-            <div className="no-trips-icon mb-2">🚗</div>
+            <div className="no-trips-icon mb-2">
+              <FontAwesomeIcon icon={faCar} size="2x" />
+            </div>
             <p className="text-muted">{emptyMessage}</p>
           </div>
         ) : (
@@ -189,7 +193,7 @@ function Trips() {
               <Card.Body className="p-3">
                 <InputGroup>
                   <InputGroup.Text className="search-icon">
-                    🔍
+                    <FontAwesomeIcon icon={faMagnifyingGlass} />
                   </InputGroup.Text>
                   <Form.Control
                     type="text"
@@ -206,7 +210,9 @@ function Trips() {
             {filteredTrips.length === 0 && searchTerm ? (
               <Card className="no-results-card">
                 <Card.Body className="text-center p-5">
-                  <div className="no-results-icon mb-3">🔍</div>
+                  <div className="no-results-icon mb-3">
+                    <FontAwesomeIcon icon={faMagnifyingGlass} size="3x" />
+                  </div>
                   <h3>No trips found</h3>
                   <p className="text-muted">Try adjusting your search terms</p>
                 </Card.Body>
@@ -233,7 +239,9 @@ function Trips() {
             {filteredTrips.length === 0 && !searchTerm && (
               <Card className="no-results-card">
                 <Card.Body className="text-center p-5">
-                  <div className="no-results-icon mb-3">🚗</div>
+                  <div className="no-results-icon mb-3">
+                    <FontAwesomeIcon icon={faCar} size="3x" />
+                  </div>
                   <h3>No trips found</h3>
                   <p className="text-muted">Start by adding your first trip record</p>
                   <Button as={Link} to="/add-trip" className="mt-3">

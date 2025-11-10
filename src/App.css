@@ -61,6 +61,12 @@ body {
   letter-spacing: -0.02em;
 }
 
+.navbar-logo {
+  height: 40px;
+  width: 40px;
+  object-fit: contain;
+}
+
 .nav-link-custom {
   color: var(--text-secondary) !important;
   font-weight: 500;
@@ -451,14 +457,67 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.car-year-badge {
+  background-color: #FFF4E6;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  border: 2px solid var(--border-color);
+}
+
 .fuel-icon {
   font-size: 1.25rem;
-  color: var(--primary-color);
+  color: #6c757d;
 }
 
 .last-filled {
   font-size: 1rem;
   color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.last-filled-details {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.service-status-section {
+  border-top: 1px solid var(--border-color);
+}
+
+.service-status-item {
+  margin: 0;
+}
+
+.service-icon {
+  font-size: 1.5rem;
+  color: #6c757d;
+}
+
+.service-label {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.service-ok-btn {
+  background-color: #00c853 !important;
+  border-color: #00c853 !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 0.5rem 1.75rem;
+  border-radius: 2rem;
+  min-width: 80px;
+  font-size: 1rem;
+  cursor: default;
+  pointer-events: none;
 }
 
 .card-title {
@@ -523,8 +582,8 @@ body {
   height: 100%;
   border-radius: 50%;
   background: conic-gradient(
-    var(--primary-color) 0deg 335deg,
-    #ff6b6b 335deg 360deg
+    #ff9800 0deg 335deg,
+    #ff5252 335deg 360deg
   );
   position: relative;
 }
@@ -592,15 +651,15 @@ body {
 }
 
 .legend-color.fuel {
-  background-color: var(--primary-color);
+  background-color: #ff9800;
 }
 
 .legend-color.malfunctions {
-  background-color: #ff6b6b;
+  background-color: #ff5252;
 }
 
 .legend-color.services {
-  background-color: #6c757d;
+  background-color: #ff6e40;
 }
 
 .legend-text {
@@ -914,7 +973,7 @@ body {
 
 .brand-icon {
   font-size: 2rem;
-  color: var(--primary-color);
+  color: #6c757d;
 }
 
 .brand-text {
@@ -1220,7 +1279,7 @@ body {
 .search-icon {
   background-color: var(--bg-accent);
   border-color: var(--border-color);
-  color: var(--text-secondary);
+  color: #6c757d;
 }
 
 .search-input {
@@ -1331,6 +1390,7 @@ body {
 .no-results-icon {
   font-size: 3rem;
   opacity: 0.5;
+  color: #6c757d;
 }
 
 /* Dashboard Navbar */
@@ -1594,6 +1654,7 @@ body {
 .no-trips-icon {
   font-size: 2rem;
   opacity: 0.5;
+  color: #6c757d;
 }
 
 /* Responsive adjustments for new pages */
@@ -1857,7 +1918,7 @@ body {
 
 .hamburger-icon {
   font-size: 1.2rem;
-  font-weight: bold;
+  color: #6c757d;
 }
 
 
@@ -1916,6 +1977,7 @@ body {
   font-size: 1.25rem;
   margin-right: 0.75rem;
   width: 24px;
+  color: #6c757d;
   text-align: center;
 }
 
