@@ -2,6 +2,7 @@ import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TokenHelper from '../services/TokenHelper';
+import RequestHelper from "../services/RequestHelper.ts";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -32,6 +33,11 @@ function Login() {
     console.log('Retrieved Token:', retrievedToken);
   }
 
+  const testConnection = async () => {
+    const response = await RequestHelper.getInstance().sendGetRequest(RequestHelper._baseUrl + '/car', false);
+    console.log('RESPONSE: ', response.data);
+  }
+
   return (
     <div className="login-page">
       <Container>
@@ -55,6 +61,15 @@ function Login() {
                 size="lg"
               >
                 Test Token Retrieval
+              </Button>
+
+              <Button
+                type="button"
+                className="login-btn w-100 mb-3"
+                onClick={testConnection}
+                size="lg"
+              >
+                Test Backend Connection
               </Button>
 
               {/* Logo/Brand */}
