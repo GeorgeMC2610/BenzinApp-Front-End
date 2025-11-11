@@ -6,9 +6,12 @@ import RequestHelper from "../services/RequestHelper.ts";
 import { useCarStore } from '../services/managers/CarManager.ts';
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager.ts';
 
 function Login() {
   const carStore = useCarStore();
+  const fuelStore = useFuelFillRecordStore();
+  const list = useFuelFillRecordStore((state) => state.list)
 
   const [formData, setFormData] = useState({
     email: '',
@@ -52,8 +55,8 @@ function Login() {
   }
 
   const getCarDetails = async () => {
-    await carStore.getCarDetails();
-    console.log(carStore.car)
+    await fuelStore.index();
+    console.log(fuelStore.list);
   }
 
   return (
@@ -97,8 +100,12 @@ function Login() {
                 onClick={getCarDetails}
                 size="lg"
               >
-                Car details
+                Test Data Retrieval
               </Button>
+
+              <div>
+                {list?.toString() ?? "It's null for now."}
+              </div>
 
               {/* Logo/Brand */}
               <div className="text-center mb-4">
