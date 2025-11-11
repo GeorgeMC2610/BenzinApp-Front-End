@@ -48,8 +48,12 @@ function Login() {
     }
     else {
         toast.error("Invalid Credentials. Please, try again.", { position: 'top-center' });
-
     }
+  }
+
+  const getCarDetails = async () => {
+    await carStore.getCarDetails();
+    console.log(carStore.car)
   }
 
   return (
@@ -85,6 +89,15 @@ function Login() {
                 size="lg"
               >
                 Test Backend Connection
+              </Button>
+
+              <Button
+                type="button"
+                className="login-btn w-100 mb-3"
+                onClick={getCarDetails}
+                size="lg"
+              >
+                Car details
               </Button>
 
               {/* Logo/Brand */}

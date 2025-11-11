@@ -1,6 +1,6 @@
 import {create} from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import {Car, CarFields} from "../../classes/Car";
+import {createJSONStorage, persist} from 'zustand/middleware';
+import {Car} from "../../classes/Car";
 import RequestHelper from "../RequestHelper";
 import TokenHelper from "../TokenHelper";
 
@@ -11,10 +11,13 @@ type CarState = {
 type CarActions = {
     login: (username: string, password: string) => Promise<boolean>;
     logout: () => void;
+    getCarDetails: () => Promise<Car | null>;
     register: (manufacturer: string, model: string, year: number) => Promise<boolean>;
     update: (manufacturer: string, model: string, year: number) => Promise<void>;
 }
 
+// @ts-ignore
+// @ts-ignore
 export const useCarStore = create<CarState & CarActions>()(
     persist(
         (set, get) => ({
@@ -39,7 +42,14 @@ export const useCarStore = create<CarState & CarActions>()(
             },
 
             logout: () => {
+                TokenHelper.getInstance().removeToken();
+                set({ car: null });
+            },
 
+            getCarDetails: async () => {
+                const response = await RequestHelper.getInstance().sendGetRequest(RequestHelper._baseUrl + '/car', true);
+                const car = Car.fromJson(response.data);
+                set({ car });
             },
 
             register: async (manufacturer, model, year) => {
@@ -47,7 +57,7 @@ export const useCarStore = create<CarState & CarActions>()(
             },
 
             update: async (manufacturer, model, year) => {
-
+                return await null;
             }
         }),
         {
