@@ -7,6 +7,7 @@ export interface FuelFillRecordData {
 
     station: string | null;
     fuelType: string | null;
+    totalKm: number | null;
     notes: string | null;
 }
 
@@ -20,8 +21,9 @@ export class FuelFillRecord {
     station: string | null;
     fuelType: string | null;
     notes: string | null;
+    totalKm: number | null;
 
-    constructor({ id, cost, lt, km, filledAt, station, fuelType, notes }: FuelFillRecordData) {
+    constructor({ id, cost, lt, km, filledAt, station, fuelType, totalKm, notes }: FuelFillRecordData) {
         this.id = id;
         this.cost = cost;
         this.lt = lt;
@@ -29,6 +31,7 @@ export class FuelFillRecord {
         this.filledAt = filledAt;
         this.station = station;
         this.fuelType = fuelType;
+        this.totalKm = totalKm;
         this.notes = notes;
     }
 
@@ -41,6 +44,7 @@ export class FuelFillRecord {
             filledAt: object[FuelFillRecordFields.filledAt],
             station: object[FuelFillRecordFields.station],
             fuelType: object[FuelFillRecordFields.fuelType],
+            totalKm: object[FuelFillRecordFields.totalKm],
             notes: object[FuelFillRecordFields.notes],
         });
     }
@@ -54,6 +58,7 @@ export class FuelFillRecord {
             [FuelFillRecordFields.filledAt]: this.filledAt,
             [FuelFillRecordFields.station]: this.station,
             [FuelFillRecordFields.fuelType]: this.fuelType,
+            [FuelFillRecordFields.totalKm]: this.totalKm,
             [FuelFillRecordFields.notes]: this.notes,
         };
     }
@@ -68,4 +73,5 @@ export class FuelFillRecordFields {
     static readonly station = 'station';
     static readonly fuelType = 'fuel_type';
     static readonly notes = 'notes';
+    static readonly totalKm = 'total_km';
 }
