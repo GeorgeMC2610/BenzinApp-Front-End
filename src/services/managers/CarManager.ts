@@ -11,13 +11,11 @@ type CarState = {
 type CarActions = {
     login: (username: string, password: string) => Promise<boolean>;
     logout: () => void;
-    getCarDetails: () => Promise<Car | null>;
+    getCarDetails: () => Promise<void>;
     register: (manufacturer: string, model: string, year: number) => Promise<boolean>;
     update: (manufacturer: string, model: string, year: number) => Promise<void>;
 }
 
-// @ts-ignore
-// @ts-ignore
 export const useCarStore = create<CarState & CarActions>()(
     persist(
         (set, get) => ({
@@ -57,7 +55,7 @@ export const useCarStore = create<CarState & CarActions>()(
             },
 
             update: async (manufacturer, model, year) => {
-                return await null;
+                
             }
         }),
         {

@@ -61,11 +61,11 @@ export class FuelFillRecord {
 
 export class FuelFillRecordFields {
     static readonly id = 'id';
-    static readonly cost = 'cost';
+    static readonly cost = 'cost_eur';
     static readonly lt = 'lt';
     static readonly km = 'km';
-    static readonly filledAt = 'filledAt';
+    static readonly filledAt = 'filled_at';
     static readonly station = 'station';
-    static readonly fuelType = 'fuelType';
+    static readonly fuelType = 'fuel_type';
     static readonly notes = 'notes';
 }
