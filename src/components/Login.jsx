@@ -3,8 +3,13 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TokenHelper from '../services/TokenHelper';
 import RequestHelper from "../services/RequestHelper.ts";
+import { useCarStore } from '../services/managers/CarManager.ts';
+import {toast, ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Login() {
+  const carStore = useCarStore();
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -34,13 +39,23 @@ function Login() {
   }
 
   const testConnection = async () => {
-    const response = await RequestHelper.getInstance().sendGetRequest(RequestHelper._baseUrl + '/car', false);
-    console.log('RESPONSE: ', response.data);
+    const email = formData.email
+    const password = formData.password
+    const response = await carStore.login(email, password);
+
+    if (response) {
+        toast.success("Successfully logged in.", { position: 'top-center' });
+    }
+    else {
+        toast.error("Invalid Credentials. Please, try again.", { position: 'top-center' });
+
+    }
   }
 
   return (
     <div className="login-page">
       <Container>
+        <ToastContainer />
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={4}>
             <div className="login-container">
@@ -96,7 +111,7 @@ function Login() {
                         Email
                       </Form.Label>
                       <Form.Control
-                        type="email"
+                        type="text"
                         id="email"
                         name="email"
                         value={formData.email}
