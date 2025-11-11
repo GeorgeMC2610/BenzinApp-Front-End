@@ -972,11 +972,8 @@ body {
 }
 
 .brand-icon {
-  height: 50px;
-  width: 50px;
-  object-fit: contain;
-  font-size: 2rem;
-  color: #6c757d;
+  height: 175px;
+  width: 175px;
 }
 
 .brand-text {

@@ -28,11 +28,11 @@ function Login() {
   return (
     <div className="login-page">
       <Container>
-        <Row className="justify-content-center min-vh-100 align-items-center">
+        <Row className="justify-content-center align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={4}>
             <div className="login-container">
               {/* Logo/Brand */}
-              <div className="text-center mb-4">
+              <div className="text-center mb-5">
                 <Link to="/" className="brand-link">
                   <div className="brand-logo d-flex align-items-center justify-content-center">
                     <img 
@@ -40,9 +40,9 @@ function Login() {
                       alt="BenzinApp Logo" 
                       className="brand-icon me-2"
                     />
-                  <div className="brand-logo">
-                    <FontAwesomeIcon icon={faGasPump} className="brand-icon" />
-                    <span className="brand-text">BenzinApp</span>
+                  </div>
+                  <div className="brand-logo mt-3">
+                    <span className="brand-text">Login to BenzinApp</span>
                   </div>
                 </Link>
               </div>
