@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faGasPump } from '@fortawesome/free-solid-svg-icons';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -39,6 +40,8 @@ function Login() {
                       alt="BenzinApp Logo" 
                       className="brand-icon me-2"
                     />
+                  <div className="brand-logo">
+                    <FontAwesomeIcon icon={faGasPump} className="brand-icon" />
                     <span className="brand-text">BenzinApp</span>
                   </div>
                 </Link>

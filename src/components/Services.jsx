@@ -2,6 +2,8 @@ import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'reac
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
 
 function Services() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -96,7 +98,7 @@ function Services() {
               <Card.Body className="p-3">
                 <InputGroup>
                   <InputGroup.Text className="search-icon">
-                    🔍
+                    <FontAwesomeIcon icon={faMagnifyingGlass} />
                   </InputGroup.Text>
                   <Form.Control
                     type="text"
@@ -113,7 +115,9 @@ function Services() {
             {filteredServices.length === 0 ? (
               <Card className="no-results-card">
                 <Card.Body className="text-center p-5">
-                  <div className="no-results-icon mb-3">🛠️</div>
+                  <div className="no-results-icon mb-3">
+                    <FontAwesomeIcon icon={faScrewdriverWrench} size="3x" />
+                  </div>
                   <h3>No services found</h3>
                   <p className="text-muted">
                     {searchTerm ? 'Try adjusting your search terms' : 'Start by adding your first service record'}

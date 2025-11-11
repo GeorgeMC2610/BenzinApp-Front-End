@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faGasPump } from '@fortawesome/free-solid-svg-icons';
 
 function Register() {
   const [formData, setFormData] = useState({

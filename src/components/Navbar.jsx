@@ -5,7 +5,12 @@ function Navbar() {
   return (
     <BootstrapNavbar expand="lg" className="navbar-custom py-3" sticky="top">
       <Container>
-        <BootstrapNavbar.Brand as={Link} to="/" className="fw-bold fs-4 brand-text">
+        <BootstrapNavbar.Brand as={Link} to="/" className="fw-bold fs-4 brand-text d-flex align-items-center">
+          <img 
+            src="/logo.png" 
+            alt="BenzinApp Logo" 
+            className="navbar-logo me-2"
+          />
           BenzinApp
         </BootstrapNavbar.Brand>
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
