@@ -972,8 +972,8 @@ body {
 }
 
 .brand-icon {
-  font-size: 2rem;
-  color: #6c757d;
+  height: 175px;
+  width: 175px;
 }
 
 .brand-text {
@@ -1036,6 +1036,47 @@ body {
 
 .form-input::placeholder {
   color: var(--text-tertiary);
+}
+
+/* Password input with toggle button */
+.password-input {
+  border-right: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.password-input:focus {
+  border-right: none;
+}
+
+.password-toggle-btn {
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  background-color: white;
+  color: var(--text-secondary);
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.password-toggle-btn:focus {
+  background-color: var(--bg-secondary);
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+.password-toggle-btn:active {
+  background-color: var(--bg-accent) !important;
+  border-color: var(--primary-color) !important;
+  color: var(--text-primary) !important;
 }
 
 .remember-checkbox,
@@ -1138,7 +1179,8 @@ body {
   }
 
   .brand-icon {
-    font-size: 1.75rem;
+    height: 35px;
+    width: 35px;
   }
 }
 
@@ -1343,9 +1385,22 @@ body {
   border-bottom: none;
 }
 
+.fuel-fills-table .action-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
 .action-buttons {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .edit-btn {
