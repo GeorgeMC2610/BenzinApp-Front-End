@@ -52,6 +52,11 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
         {
             name: 'malfunction-store',
             storage: createJSONStorage(() => sessionStorage),
+            onRehydrateStorage: () => (state) => {
+                if (state?.list) {
+                    state.list = state.list.map((d: any) => new Malfunction(d))
+                }
+            },
         }
     )
 )

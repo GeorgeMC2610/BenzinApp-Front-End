@@ -65,6 +65,10 @@ export class Malfunction {
             location: [MalfunctionFields.location],
         }
     }
+
+    fixed(): boolean {
+        return this.dateEnded !== null;
+    }
 }
 
 export class MalfunctionFields {
