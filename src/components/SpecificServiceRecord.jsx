@@ -211,10 +211,13 @@ function SpecificServiceRecord() {
                         </div>
                         <div className="date-year">{serviceDate.getFullYear()}</div>
                       </div>
-                      <div className="fuel-station-info text-center mt-3">
-                        <div className="fuel-type">{service.serviceCenter || 'Service center TBD'}</div>
-                        <div className="station-name">{service.name}</div>
-                      </div>
+                    </div>
+
+                    <div className="title-description-section mb-4">
+                      <h2 className="record-title mb-2">{service.name}</h2>
+                      {service.description && (
+                        <p className="record-description mb-0">{service.description}</p>
+                      )}
                     </div>
 
                     <Row className="g-4">
@@ -259,9 +262,9 @@ function SpecificServiceRecord() {
                               <div className="metric-value">{daysSinceService} days</div>
                             </div>
                             <div className="metric-item">
-                              <div className="metric-label">Notes</div>
+                              <div className="metric-label">Service center</div>
                               <div className="metric-value">
-                                {service.notes || 'No additional notes recorded.'}
+                                {service.serviceCenter || 'Not specified'}
                               </div>
                             </div>
                           </Card.Body>
@@ -269,16 +272,6 @@ function SpecificServiceRecord() {
                       </Col>
                     </Row>
 
-                    {service.description && (
-                      <div className="comments-section mt-4">
-                        <Card className="comments-card">
-                          <Card.Body className="p-4">
-                            <h4 className="comments-title mb-3">Description</h4>
-                            <p className="comments-text mb-0">{service.description}</p>
-                          </Card.Body>
-                        </Card>
-                      </div>
-                    )}
 
                     <div className="action-buttons mt-4 d-flex gap-3 justify-content-center">
                       <Button

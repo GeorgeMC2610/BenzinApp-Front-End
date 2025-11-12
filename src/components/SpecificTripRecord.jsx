@@ -192,12 +192,21 @@ function SpecificTripRecord() {
     : null;
 
   const isRepeating = trip.type === 'Repeating';
-  const weeklyTrips = isRepeating ? trip.frequency : 0;
-  const weeklyDistance = isRepeating ? trip.frequency * trip.kilometers : trip.kilometers;
-  const weeklyCost = isRepeating ? trip.frequency * trip.cost : trip.cost;
-  const annualTripCount = isRepeating ? trip.frequency * 52 : 1;
-  const annualDistance = (weeklyDistance / (isRepeating ? trip.frequency : 1)) * annualTripCount;
-  const annualCost = weeklyCost * (isRepeating ? 52 : 1);
+  
+  // Per-time data (single trip metrics)
+  const perTimeData = {
+    cost: trip.cost,
+    kilometers: trip.kilometers,
+    costPerKm: trip.cost / trip.kilometers
+  };
+
+  // Repeating data (weekly metrics) - only for repeating trips
+  const repeatingData = isRepeating ? {
+    tripsPerWeek: trip.frequency,
+    weeklyDistance: trip.frequency * trip.kilometers,
+    weeklyCost: trip.frequency * trip.cost,
+    costPerKm: (trip.frequency * trip.cost) / (trip.frequency * trip.kilometers)
+  } : null;
 
   return (
     <div className="trips-page">
@@ -239,13 +248,19 @@ function SpecificTripRecord() {
                         </div>
                         <div className="date-year">{createdDate.getFullYear()}</div>
                       </div>
-                      <div className="fuel-station-info text-center mt-3">
-                        <div className="fuel-type">
+                    </div>
+
+                    <div className="title-description-section mb-4">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h2 className="record-title mb-0">{trip.name}</h2>
+                        <Badge bg={isRepeating ? 'info' : 'secondary'} className="ms-2">
+                          {trip.type}
+                        </Badge>
+                      </div>
+                      <div className="record-description">
+                        <p className="mb-0">
                           {trip.origin} → {trip.destination}
-                        </div>
-                        <div className="station-name">
-                          <Badge bg={isRepeating ? 'info' : 'secondary'}>{trip.type}</Badge>
-                        </div>
+                        </p>
                       </div>
                     </div>
 
@@ -253,100 +268,67 @@ function SpecificTripRecord() {
                       <Col md={6}>
                         <Card className="metrics-card h-100">
                           <Card.Body className="p-4">
-                            <h4 className="metrics-title mb-3">Distance & Frequency</h4>
+                            <h4 className="metrics-title mb-3">Per-Time Data</h4>
                             <div className="metric-item">
-                              <div className="metric-label">Trip distance</div>
-                              <div className="metric-value">{trip.kilometers} km</div>
+                              <div className="metric-label">Best case cost</div>
+                              <div className="metric-value">€{perTimeData.cost.toFixed(2)}</div>
                             </div>
                             <div className="metric-item">
-                              <div className="metric-label">Weekly trips</div>
-                              <div className="metric-value">
-                                {isRepeating ? `${weeklyTrips} times` : 'One-time trip'}
-                              </div>
+                              <div className="metric-label">Average distance</div>
+                              <div className="metric-value">{perTimeData.kilometers} km</div>
                             </div>
                             <div className="metric-item">
-                              <div className="metric-label">Weekly distance</div>
-                              <div className="metric-value">
-                                {isRepeating ? `${weeklyDistance.toFixed(1)} km` : '—'}
-                              </div>
+                              <div className="metric-label">Worst case cost per km</div>
+                              <div className="metric-value">€{perTimeData.costPerKm.toFixed(3)}/km</div>
                             </div>
                           </Card.Body>
                         </Card>
                       </Col>
 
-                      <Col md={6}>
-                        <Card className="metrics-card h-100">
-                          <Card.Body className="p-4">
-                            <h4 className="metrics-title mb-3">Cost Overview</h4>
-                            <div className="metric-item">
-                              <div className="metric-label">Cost per trip</div>
-                              <div className="metric-value">€{trip.cost.toFixed(2)}</div>
-                            </div>
-                            <div className="metric-item">
-                              <div className="metric-label">Estimated annual cost</div>
-                              <div className="metric-value">
-                                €{annualCost.toFixed(2)} ({annualTripCount} trip
-                                {annualTripCount !== 1 ? 's' : ''})
+                      {isRepeating && repeatingData && (
+                        <Col md={6}>
+                          <Card className="metrics-card h-100">
+                            <Card.Body className="p-4">
+                              <h4 className="metrics-title mb-3">Repeating Data (Per Week)</h4>
+                              <div className="metric-item">
+                                <div className="metric-label">Best case trips per week</div>
+                                <div className="metric-value">{repeatingData.tripsPerWeek} times</div>
                               </div>
-                            </div>
-                            <div className="metric-item">
-                              <div className="metric-label">Annual distance</div>
-                              <div className="metric-value">
-                                {annualDistance.toFixed(1)} km
+                              <div className="metric-item">
+                                <div className="metric-label">Average weekly distance</div>
+                                <div className="metric-value">{repeatingData.weeklyDistance.toFixed(1)} km</div>
                               </div>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
+                              <div className="metric-item">
+                                <div className="metric-label">Worst case weekly cost</div>
+                                <div className="metric-value">€{repeatingData.weeklyCost.toFixed(2)}</div>
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      )}
+
+                      {!isRepeating && (
+                        <Col md={6}>
+                          <Card className="metrics-card h-100">
+                            <Card.Body className="p-4">
+                              <h4 className="metrics-title mb-3">Trip Details</h4>
+                              <div className="metric-item">
+                                <div className="metric-label">Created</div>
+                                <div className="metric-value">{daysSinceCreated} days ago</div>
+                              </div>
+                              {daysSinceLastCompleted !== null && (
+                                <div className="metric-item">
+                                  <div className="metric-label">Last completed</div>
+                                  <div className="metric-value">
+                                    {daysSinceLastCompleted} days ago
+                                  </div>
+                                </div>
+                              )}
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      )}
                     </Row>
-
-                    <Row className="g-4 mt-1">
-                      <Col md={6}>
-                        <Card className="metrics-card h-100">
-                          <Card.Body className="p-4">
-                            <h4 className="metrics-title mb-3">Timeline</h4>
-                            <div className="metric-item">
-                              <div className="metric-label">Created</div>
-                              <div className="metric-value">{daysSinceCreated} days ago</div>
-                            </div>
-                            <div className="metric-item">
-                              <div className="metric-label">Last completed</div>
-                              <div className="metric-value">
-                                {daysSinceLastCompleted !== null
-                                  ? `${daysSinceLastCompleted} days ago`
-                                  : 'Not recorded'}
-                              </div>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      <Col md={6}>
-                        <Card className="metrics-card h-100">
-                          <Card.Body className="p-4">
-                            <h4 className="metrics-title mb-3">Route</h4>
-                            <div className="metric-item">
-                              <div className="metric-label">Start</div>
-                              <div className="metric-value">{trip.origin}</div>
-                            </div>
-                            <div className="metric-item">
-                              <div className="metric-label">Destination</div>
-                              <div className="metric-value">{trip.destination}</div>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    </Row>
-
-                    {trip.description && (
-                      <div className="comments-section mt-4">
-                        <Card className="comments-card">
-                          <Card.Body className="p-4">
-                            <h4 className="comments-title mb-3">Notes</h4>
-                            <p className="comments-text mb-0">{trip.description}</p>
-                          </Card.Body>
-                        </Card>
-                      </div>
-                    )}
 
                     <div className="action-buttons mt-4 d-flex gap-3 justify-content-center">
                       <Button

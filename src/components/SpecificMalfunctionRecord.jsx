@@ -4,6 +4,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
 
+const MAX_DESCRIPTION_LENGTH = 150;
+
 function SpecificMalfunctionRecord() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ function SpecificMalfunctionRecord() {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showFullDescription, setShowFullDescription] = useState(false);
   const deleteRedirectTimeout = useRef(null);
 
   const malfunctions = [
@@ -46,7 +49,7 @@ function SpecificMalfunctionRecord() {
       date: '2024-11-20',
       status: 'Fixed',
       discoveredAt: 27500,
-      description: 'AC not cooling properly',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
       severity: 2,
       repairCost: 620,
       endDate: '2024-11-28',
@@ -237,15 +240,34 @@ function SpecificMalfunctionRecord() {
                         </div>
                         <div className="date-year">{discoveryDate.getFullYear()}</div>
                       </div>
-                      <div className="fuel-station-info text-center mt-3">
-                        <div className="fuel-type">{malfunction.name}</div>
-                        <div className="station-name">
-                          <Badge bg={severityVariant}>
-                            Severity Level {malfunction.severity}{' '}
-                            {severityDescriptions[malfunction.severity] || ''}
-                          </Badge>
-                        </div>
+                    </div>
+
+                    <div className="title-description-section mb-4">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h2 className="record-title mb-0">{malfunction.name}</h2>
+                        <Badge bg={severityVariant} className="ms-2">
+                          Severity Level {malfunction.severity}{' '}
+                          {severityDescriptions[malfunction.severity] || ''}
+                        </Badge>
                       </div>
+                      {malfunction.description && (
+                        <div className="record-description">
+                          <p className="mb-0">
+                            {showFullDescription || malfunction.description.length <= MAX_DESCRIPTION_LENGTH
+                              ? malfunction.description
+                              : `${malfunction.description.substring(0, MAX_DESCRIPTION_LENGTH)}...`}
+                          </p>
+                          {malfunction.description.length > MAX_DESCRIPTION_LENGTH && (
+                            <Button
+                              variant="link"
+                              className="p-0 mt-2 text-decoration-none"
+                              onClick={() => setShowFullDescription(!showFullDescription)}
+                            >
+                              {showFullDescription ? 'Show less' : 'Show more'}
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <Row className="g-4">
@@ -300,27 +322,6 @@ function SpecificMalfunctionRecord() {
                       </Col>
                     </Row>
 
-                    {malfunction.description && (
-                      <div className="comments-section mt-4">
-                        <Card className="comments-card">
-                          <Card.Body className="p-4">
-                            <h4 className="comments-title mb-3">Description</h4>
-                            <p className="comments-text mb-0">{malfunction.description}</p>
-                          </Card.Body>
-                        </Card>
-                      </div>
-                    )}
-
-                    {malfunction.notes && (
-                      <div className="comments-section mt-4">
-                        <Card className="comments-card">
-                          <Card.Body className="p-4">
-                            <h4 className="comments-title mb-3">Technician Notes</h4>
-                            <p className="comments-text mb-0">{malfunction.notes}</p>
-                          </Card.Body>
-                        </Card>
-                      </div>
-                    )}
 
                     <div className="action-buttons mt-4 d-flex gap-3 justify-content-center">
                       <Button

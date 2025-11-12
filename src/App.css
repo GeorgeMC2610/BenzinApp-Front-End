@@ -1979,6 +1979,24 @@ body {
   text-decoration: underline;
 }
 
+/* Title-Description Section Styles */
+.title-description-section {
+  margin-bottom: 1.5rem;
+}
+
+.record-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.record-description {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
 /* Drawer Menu Styles */
 .drawer-menu-mobile {
   position: fixed;
