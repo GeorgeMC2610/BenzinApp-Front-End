@@ -52,6 +52,11 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
         {
             name: 'service-store',
             storage: createJSONStorage(() => sessionStorage),
+            onRehydrateStorage: () => (state) => {
+                if (state?.list) {
+                    state.list = state.list.map((d: any) => new Service(d))
+                }
+            },
         }
     )
 )

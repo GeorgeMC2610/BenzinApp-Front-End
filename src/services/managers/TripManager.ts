@@ -52,6 +52,11 @@ export const useTripStore = create<TripState & TripActions>() (
         {
             name: 'trip-store',
             storage: createJSONStorage(() => sessionStorage),
+            onRehydrateStorage: () => (state) => {
+                if (state?.list) {
+                    state.list = state.list.map((d: any) => new Trip(d))
+                }
+            },
         }
     )
 )
