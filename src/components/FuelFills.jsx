@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import { FuelFillRecord } from '../classes/FuelFillRecord';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 function FuelFills() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -88,7 +90,7 @@ function FuelFills() {
               <Card.Body className="p-3">
                 <InputGroup>
                   <InputGroup.Text className="search-icon">
-                    🔍
+                    <FontAwesomeIcon icon={faMagnifyingGlass} />
                   </InputGroup.Text>
                   <Form.Control
                     type="text"
@@ -105,7 +107,9 @@ function FuelFills() {
             {Object.keys(filteredFills ?? {}).length === 0 ? (
               <Card className="no-results-card">
                 <Card.Body className="text-center p-5">
-                  <div className="no-results-icon mb-3">🔍</div>
+                  <div className="no-results-icon mb-3">
+                    <FontAwesomeIcon icon={faMagnifyingGlass} size="3x" />
+                  </div>
                   <h3>No fuel fills found</h3>
                   <p className="text-muted">
                     {searchTerm ? 'Try adjusting your search terms' : 'Start by adding your first fuel fill record'}

@@ -2,6 +2,8 @@ import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGasPump, faWrench, faCalendar } from '@fortawesome/free-solid-svg-icons';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,6 +32,15 @@ function User() {
   const [selectedMetric, setSelectedMetric] = useState('Liters per 100km');
   const [selectedTimeFilter, setSelectedTimeFilter] = useState('All Time');
 
+  // Color mapping for different metrics
+  const metricColors = {
+    'Liters per 100km': { line: '#82b1ff', bg: 'rgba(130, 177, 255, 0.1)' },
+    'Kilometers Per Liter': { line: '#ff5252', bg: 'rgba(255, 82, 82, 0.1)' },
+    'Cost per Kilometer': { line: '#4caf50', bg: 'rgba(76, 175, 80, 0.1)' }
+  };
+
+  const currentColor = metricColors[selectedMetric];
+
   // Sample data for the chart
   const chartData = {
     labels: ['2022-03-04', '2022-08-09', '2023-03-28', '2023-11-15', '2024-07-03', '2025-02-19', '2025-09-25'],
@@ -37,10 +48,10 @@ function User() {
       {
         label: 'Fuel Consumption (L/100km)',
         data: [8.2, 9.1, 7.8, 8.9, 7.5, 8.3, 7.9],
-        borderColor: '#F5A962',
-        backgroundColor: 'rgba(245, 169, 98, 0.1)',
+        borderColor: currentColor.line,
+        backgroundColor: currentColor.bg,
         borderWidth: 3,
-        pointBackgroundColor: '#F5A962',
+        pointBackgroundColor: currentColor.line,
         pointBorderColor: '#ffffff',
         pointBorderWidth: 2,
         pointRadius: 6,
@@ -62,7 +73,7 @@ function User() {
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         titleColor: '#ffffff',
         bodyColor: '#ffffff',
-        borderColor: '#F5A962',
+        borderColor: currentColor.line,
         borderWidth: 1,
         cornerRadius: 8,
         displayColors: false
@@ -100,7 +111,7 @@ function User() {
     },
     elements: {
       point: {
-        hoverBackgroundColor: '#E89647'
+        hoverBackgroundColor: currentColor.line
       }
     }
   };
@@ -119,11 +130,37 @@ function User() {
               <Card className="car-info-card">
                 <Card.Body className="p-4">
                   <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                      <h2 className="car-name mb-2">Brand Model 2025</h2>
-                      <div className="d-flex align-items-center">
-                        <span className="fuel-icon me-2">⛽</span>
-                        <span className="last-filled">Last filled 23 days ago: 38.96 lt | €70.00</span>
+                    <div className="flex-grow-1">
+                      <div className="d-flex align-items-center gap-3 mb-3">
+                        <h2 className="car-name mb-0">Volkswagen Polo</h2>
+                        <div className="car-year-badge">2006</div>
+                      </div>
+                      <div className="d-flex align-items-center gap-2">
+                        <FontAwesomeIcon icon={faGasPump} className="fuel-icon" />
+                        <span className="last-filled">Last filled yesterday</span>
+                        <span className="last-filled-details">38.39 lt | €65.99</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Service Status Section */}
+                  <div className="service-status-section mt-4 pt-3">
+                    <div className="service-status-item">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center gap-2">
+                          <FontAwesomeIcon icon={faWrench} className="service-icon" />
+                          <span className="service-label">Next service in 3,545 km.</span>
+                        </div>
+                        <Button variant="success" className="service-ok-btn">OK</Button>
+                      </div>
+                    </div>
+                    <div className="service-status-item mt-3">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center gap-2">
+                          <FontAwesomeIcon icon={faCalendar} className="service-icon" />
+                          <span className="service-label">Service due in 6 month(s)</span>
+                        </div>
+                        <Button variant="success" className="service-ok-btn">OK</Button>
                       </div>
                     </div>
                   </div>

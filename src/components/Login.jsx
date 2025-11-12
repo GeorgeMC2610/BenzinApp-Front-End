@@ -1,4 +1,4 @@
-import { Container, Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Spinner, InputGroup } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TokenHelper from '../services/TokenHelper';
@@ -7,14 +7,18 @@ import { useCarStore } from '../services/managers/CarManager.ts';
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager.ts';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faGasPump } from '@fortawesome/free-solid-svg-icons';
 
 function Login() {
   const carStore = useCarStore();
 
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -28,9 +32,9 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoggingIn(true);
-    const email = formData.email
+    const username = formData.username
     const password = formData.password
-    const response = await carStore.login(email, password);
+    const response = await carStore.login(username, password);
 
     if (response) {
         toast.success("Successfully logged in.", { position: 'top-center' });
@@ -45,16 +49,22 @@ function Login() {
     <div className="login-page">
       <Container>
         <ToastContainer />
-        <Row className="justify-content-center min-vh-100 align-items-center">
+        <Row className="justify-content-center align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={4}>
             <div className="login-container">
 
               {/* Logo/Brand */}
-              <div className="text-center mb-4">
+              <div className="text-center mb-5">
                 <Link to="/" className="brand-link">
-                  <div className="brand-logo">
-                    <span className="brand-icon">⛽</span>
-                    <span className="brand-text">BenzinApp</span>
+                  <div className="brand-logo d-flex align-items-center justify-content-center">
+                    <img 
+                      src="/logo.png" 
+                      alt="BenzinApp Logo" 
+                      className="brand-icon me-2"
+                    />
+                  </div>
+                  <div className="brand-logo mt-3">
+                    <span className="brand-text">Login to BenzinApp</span>
                   </div>
                 </Link>
               </div>
@@ -69,17 +79,17 @@ function Login() {
 
                   <Form onSubmit={handleSubmit}>
                     <div className="form-group mb-3">
-                      <Form.Label htmlFor="email" className="form-label">
-                        Email
+                      <Form.Label htmlFor="username" className="form-label">
+                        Username
                       </Form.Label>
                       <Form.Control
                         type="text"
-                        id="email"
-                        name="email"
+                        id="username"
+                        name="username"
+                        value={formData.username}
                         disabled={isLoggingIn}
-                        value={formData.email}
                         onChange={handleChange}
-                        placeholder="Enter your email"
+                        placeholder="Enter your username"
                         className="form-input"
                         required
                       />
@@ -89,26 +99,30 @@ function Login() {
                       <Form.Label htmlFor="password" className="form-label">
                         Password
                       </Form.Label>
-                      <Form.Control
-                        type="password"
-                        id="password"
-                        name="password"
-                        disabled={isLoggingIn}
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Enter your password"
-                        className="form-input"
-                        required
-                      />
+                      <InputGroup>
+                        <Form.Control
+                          type={showPassword ? "text" : "password"}
+                          id="password"
+                          name="password"
+                          value={formData.password}
+                          disabled={isLoggingIn}
+                          onChange={handleChange}
+                          placeholder="Enter your password"
+                          className="form-input password-input"
+                          required
+                        />
+                        <Button
+                          variant="outline-secondary"
+                          className="password-toggle-btn"
+                          onClick={() => setShowPassword(!showPassword)}
+                          type="button"
+                        >
+                          <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                        </Button>
+                      </InputGroup>
                     </div>
 
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                      <Form.Check
-                        type="checkbox"
-                        id="remember"
-                        label="Remember me"
-                        className="remember-checkbox"
-                      />
+                    <div className="d-flex justify-content-end align-items-center mb-4">
                       <Link to="/forgot-password" className="forgot-link">
                         Forgot password?
                       </Link>

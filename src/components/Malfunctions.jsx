@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faWrench } from '@fortawesome/free-solid-svg-icons';
 
 function Malfunctions() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -60,7 +62,7 @@ function Malfunctions() {
               <Card.Body className="p-3">
                 <InputGroup>
                   <InputGroup.Text className="search-icon">
-                    🔍
+                    <FontAwesomeIcon icon={faMagnifyingGlass} />
                   </InputGroup.Text>
                   <Form.Control
                     type="text"
@@ -86,7 +88,9 @@ function Malfunctions() {
               // Show this when there’s no data
               <Card className="no-results-card">
                 <Card.Body className="text-center p-5">
-                  <div className="no-results-icon mb-3">🔧</div>
+                  <div className="no-results-icon mb-3">
+                    <FontAwesomeIcon icon={faWrench} size="3x" />
+                  </div>
                   <h3>No malfunctions found</h3>
                   <p className="text-muted">
                     {searchTerm ? 'Try adjusting your search terms' : 'Start by adding your first malfunction record'}

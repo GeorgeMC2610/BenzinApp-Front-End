@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button, Offcanvas } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartLine, faGasPump, faTriangleExclamation, faWrench, faCar, faBars } from '@fortawesome/free-solid-svg-icons';
 
 function DrawerMenu() {
   const location = useLocation();
@@ -17,31 +19,31 @@ function DrawerMenu() {
     {
       path: '/dashboard',
       label: 'Dashboard',
-      icon: '📊',
+      icon: faChartLine,
       altPaths: ['/user']
     },
     {
       path: '/fuel-fills',
       label: 'Fuel Fills',
-      icon: '⛽',
+      icon: faGasPump,
       altPaths: []
     },
     {
       path: '/malfunctions',
       label: 'Malfunctions',
-      icon: '⚠️',
+      icon: faTriangleExclamation,
       altPaths: []
     },
     {
       path: '/services',
       label: 'Services',
-      icon: '🔧',
+      icon: faWrench,
       altPaths: []
     },
     {
       path: '/trips',
       label: 'Trips',
-      icon: '🚗',
+      icon: faCar,
       altPaths: []
     }
   ];
@@ -60,7 +62,7 @@ function DrawerMenu() {
           className="drawer-toggle-btn d-lg-none"
           aria-label="Open navigation menu"
         >
-          <span className="hamburger-icon">☰</span>
+          <FontAwesomeIcon icon={faBars} className="hamburger-icon" />
         </Button>
       </div>
 
@@ -74,7 +76,7 @@ function DrawerMenu() {
                 to={item.path}
                 className={`drawer-nav-item ${isItemActive(item) ? 'active' : ''}`}
               >
-                <span className="nav-icon">{item.icon}</span>
+                <FontAwesomeIcon icon={item.icon} className="nav-icon" />
                 <span className="nav-label">{item.label}</span>
               </Link>
             ))}
@@ -98,7 +100,7 @@ function DrawerMenu() {
                 className={`drawer-nav-item ${isItemActive(item) ? 'active' : ''}`}
                 onClick={handleClose}
               >
-                <span className="nav-icon">{item.icon}</span>
+                <FontAwesomeIcon icon={item.icon} className="nav-icon" />
                 <span className="nav-label">{item.label}</span>
               </Link>
             ))}
