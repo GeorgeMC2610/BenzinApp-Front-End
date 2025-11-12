@@ -62,6 +62,18 @@ export class FuelFillRecord {
             [FuelFillRecordFields.notes]: this.notes,
         };
     }
+
+    getEfficiency(): number {
+        return this.km / this.lt;
+    }
+
+    getConsumption(): number {
+        return 100 * this.lt / this.km;
+    }
+
+    getTravelCost(): number {
+        return this.cost / this.km
+    }
 }
 
 export class FuelFillRecordFields {

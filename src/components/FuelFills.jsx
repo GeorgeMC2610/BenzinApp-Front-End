@@ -137,7 +137,7 @@ function FuelFills() {
                           </tr>
                         </thead>
                         <tbody>
-                          {monthData.fills.map(fill => (
+                          {monthData?.fills.map(fill => (
                             <tr key={fill.id}>
                               <td><Link to={`/fuel-fill/${fill.id}`} className="fuel-fill-link">{fill.filledAt}</Link></td>
                               <td>{fill.km.toLocaleString()} km</td>
@@ -145,7 +145,7 @@ function FuelFills() {
                               <td>{fill.lt}L</td>
                               <td>{fill.fuelType}</td>
                               <td>{fill.station}</td>
-                              <td>{fill.lt} L/100km</td>
+                              <td>{typeof fill.getConsumption === 'function' ? fill.getConsumption().toFixed(3) : 'N/A'} L/100km</td>
                               <td>
                                 <div className="action-buttons">
                                   <Button
