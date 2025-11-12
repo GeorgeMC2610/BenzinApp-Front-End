@@ -15,12 +15,12 @@ class RequestHelper {
 
     private getAuthHeaders(): Record<string, string> {
         const rawToken = TokenHelper.getInstance().token || '';
-        const token = rawToken && !rawToken.toLowerCase().startsWith('bearer ') ? `Bearer ${rawToken}` : rawToken;
+        // const token = rawToken && !rawToken.toLowerCase().startsWith('bearer ') ? `Bearer ${rawToken}` : rawToken;
 
         const headers: Record<string, string> = {
             ...this.getBasicHeaders(),
         };
-        if (token) headers['Authorization'] = token;
+        if (rawToken !== '') headers['Authorization'] = rawToken;
         return headers;
     }
 
@@ -45,7 +45,6 @@ class RequestHelper {
 
     public async sendPostRequest(url: string, data?: unknown, authorize: boolean = true): Promise<AxiosResponse> {
         const headers = authorize ? this.getAuthHeaders() : this.getBasicHeaders();
-        // Axios sets Content-Type automatically for JSON bodies
         return this.axiosInstance.post(url, data, { headers });
     }
 

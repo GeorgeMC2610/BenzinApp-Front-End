@@ -2,97 +2,22 @@ import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'reac
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
+import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
+import { FuelFillRecord } from '../classes/FuelFillRecord';
 
 function FuelFills() {
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const store = useFuelFillRecordStore();
+  const fuelFills = useFuelFillRecordStore((state) => state.list);
 
-  // Sample data - in a real app, this would come from an API
-  const fuelFills = [
-    {
-      id: 1,
-      date: '2025-01-15',
-      mileage: 28500,
-      cost: 70.00,
-      liters: 45.2,
-      fuelType: '95 Octane',
-      stationName: 'Shell Station',
-      efficiency: 8.2
-    },
-    {
-      id: 2,
-      date: '2024-12-28',
-      mileage: 28100,
-      cost: 68.50,
-      liters: 44.1,
-      fuelType: '95 Octane',
-      stationName: 'BP Station',
-      efficiency: 7.9
-    },
-    {
-      id: 3,
-      date: '2024-12-10',
-      mileage: 27700,
-      cost: 72.30,
-      liters: 46.8,
-      fuelType: '95 Octane',
-      stationName: 'Esso Station',
-      efficiency: 8.5
-    },
-    {
-      id: 4,
-      date: '2024-11-25',
-      mileage: 27300,
-      cost: 65.80,
-      liters: 42.5,
-      fuelType: '95 Octane',
-      stationName: 'Shell Station',
-      efficiency: 7.6
-    },
-    {
-      id: 5,
-      date: '2024-11-08',
-      mileage: 26900,
-      cost: 69.20,
-      liters: 44.7,
-      fuelType: '95 Octane',
-      stationName: 'BP Station',
-      efficiency: 8.1
-    },
-    {
-      id: 6,
-      date: '2024-10-20',
-      mileage: 26500,
-      cost: 71.10,
-      liters: 45.9,
-      fuelType: '95 Octane',
-      stationName: 'Total Station',
-      efficiency: 8.3
-    },
-    {
-      id: 7,
-      date: '2024-10-05',
-      mileage: 26100,
-      cost: 67.40,
-      liters: 43.6,
-      fuelType: '95 Octane',
-      stationName: 'Shell Station',
-      efficiency: 7.8
-    },
-    {
-      id: 8,
-      date: '2024-09-18',
-      mileage: 25700,
-      cost: 73.50,
-      liters: 47.2,
-      fuelType: '95 Octane',
-      stationName: 'Esso Station',
-      efficiency: 8.7
-    }
-  ];
+  if (!fuelFills) {
+    store.index();
+  }
 
   // Group fuel fills by month
-  const groupedFills = fuelFills.reduce((groups, fill) => {
-    const date = new Date(fill.date);
+  const groupedFills = fuelFills?.reduce((groups, fill) => {
+    const date = new Date(fill.filledAt);
     const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     
@@ -107,13 +32,13 @@ function FuelFills() {
   }, {});
 
   // Filter fuel fills based on search term
-  const filteredFills = Object.keys(groupedFills).reduce((filtered, monthKey) => {
+  const filteredFills = Object.keys(groupedFills ?? {}).reduce((filtered, monthKey) => {
     const monthData = groupedFills[monthKey];
     const filteredMonthFills = monthData.fills.filter(fill =>
-      fill.stationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fill.station.toLowerCase().includes(searchTerm.toLowerCase()) ||
       fill.fuelType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fill.date.includes(searchTerm) ||
-      fill.mileage.toString().includes(searchTerm)
+      fill.filledAt.includes(searchTerm) ||
+      fill.km.toString().includes(searchTerm)
     );
     
     if (filteredMonthFills.length > 0) {
@@ -177,7 +102,7 @@ function FuelFills() {
             </Card>
 
             {/* Fuel Fills by Month */}
-            {Object.keys(filteredFills).length === 0 ? (
+            {Object.keys(filteredFills ?? {}).length === 0 ? (
               <Card className="no-results-card">
                 <Card.Body className="text-center p-5">
                   <div className="no-results-icon mb-3">🔍</div>
@@ -215,15 +140,15 @@ function FuelFills() {
                           </tr>
                         </thead>
                         <tbody>
-                          {monthData.fills.map(fill => (
+                          {monthData?.fills.map(fill => (
                             <tr key={fill.id}>
-                              <td><Link to={`/fuel-fill/${fill.id}`} className="fuel-fill-link">{fill.date}</Link></td>
-                              <td>{fill.mileage.toLocaleString()} km</td>
+                              <td><Link to={`/fuel-fill/${fill.id}`} className="fuel-fill-link">{fill.filledAt}</Link></td>
+                              <td>{fill.km.toLocaleString()} km</td>
                               <td>€{fill.cost.toFixed(2)}</td>
-                              <td>{fill.liters}L</td>
+                              <td>{fill.lt}L</td>
                               <td>{fill.fuelType}</td>
-                              <td>{fill.stationName}</td>
-                              <td>{fill.efficiency} L/100km</td>
+                              <td>{fill.station}</td>
+                              <td>{typeof fill.getConsumption === 'function' ? fill.getConsumption().toFixed(3) : 'N/A'} L/100km</td>
                               <td>
                                 <div className="action-buttons">
                                   <Button

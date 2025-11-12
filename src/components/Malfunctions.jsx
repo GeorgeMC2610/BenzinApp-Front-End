@@ -2,60 +2,24 @@ import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'reac
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
+import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
 
 function Malfunctions() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Sample data - in a real app, this would come from an API
-  const malfunctions = [
-    {
-      id: 1,
-      name: 'Engine Misfire',
-      date: '2025-01-10',
-      status: 'Fixed',
-      discoveredAt: 28450,
-      description: 'Cylinder 3 misfiring at idle'
-    },
-    {
-      id: 2,
-      name: 'Brake Pad Wear',
-      date: '2024-12-15',
-      status: 'Ongoing',
-      discoveredAt: 28000,
-      description: 'Front brake pads need replacement'
-    },
-    {
-      id: 3,
-      name: 'AC Compressor Failure',
-      date: '2024-11-20',
-      status: 'Fixed',
-      discoveredAt: 27500,
-      description: 'AC not cooling properly'
-    },
-    {
-      id: 4,
-      name: 'Transmission Slipping',
-      date: '2024-10-05',
-      status: 'Ongoing',
-      discoveredAt: 27000,
-      description: 'Gear slipping in 3rd gear'
-    },
-    {
-      id: 5,
-      name: 'Battery Drain',
-      date: '2024-09-12',
-      status: 'Fixed',
-      discoveredAt: 26500,
-      description: 'Battery dying overnight'
-    }
-  ];
+  const store = useMalfunctionStore();
+  const malfunctions = useMalfunctionStore((state) => state.list);
+
+  if (!malfunctions) {
+    store.index();
+  }
 
   // Filter malfunctions based on search term
-  const filteredMalfunctions = malfunctions.filter(malfunction =>
-    malfunction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    malfunction.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    malfunction.date.includes(searchTerm) ||
-    malfunction.discoveredAt.toString().includes(searchTerm)
+  const filteredMalfunctions = malfunctions?.filter(malfunction =>
+    malfunction.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    malfunction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    malfunction.kilometersDiscovered.includes(searchTerm) ||
+    malfunction.dateStarted.toString().includes(searchTerm)
   );
 
   const handleEdit = (id) => {
@@ -110,7 +74,16 @@ function Malfunctions() {
             </Card>
 
             {/* Malfunctions Table */}
-            {filteredMalfunctions.length === 0 ? (
+            {filteredMalfunctions == null ? (
+              // Show this while data is being fetched or not yet set
+              <div className="text-center p-5">
+                <div className="spinner-border text-primary mb-3" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                <h5>Loading malfunctions...</h5>
+              </div>
+            ) : filteredMalfunctions.length === 0 ? (
+              // Show this when there’s no data
               <Card className="no-results-card">
                 <Card.Body className="text-center p-5">
                   <div className="no-results-icon mb-3">🔧</div>
@@ -126,6 +99,7 @@ function Malfunctions() {
                 </Card.Body>
               </Card>
             ) : (
+              // Show this when data is ready
               <Card className="malfunctions-table-card">
                 <Card.Body className="p-0">
                   <Table responsive className="malfunctions-table mb-0">
@@ -139,23 +113,18 @@ function Malfunctions() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredMalfunctions.map(malfunction => (
+                      {filteredMalfunctions.map((malfunction) => (
                         <tr key={malfunction.id}>
                           <td>
-                            <div className="malfunction-name">
-                              {malfunction.name}
-                            </div>
-                            <div className="malfunction-description">
-                              {malfunction.description}
-                            </div>
+                            <div className="malfunction-name">{malfunction.title}</div>
                           </td>
-                          <td>{malfunction.date}</td>
+                          <td>{malfunction.dateStarted}</td>
                           <td>
-                            <span className={`status-badge ${malfunction.status.toLowerCase()}`}>
-                              {malfunction.status}
+                            <span className={`status-badge ${malfunction.fixed() ? 'fixed' : 'ongoing'}`}>
+                              {malfunction.fixed() ? 'fixed' : 'ongoing'}
                             </span>
                           </td>
-                          <td>{malfunction.discoveredAt.toLocaleString()} km</td>
+                          <td>{malfunction.kilometersDiscovered.toLocaleString()} km</td>
                           <td>
                             <div className="action-buttons">
                               <Button
@@ -183,6 +152,7 @@ function Malfunctions() {
                 </Card.Body>
               </Card>
             )}
+
             </Col>
           </Row>
         </Container>
