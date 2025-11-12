@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Malfunction } from "../../classes/Malfunction"
+import RequestHelper from '../RequestHelper';
 
 type MalfunctionState = {
     viewingMalfunction: Malfunction | null;
@@ -16,6 +17,9 @@ type MalfunctionActions = {
     delete: (id: number) => Promise<void>;
 }
 
+const malfunctionUrl = RequestHelper._baseUrl + '/malfunction';
+const malfunctionUrlId = (id: number) => RequestHelper._baseUrl + '/malfunction/' + id; 
+
 export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>() (
     persist(
         (set, get) => ({
@@ -23,7 +27,14 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
             errors: null,
             list: null,
             index: async () => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(malfunctionUrl);
+                    const malfunctions = response.data.map((jsonRecord: Record<string, any>[]) => Malfunction.fromJson(jsonRecord));
+                    set({ list: malfunctions });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             create: async (malfunction) => {
 

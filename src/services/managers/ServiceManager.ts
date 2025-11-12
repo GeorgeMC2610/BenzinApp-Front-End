@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Service } from "../../classes/Service"
+import RequestHelper from '../RequestHelper';
 
 type ServiceState = {
     viewingService: Service | null;
@@ -16,6 +17,9 @@ type ServiceActions = {
     delete: (id: number) => Promise<void>;
 }
 
+const serviceUrl = RequestHelper._baseUrl + '/service';
+const serviceUrlId = (id: number) => RequestHelper._baseUrl + '/service/' + id; 
+
 export const useServiceStore = create<ServiceState & ServiceActions>() (
     persist(
         (set, get) => ({
@@ -23,7 +27,14 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
             errors: null,
             list: null,
             index: async () => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(serviceUrl);
+                    const services = response.data.map((jsonRecord: Record<string, any>[]) => Service.fromJson(jsonRecord));
+                    set({ list: services });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             create: async (service) => {
 
