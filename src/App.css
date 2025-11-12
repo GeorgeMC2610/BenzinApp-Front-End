@@ -1008,6 +1008,23 @@ body {
   text-decoration: underline;
 }
 
+.login-btn-disabled,
+.register-btn-disabled {
+  background-color: grey;
+  border-color: grey;
+  color: white;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.login-btn-disabled:hover,
+.register-btn-disabled:hover {
+  background-color: grey;
+  border-color: grey;
+}
+
 .login-btn,
 .register-btn {
   background-color: var(--primary-color);

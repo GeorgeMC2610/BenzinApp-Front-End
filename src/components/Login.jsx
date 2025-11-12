@@ -1,4 +1,4 @@
-import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TokenHelper from '../services/TokenHelper';
@@ -10,8 +10,6 @@ import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManag
 
 function Login() {
   const carStore = useCarStore();
-  const fuelStore = useFuelFillRecordStore();
-  const list = useFuelFillRecordStore((state) => state.list)
 
   const [formData, setFormData] = useState({
     email: '',
@@ -25,23 +23,11 @@ function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempt:', formData);
-  };
-
-  const testTokenSave = () => {
-    TokenHelper.getInstance().setToken('test-token-12345');
-    console.log('Token saved.');
-  }
-
-  const testTokenRetrieval = () => {
-    const retrievedToken = TokenHelper.getInstance().token;
-    console.log('Retrieved Token:', retrievedToken);
-  }
-
-  const testConnection = async () => {
+    setIsLoggingIn(true);
     const email = formData.email
     const password = formData.password
     const response = await carStore.login(email, password);
@@ -52,12 +38,8 @@ function Login() {
     else {
         toast.error("Invalid Credentials. Please, try again.", { position: 'top-center' });
     }
-  }
-
-  const getCarDetails = async () => {
-    await fuelStore.index();
-    console.log(fuelStore.list);
-  }
+    setIsLoggingIn(false);
+  };
 
   return (
     <div className="login-page">
@@ -66,46 +48,6 @@ function Login() {
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={4}>
             <div className="login-container">
-
-              <Button
-                type="button"
-                className="login-btn w-100 mb-3"
-                onClick={testTokenSave}
-                size="lg"
-              >
-                Test Saving of the token
-              </Button>
-
-              <Button
-                type="button"
-                className="login-btn w-100 mb-3"
-                onClick={testTokenRetrieval}
-                size="lg"
-              >
-                Test Token Retrieval
-              </Button>
-
-              <Button
-                type="button"
-                className="login-btn w-100 mb-3"
-                onClick={testConnection}
-                size="lg"
-              >
-                Test Backend Connection
-              </Button>
-
-              <Button
-                type="button"
-                className="login-btn w-100 mb-3"
-                onClick={getCarDetails}
-                size="lg"
-              >
-                Test Data Retrieval
-              </Button>
-
-              <div>
-                {list?.toString() ?? "It's null for now."}
-              </div>
 
               {/* Logo/Brand */}
               <div className="text-center mb-4">
@@ -134,6 +76,7 @@ function Login() {
                         type="text"
                         id="email"
                         name="email"
+                        disabled={isLoggingIn}
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email"
@@ -150,6 +93,7 @@ function Login() {
                         type="password"
                         id="password"
                         name="password"
+                        disabled={isLoggingIn}
                         value={formData.password}
                         onChange={handleChange}
                         placeholder="Enter your password"
@@ -172,10 +116,21 @@ function Login() {
 
                     <Button
                       type="submit"
-                      className="login-btn w-100 mb-3"
+                      disabled={isLoggingIn}
+                      className={isLoggingIn ? 'login-btn-disabled w-100 mb-3' : 'login-btn w-100 mb-3'}
                       size="lg"
                     >
-                      Sign in
+                      {isLoggingIn ? (
+                      <>
+                        <span
+                          className='spinner-border spinner-border-sm mr-3'
+                          aria-hidden="true"
+                        />
+                        Logging in...
+                      </>
+                        ) : (
+                          'Login'
+                        )}
                     </Button>
 
                     <div className="text-center">

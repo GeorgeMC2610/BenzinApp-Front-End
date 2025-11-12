@@ -17,6 +17,9 @@ type FuelFillRecordActions = {
     delete: (id: number) => Promise<void>;
 }
 
+const fuelFillUrl = RequestHelper._baseUrl + '/fuel_fill_record';
+const fuelFillUrlId = (id: number) => RequestHelper._baseUrl + '/fuel_fill_record/' + id; 
+
 export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecordActions>() (
     persist(
         (set, get) => ({
@@ -25,14 +28,12 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
             list: null,
             index: async () => {
                 try {
-                    const response = await RequestHelper.getInstance().sendGetRequest(
-                        RequestHelper._baseUrl + '/fuel_fill_record'
-                    );
+                    const response = await RequestHelper.getInstance().sendGetRequest(fuelFillUrl);
                     const fuelFills = response.data.map((jsonRecord: Record<string, any>[]) => FuelFillRecord.fromJson(jsonRecord));
                     set({ list: fuelFills });
                 }
                 catch (error) {
-
+                    console.log(error);
                 }
             },
             create: async (fuelFillRecord) => {
