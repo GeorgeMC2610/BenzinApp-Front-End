@@ -14,6 +14,10 @@ import AddService from './components/AddService';
 import Trips from './components/Trips';
 import AddTrip from './components/AddTrip';
 import SpecificFuelFillRecord from './components/SpecificFuelFillRecord';
+import SpecificServiceRecord from './components/SpecificServiceRecord';
+import SpecificTripRecord from './components/SpecificTripRecord';
+import SpecificMalfunctionRecord from './components/SpecificMalfunctionRecord';
+import EditCar from './components/EditCar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -33,11 +37,15 @@ function App() {
           <Route path="/fuel-fills" element={<FuelFills />} />
           <Route path="/malfunctions" element={<Malfunctions />} />
           <Route path="/add-malfunction" element={<AddMalfunction />} />
+          <Route path="/malfunction/:id" element={<SpecificMalfunctionRecord />} />
           <Route path="/services" element={<Services />} />
           <Route path="/add-service" element={<AddService />} />
+          <Route path="/service/:id" element={<SpecificServiceRecord />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/add-trip" element={<AddTrip />} />
+          <Route path="/trip/:id" element={<SpecificTripRecord />} />
           <Route path="/fuel-fill/:id" element={<SpecificFuelFillRecord />} />
+          <Route path="/edit-car" element={<EditCar />} />
         </Routes>
       </div>
     </Router>

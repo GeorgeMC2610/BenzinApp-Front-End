@@ -1,6 +1,5 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 function AddTrip() {
   const [formData, setFormData] = useState({
@@ -32,15 +31,8 @@ function AddTrip() {
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="add-trip-container">
-              {/* Header */}
               <div className="text-center mb-4">
-                <Link to="/trips" className="brand-link">
-                  <div className="brand-logo">
-                    <span className="brand-icon">🚗</span>
-                    <span className="brand-text">BenzinApp</span>
-                  </div>
-                </Link>
-                <h1 className="page-title mt-3">Add Trip Record</h1>
+                <h1 className="page-title">Add Trip Record</h1>
               </div>
 
               {/* Form */}

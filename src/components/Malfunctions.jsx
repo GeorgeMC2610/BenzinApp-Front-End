@@ -16,7 +16,12 @@ function Malfunctions() {
       date: '2025-01-10',
       status: 'Fixed',
       discoveredAt: 28450,
-      description: 'Cylinder 3 misfiring at idle'
+      description: 'Cylinder 3 misfiring at idle',
+      severity: 4,
+      repairCost: 385,
+      endDate: '2025-01-18',
+      location: 'City Motors Workshop',
+      notes: 'Spark plugs and ignition coils replaced.'
     },
     {
       id: 2,
@@ -24,7 +29,12 @@ function Malfunctions() {
       date: '2024-12-15',
       status: 'Ongoing',
       discoveredAt: 28000,
-      description: 'Front brake pads need replacement'
+      description: 'Front brake pads need replacement',
+      severity: 3,
+      repairCost: null,
+      endDate: null,
+      location: '',
+      notes: 'Monitoring pad thickness weekly until service appointment.'
     },
     {
       id: 3,
@@ -32,7 +42,12 @@ function Malfunctions() {
       date: '2024-11-20',
       status: 'Fixed',
       discoveredAt: 27500,
-      description: 'AC not cooling properly'
+      description: 'AC not cooling properly',
+      severity: 2,
+      repairCost: 620,
+      endDate: '2024-11-28',
+      location: 'CoolAir Specialists',
+      notes: 'Compressor rebuilt and refrigerant topped up.'
     },
     {
       id: 4,
@@ -40,7 +55,12 @@ function Malfunctions() {
       date: '2024-10-05',
       status: 'Ongoing',
       discoveredAt: 27000,
-      description: 'Gear slipping in 3rd gear'
+      description: 'Gear slipping in 3rd gear',
+      severity: 5,
+      repairCost: null,
+      endDate: null,
+      location: '',
+      notes: 'Diagnostic appointment scheduled for next week.'
     },
     {
       id: 5,
@@ -48,7 +68,12 @@ function Malfunctions() {
       date: '2024-09-12',
       status: 'Fixed',
       discoveredAt: 26500,
-      description: 'Battery dying overnight'
+      description: 'Battery dying overnight',
+      severity: 2,
+      repairCost: 210,
+      endDate: '2024-09-18',
+      location: 'ElectroStart Service',
+      notes: 'Parasitic drain traced to faulty trunk light switch.'
     }
   ];
 
@@ -147,7 +172,9 @@ function Malfunctions() {
                         <tr key={malfunction.id}>
                           <td>
                             <div className="malfunction-name">
-                              {malfunction.name}
+                              <Link to={`/malfunction/${malfunction.id}`} className="fuel-fill-link">
+                                {malfunction.name}
+                              </Link>
                             </div>
                             <div className="malfunction-description">
                               {malfunction.description}

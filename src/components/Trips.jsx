@@ -18,7 +18,10 @@ function Trips() {
       cost: 2.50,
       kilometers: 15.5,
       createdDate: '2024-01-15',
-      description: 'Daily commute to office'
+      description: 'Daily commute to office',
+      origin: 'Home',
+      destination: 'Downtown Office',
+      lastCompleted: '2025-01-10'
     },
     {
       id: 2,
@@ -28,7 +31,10 @@ function Trips() {
       cost: 1.20,
       kilometers: 8.2,
       createdDate: '2024-02-01',
-      description: 'Weekly grocery trips'
+      description: 'Weekly grocery trips',
+      origin: 'Home',
+      destination: 'Local Supermarket',
+      lastCompleted: '2025-01-12'
     },
     {
       id: 3,
@@ -38,7 +44,10 @@ function Trips() {
       cost: 25.80,
       kilometers: 120.5,
       createdDate: '2024-12-20',
-      description: 'Family trip to coastal city'
+      description: 'Family trip to coastal city',
+      origin: 'Home',
+      destination: 'Seaside Town',
+      lastCompleted: '2024-12-20'
     },
     {
       id: 4,
@@ -48,7 +57,10 @@ function Trips() {
       cost: 1.80,
       kilometers: 12.0,
       createdDate: '2024-03-10',
-      description: 'Regular gym sessions'
+      description: 'Regular gym sessions',
+      origin: 'Home',
+      destination: 'City Gym',
+      lastCompleted: '2025-01-11'
     },
     {
       id: 5,
@@ -58,7 +70,10 @@ function Trips() {
       cost: 18.50,
       kilometers: 45.2,
       createdDate: '2024-11-15',
-      description: 'Picking up friend from airport'
+      description: 'Picking up friend from airport',
+      origin: 'Home',
+      destination: 'International Airport',
+      lastCompleted: '2024-11-15'
     },
     {
       id: 6,
@@ -68,7 +83,10 @@ function Trips() {
       cost: 3.20,
       kilometers: 22.8,
       createdDate: '2024-06-05',
-      description: 'Monthly medical checkups'
+      description: 'Monthly medical checkups',
+      origin: 'Home',
+      destination: 'City Clinic',
+      lastCompleted: '2025-01-05'
     }
   ];
 
@@ -124,7 +142,9 @@ function Trips() {
                 <tr key={trip.id}>
                   <td>
                     <div className="trip-name">
-                      {trip.name}
+                      <Link to={`/trip/${trip.id}`} className="fuel-fill-link">
+                        {trip.name}
+                      </Link>
                     </div>
                     <div className="trip-description">
                       {trip.description}
