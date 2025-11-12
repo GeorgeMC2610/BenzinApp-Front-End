@@ -3,14 +3,17 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
+import { FuelFillRecord } from '../classes/FuelFillRecord';
 
 function FuelFills() {
   const [searchTerm, setSearchTerm] = useState('');
   
   const store = useFuelFillRecordStore();
-  const fuelFills = useFuelFillRecordStore((state) => state.list)
+  const fuelFills = useFuelFillRecordStore((state) => state.list);
 
-  store.index();
+  if (!fuelFills) {
+    store.index();
+  }
 
   // Group fuel fills by month
   const groupedFills = fuelFills?.reduce((groups, fill) => {

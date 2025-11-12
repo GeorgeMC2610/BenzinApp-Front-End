@@ -30,6 +30,7 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(fuelFillUrl);
                     const fuelFills = response.data.map((jsonRecord: Record<string, any>[]) => FuelFillRecord.fromJson(jsonRecord));
+                    console.log(fuelFills);
                     set({ list: fuelFills });
                 }
                 catch (error) {
@@ -52,6 +53,11 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
         {
             name: 'fuel-fill-record-store',
             storage: createJSONStorage(() => sessionStorage),
+            onRehydrateStorage: () => (state) => {
+                if (state?.list) {
+                    state.list = state.list.map((d: any) => new FuelFillRecord(d))
+                }
+            },
         }
     )
 )
