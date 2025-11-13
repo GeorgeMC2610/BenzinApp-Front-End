@@ -3,61 +3,23 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faRefresh, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
+import { useServiceStore } from '../services/managers/ServiceManager';
 
 function Services() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Sample data - in a real app, this would come from an API
-  const services = [
-    {
-      id: 1,
-      name: 'Oil Change',
-      date: '2025-01-05',
-      status: 'Completed',
-      discoveredAt: 28500,
-      description: 'Regular oil change with synthetic oil'
-    },
-    {
-      id: 2,
-      name: 'Brake Service',
-      date: '2024-12-20',
-      status: 'Scheduled',
-      discoveredAt: 28000,
-      description: 'Brake pad replacement and rotor inspection'
-    },
-    {
-      id: 3,
-      name: 'Tire Rotation',
-      date: '2024-11-15',
-      status: 'Completed',
-      discoveredAt: 27500,
-      description: 'Tire rotation and alignment check'
-    },
-    {
-      id: 4,
-      name: 'Transmission Service',
-      date: '2024-10-10',
-      status: 'Scheduled',
-      discoveredAt: 27000,
-      description: 'Transmission fluid change and filter replacement'
-    },
-    {
-      id: 5,
-      name: 'Battery Check',
-      date: '2024-09-25',
-      status: 'Completed',
-      discoveredAt: 26500,
-      description: 'Battery test and terminal cleaning'
-    }
-  ];
+  const store = useServiceStore();
+  const services = useServiceStore((state) => state.list);
+
+  if (!services) {
+    store.index();
+  }
 
   // Filter services based on search term
-  const filteredServices = services.filter(service =>
-    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.date.includes(searchTerm) ||
-    service.discoveredAt.toString().includes(searchTerm)
+  const filteredServices = services?.reverse().filter(service =>
+    service.dateHappened.includes(searchTerm) ||
+    service.description.toString().includes(searchTerm)
   );
 
   const handleEdit = (id) => {
@@ -84,8 +46,18 @@ function Services() {
               <div className="page-header mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h1 className="page-title">Services</h1>
-                  <p className="page-subtitle">Track and manage vehicle services</p>
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <h1 className="page-title mb-0">Services</h1>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className='ms-2'
+                      onClick={() => store.index()}
+                    >
+                      <FontAwesomeIcon icon={faRefresh} />
+                    </Button>
+                  </div>
+                  <p className="page-subtitle">{services?.length} total services</p>
                 </div>
                 <Button as={Link} to="/add-service" className="add-btn">
                   + Add New Service
@@ -135,10 +107,10 @@ function Services() {
                   <Table responsive className="services-table mb-0">
                     <thead>
                       <tr>
-                        <th>Service Name</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Discovered at</th>
+                        <th>Date Happened</th>
+                        <th>Kilometers Done</th>
+                        <th>Next (kilometers)</th>
+                        <th>Next (before date)</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -147,19 +119,21 @@ function Services() {
                         <tr key={service.id}>
                           <td>
                             <div className="service-name">
-                              {service.name}
+                              {service.dateHappened}
                             </div>
                             <div className="service-description">
                               {service.description}
                             </div>
                           </td>
-                          <td>{service.date}</td>
                           <td>
-                            <span className={`status-badge ${service.status.toLowerCase()}`}>
-                              {service.status}
-                            </span>
+                            {service.kilometersDone.toLocaleString()} km
                           </td>
-                          <td>{service.discoveredAt.toLocaleString()} km</td>
+                          <td>
+                            {service.nextServiceKilometers?.toLocaleString() ?? '-'} km
+                          </td>
+                          <td>
+                            {service.nextServiceDate ?? '-'}
+                          </td>
                           <td>
                             <div className="action-buttons">
                               <Button
