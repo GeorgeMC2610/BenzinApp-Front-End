@@ -42,9 +42,22 @@ function User() {
 
   // Color mapping for different metrics
   const metricColors = {
-    'Liters per 100km': { line: '#82b1ff', bg: 'rgba(130, 177, 255, 0.1)' },
-    'Kilometers Per Liter': { line: '#ff5252', bg: 'rgba(255, 82, 82, 0.1)' },
-    'Cost per Kilometer': { line: '#4caf50', bg: 'rgba(76, 175, 80, 0.1)' }
+    'Liters per 100km': { line: '#82b1ff', bg: 'rgba(130, 177, 255, 0.1)', shortened: 'lt/100km' },
+    'Kilometers Per Liter': { line: '#ff5252', bg: 'rgba(255, 82, 82, 0.1)', shortened: 'km/lt' },
+    'Cost per Kilometer': { line: '#4caf50', bg: 'rgba(76, 175, 80, 0.1)', shortened: '€/km' }
+  };
+
+  const getMetricData = (metric) => {
+    switch (metric) {
+      case 'Liters per 100km':
+        return fuelFills.map((fill) => fill.getConsumption().toLocaleString(undefined, { minimumFractionDigits: 4 })).reverse();
+      case 'Kilometers Per Liter':
+        return fuelFills.map((fill) => fill.getEfficiency().toLocaleString(undefined, { minimumFractionDigits: 4 })).reverse();
+      case 'Cost per Kilometer':
+        return fuelFills.map((fill) => fill.getTravelCost().toLocaleString(undefined, { minimumFractionDigits: 4 })).reverse();
+      default:
+        return [];
+    }
   };
 
   const currentColor = metricColors[selectedMetric];
@@ -54,8 +67,8 @@ function User() {
     labels: fuelFills.map((fill) => fill.filledAt).reverse(),
     datasets: [
       {
-        label: 'Fuel Consumption (L/100km)',
-        data: fuelFills.map((fill) => fill.getConsumption().toLocaleString(undefined, {minimumFractionDigits: 4})).reverse(),
+        label: selectedMetric,
+        data: getMetricData(selectedMetric),
         borderColor: currentColor.line,
         backgroundColor: currentColor.bg,
         borderWidth: 3,
@@ -272,7 +285,7 @@ function User() {
                     </div>
                   </div>
                   <div className="graph-container">
-                    <div className="graph-title">It./100km</div>
+                    <div className="graph-title">{currentColor.shortened}</div>
                     <div className="chart-wrapper">
                       <Line data={chartData} options={chartOptions} />
                     </div>
