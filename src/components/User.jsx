@@ -18,6 +18,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { useCarStore } from '../services/managers/CarManager';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { Car } from '../classes/Car';
 
 ChartJS.register(
@@ -28,6 +29,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  zoomPlugin,
   Filler
 );
 
@@ -49,11 +51,11 @@ function User() {
 
   // Sample data for the chart
   const chartData = {
-    labels: ['2022-03-04', '2022-08-09', '2023-03-28', '2023-11-15', '2024-07-03', '2025-02-19', '2025-09-25'],
+    labels: fuelFills.map((fill) => fill.filledAt).reverse(),
     datasets: [
       {
         label: 'Fuel Consumption (L/100km)',
-        data: [8.2, 9.1, 7.8, 8.9, 7.5, 8.3, 7.9],
+        data: fuelFills.map((fill) => fill.getConsumption().toLocaleString(undefined, {minimumFractionDigits: 4})).reverse(),
         borderColor: currentColor.line,
         backgroundColor: currentColor.bg,
         borderWidth: 3,
@@ -76,23 +78,49 @@ function User() {
         display: false
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: currentColor.line,
-        borderWidth: 1,
-        cornerRadius: 8,
-        displayColors: false
+        enabled: true,
+        backgroundColor: '#333',
+        titleColor: '#fff',
+        bodyColor: '#fff'
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'x'
+        },
+        zoom: {
+          wheel: {
+            enabled: true
+          },
+          drag: {
+            enabled: true
+          },
+          mode: 'x'
+        }
       }
     },
     scales: {
       y: {
-        beginAtZero: false,
-        min: 7,
-        max: 12,
+        position: 'left',
         grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
-          drawBorder: false
+          display: true
+        },
+        ticks: {
+          color: '#8C7A6A',
+          font: {
+            size: 12
+          }
+        }
+      },
+      y1: {
+        position: 'right',
+        afterBuildTicks: (axis) => {
+          axis.ticks = [...axis.chart.scales.y.ticks];
+          axis.min = axis.chart.scales.y.min;
+          axis.max = axis.chart.scales.y.max;
+        },
+        grid: {
+          display: true
         },
         ticks: {
           color: '#8C7A6A',
