@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faWrench } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faRefresh, faWrench } from '@fortawesome/free-solid-svg-icons';
 
 function Malfunctions() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,7 +17,7 @@ function Malfunctions() {
   }
 
   // Filter malfunctions based on search term
-  const filteredMalfunctions = malfunctions?.filter(malfunction =>
+  const filteredMalfunctions = malfunctions?.reverse().filter(malfunction =>
     malfunction.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     malfunction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     malfunction.kilometersDiscovered.includes(searchTerm) ||
@@ -48,8 +48,18 @@ function Malfunctions() {
               <div className="page-header mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h1 className="page-title">Malfunctions</h1>
-                  <p className="page-subtitle">Track and manage vehicle malfunctions</p>
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <h1 className="page-title mb-0">Malfunctions</h1>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className='ms-2'
+                      onClick={() => store.index()}
+                    >
+                      <FontAwesomeIcon icon={faRefresh} />
+                    </Button>
+                  </div>
+                  <p className="page-subtitle">{malfunctions?.length ?? 0} total malfunctions.</p>
                 </div>
                 <Button as={Link} to="/add-malfunction" className="add-btn">
                   + Add New Malfunction
