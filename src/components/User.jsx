@@ -412,41 +412,19 @@ function User() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td><Link to="/fuel-fill/1" className="fuel-fill-link">2025-01-15</Link></td>
-                          <td>€70.00</td>
-                          <td>95 Octane</td>
-                          <td>Shell Station</td>
-                          <td>8.2</td>
-                        </tr>
-                        <tr>
-                          <td><Link to="/fuel-fill/2" className="fuel-fill-link">2024-12-28</Link></td>
-                          <td>€68.50</td>
-                          <td>95 Octane</td>
-                          <td>BP Station</td>
-                          <td>7.9</td>
-                        </tr>
-                        <tr>
-                          <td><Link to="/fuel-fill/3" className="fuel-fill-link">2024-12-10</Link></td>
-                          <td>€72.30</td>
-                          <td>95 Octane</td>
-                          <td>Esso Station</td>
-                          <td>8.5</td>
-                        </tr>
-                        <tr>
-                          <td><Link to="/fuel-fill/4" className="fuel-fill-link">2024-11-25</Link></td>
-                          <td>€65.80</td>
-                          <td>95 Octane</td>
-                          <td>Shell Station</td>
-                          <td>7.6</td>
-                        </tr>
-                        <tr>
-                          <td><Link to="/fuel-fill/5" className="fuel-fill-link">2024-11-08</Link></td>
-                          <td>€69.20</td>
-                          <td>95 Octane</td>
-                          <td>BP Station</td>
-                          <td>8.1</td>
-                        </tr>
+                        {fuelFills.slice(0, 5).map((fill) => (
+                          <tr key={fill.id}>
+                            <td>
+                              <Link to={`/fuel-fill/${fill.id}`} className="fuel-fill-link">
+                                {fill.filledAt}
+                              </Link>
+                            </td>
+                            <td>€{fill.cost.toFixed(2)}</td>
+                            <td>{fill.fuelType === null || fill.fuelType === '' ? '-' : fill.fuelType }</td>
+                            <td>{fill.station === null || fill.station === '' ? '-' : fill.station}</td>
+                            <td>{fill.getConsumption().toFixed(3)}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
