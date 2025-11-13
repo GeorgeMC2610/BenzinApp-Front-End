@@ -4,9 +4,12 @@ import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGasPump, faWrench, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { Pie } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
   Chart as ChartJS,
   CategoryScale,
+  ArcElement,
   LinearScale,
   PointElement,
   LineElement,
@@ -26,6 +29,8 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  ArcElement,
+  ChartDataLabels,
   Title,
   Tooltip,
   Legend,
@@ -62,6 +67,57 @@ function User() {
 
   const currentColor = metricColors[selectedMetric];
 
+  const totalFuelCosts = car?.getTotalFuelFillCosts() || 0;
+  const totalMalfunctionCosts = car?.getTotalMalfunctionCosts() || 0;
+  const totalServiceCosts = car?.getTotalServiceCosts() || 0;
+  const totalCosts = totalFuelCosts + totalMalfunctionCosts + totalServiceCosts;
+
+  const fuelPercentage = totalCosts > 0 ? (totalFuelCosts / totalCosts) * 100 : 0;
+  const malfunctionPercentage = totalCosts > 0 ? (totalMalfunctionCosts / totalCosts) * 100 : 0;
+  const servicePercentage = totalCosts > 0 ? (totalServiceCosts / totalCosts) * 100 : 0;
+
+  const pieData = {
+    labels: ['Fuel', 'Malfunctions', 'Services'],
+    datasets: [
+      {
+        data: [fuelPercentage, malfunctionPercentage, servicePercentage],
+        backgroundColor: [
+          '#ff9800',
+          '#ff5252',
+          '#ff6e40',             
+        ],
+      },
+    ],
+  };
+  
+  const pieOptions = {
+    plugins: {
+      legend: {
+        display: false
+      },
+      title: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.label}: ${context.formattedValue}%`
+        }
+      },
+      datalabels: {
+        color: '#fff',
+        font: {
+          weight: 'bold',
+          size: 14,
+        },
+        formatter: (value) => `${value.toFixed(1)}%`,
+        anchor: 'center',
+        align: 'center',
+      },
+    },
+    responsive: true,
+    maintainAspectRatio: true,
+  };
+
   // Sample data for the chart
   const chartData = {
     labels: fuelFills.map((fill) => fill.filledAt).reverse(),
@@ -95,6 +151,9 @@ function User() {
         backgroundColor: '#333',
         titleColor: '#fff',
         bodyColor: '#fff'
+      },
+      datalabels: {
+        display: false
       },
       zoom: {
         pan: {
@@ -300,30 +359,35 @@ function User() {
                 <Card.Body className="p-4">
                   <h3 className="card-title mb-4">Combined Costs</h3>
                   <div className="costs-content">
-                    <div className="costs-chart">
-                      <div className="pie-chart">
-                        <div className="pie-slice fuel" style={{'--percentage': '90%'}}></div>
-                        <div className="pie-slice malfunctions" style={{'--percentage': '6%'}}></div>
-                        <div className="pie-slice services" style={{'--percentage': '4%'}}></div>
-                        <div className="pie-percentages">
-                          <div className="percentage fuel-percentage">90%</div>
-                          <div className="percentage malfunctions-percentage">6%</div>
-                          <div className="percentage services-percentage">4%</div>
-                        </div>
-                      </div>
-                    </div>
+                      {(() => {
+                              return (
+                                <>
+                                  <div>
+                                    <div style={{ width: '250px', height: '250px' }}>
+                                      <Pie data={pieData} options={pieOptions} />
+                                    </div>
+                                  </div>
+                                </>
+                              );
+                            })()}
                     <div className="costs-legend">
                       <div className="legend-item">
                         <span className="legend-color fuel"></span>
-                        <span className="legend-text">Fuel Fills: €{car?.getTotalFuelFillCosts().toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                        <span className="legend-text">
+                          Fuel Fills: €{car?.getTotalFuelFillCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
                       </div>
                       <div className="legend-item">
                         <span className="legend-color malfunctions"></span>
-                        <span className="legend-text">Malfunction Repairs: €{car?.getTotalMalfunctionCosts().toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                        <span className="legend-text">
+                          Malfunction Repairs: €{car?.getTotalMalfunctionCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
                       </div>
                       <div className="legend-item">
                         <span className="legend-color services"></span>
-                        <span className="legend-text">Services: €{car?.getTotalServiceCosts().toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                        <span className="legend-text">
+                          Services: €{car?.getTotalServiceCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
                       </div>
                     </div>
                   </div>
