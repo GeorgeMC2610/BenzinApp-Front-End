@@ -22,7 +22,6 @@ import { Line } from 'react-chartjs-2';
 import { useCarStore } from '../services/managers/CarManager';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import zoomPlugin from 'chartjs-plugin-zoom';
-import { Car } from '../classes/Car';
 
 ChartJS.register(
   CategoryScale,
@@ -225,7 +224,7 @@ function User() {
   return (
     <div className="user-page">
       <DrawerMenu />
-      
+
       {/* Main Content */}
       <div className="drawer-content">
         <section className="user-content py-4">
