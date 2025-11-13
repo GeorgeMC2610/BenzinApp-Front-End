@@ -10,9 +10,11 @@ import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManag
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { faGasPump } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from "react-router";
 
 function Login() {
   const carStore = useCarStore();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -38,6 +40,8 @@ function Login() {
 
     if (response) {
         toast.success("Successfully logged in.", { position: 'top-center' });
+        carStore.getCarDetails();
+        navigate('/dashboard');
     }
     else {
         toast.error("Invalid Credentials. Please, try again.", { position: 'top-center' });

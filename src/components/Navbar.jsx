@@ -1,7 +1,17 @@
 import { Container, Nav, Navbar as BootstrapNavbar, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useCarStore } from '../services/managers/CarManager';
+import { useNavigate } from "react-router";
 
 function Navbar() {
+  const carStore = useCarStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    carStore.logout();
+    navigate('/login');
+  };
+
   return (
     <BootstrapNavbar expand="lg" className="navbar-custom py-3" sticky="top">
       <Container>
@@ -17,17 +27,32 @@ function Navbar() {
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto align-items-lg-center gap-1">
             <Nav.Link as={Link} to="/about" className="nav-link-custom px-3">About</Nav.Link>
-            <Nav.Link as={Link} to="/user" className="nav-link-custom px-3">Dashboard</Nav.Link>
             <Nav.Link href="#contact" className="nav-link-custom px-3">Contact</Nav.Link>
-            <Nav.Link as={Link} to="/login" className="nav-link-custom px-3">Log In</Nav.Link>
-            <Button 
-              variant="primary" 
-              as={Link}
-              to="/register"
-              className="btn-register ms-lg-2 mt-2 mt-lg-0"
-            >
-              Register
-            </Button>
+            {carStore.car ? (
+              <>
+                <Nav.Link as={Link} to="/user" className="nav-link-custom px-3">Dashboard</Nav.Link>
+                <span className="navbar-text px-3">{carStore.car.username}</span>
+                <Button 
+                  variant="outline-danger" 
+                  className="btn-logout ms-lg-2 mt-2 mt-lg-0"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Nav.Link as={Link} to="/login" className="nav-link-custom px-3">Log In</Nav.Link>
+                <Button 
+                  variant="primary" 
+                  as={Link}
+                  to="/register"
+                  className="btn-register ms-lg-2 mt-2 mt-lg-0"
+                >
+                  Register
+                </Button>
+              </>
+            )}
           </Nav>
         </BootstrapNavbar.Collapse>
       </Container>
