@@ -229,19 +229,6 @@ function SpecificMalfunctionRecord() {
 
                 <Card className="fuel-fill-record-card mb-4">
                   <Card.Body className="p-4">
-                    <div className="date-section mb-4">
-                      <div className="date-info text-center">
-                        <div className="date-day-of-week">
-                          {discoveryDate.toLocaleDateString('en-US', { weekday: 'long' })}
-                        </div>
-                        <div className="date-month-day">
-                          {discoveryDate.toLocaleDateString('en-US', { month: 'long' })}{' '}
-                          {discoveryDate.getDate()}
-                        </div>
-                        <div className="date-year">{discoveryDate.getFullYear()}</div>
-                      </div>
-                    </div>
-
                     <div className="title-description-section mb-4">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <h2 className="record-title mb-0">{malfunction.name}</h2>

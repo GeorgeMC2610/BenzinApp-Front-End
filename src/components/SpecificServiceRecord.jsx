@@ -4,6 +4,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
 
+const MAX_DESCRIPTION_LENGTH = 150;
+
 function SpecificServiceRecord() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ function SpecificServiceRecord() {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showFullDescription, setShowFullDescription] = useState(false);
   const deleteRedirectTimeout = useRef(null);
 
   const services = [
@@ -216,7 +219,22 @@ function SpecificServiceRecord() {
                     <div className="title-description-section mb-4">
                       <h2 className="record-title mb-2">{service.name}</h2>
                       {service.description && (
-                        <p className="record-description mb-0">{service.description}</p>
+                        <div className="record-description">
+                          <p className="mb-0">
+                            {showFullDescription || service.description.length <= MAX_DESCRIPTION_LENGTH
+                              ? service.description
+                              : `${service.description.substring(0, MAX_DESCRIPTION_LENGTH)}...`}
+                          </p>
+                          {service.description.length > MAX_DESCRIPTION_LENGTH && (
+                            <Button
+                              variant="link"
+                              className="p-0 mt-2 text-decoration-none"
+                              onClick={() => setShowFullDescription(!showFullDescription)}
+                            >
+                              {showFullDescription ? 'Show less' : 'Show more'}
+                            </Button>
+                          )}
+                        </div>
                       )}
                     </div>
 

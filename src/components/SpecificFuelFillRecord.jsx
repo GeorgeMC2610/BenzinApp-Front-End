@@ -4,6 +4,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
 
+const MAX_COMMENT_LENGTH = 150;
+
 function SpecificFuelFillRecord() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ function SpecificFuelFillRecord() {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showFullComments, setShowFullComments] = useState(false);
   const deleteRedirectTimeout = useRef(null);
 
   // Sample data - in a real app, this would come from an API
@@ -326,7 +329,20 @@ function SpecificFuelFillRecord() {
                       <Card className="comments-card">
                         <Card.Body className="p-4">
                           <h4 className="comments-title mb-3">Comments</h4>
-                          <p className="comments-text">{fuelFill.comments}</p>
+                          <p className="comments-text mb-0">
+                            {showFullComments || fuelFill.comments.length <= MAX_COMMENT_LENGTH
+                              ? fuelFill.comments
+                              : `${fuelFill.comments.substring(0, MAX_COMMENT_LENGTH)}...`}
+                          </p>
+                          {fuelFill.comments.length > MAX_COMMENT_LENGTH && (
+                            <Button
+                              variant="link"
+                              className="p-0 mt-2 text-decoration-none"
+                              onClick={() => setShowFullComments(!showFullComments)}
+                            >
+                              {showFullComments ? 'Show less' : 'Show more'}
+                            </Button>
+                          )}
                         </Card.Body>
                       </Card>
                     </div>

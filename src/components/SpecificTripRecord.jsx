@@ -3,6 +3,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import LocationMapModal from './LocationMapModal';
+
+const MAX_DESCRIPTION_LENGTH = 150;
+const FUEL_PRICE_PER_LITER = 2.0;
+const COST_SCENARIOS = [
+  { key: 'best', label: 'Best case', color: 'success', multiplier: 0.8 },
+  { key: 'average', label: 'Average case', color: 'secondary', multiplier: 1 },
+  { key: 'worst', label: 'Worst case', color: 'danger', multiplier: 1.15 }
+];
 
 function SpecificTripRecord() {
   const { id } = useParams();
@@ -11,6 +20,9 @@ function SpecificTripRecord() {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [mapLocation, setMapLocation] = useState(null);
   const deleteRedirectTimeout = useRef(null);
 
   const trips = [
@@ -22,9 +34,11 @@ function SpecificTripRecord() {
       cost: 2.5,
       kilometers: 15.5,
       createdDate: '2024-01-15',
-      description: 'Daily commute to office',
-      origin: 'Home',
-      destination: 'Downtown Office',
+      description: 'Daily trip from the port area to the central offices.',
+      origin: 'Miaouli 4, Thessaloniki',
+      destination: 'Tsimiski 50, Thessaloniki',
+      originCoords: { lat: 40.6401, lng: 22.9361 },
+      destinationCoords: { lat: 40.6387, lng: 22.9469 },
       lastCompleted: '2025-01-10'
     },
     {
@@ -35,9 +49,11 @@ function SpecificTripRecord() {
       cost: 1.2,
       kilometers: 8.2,
       createdDate: '2024-02-01',
-      description: 'Weekly grocery trips',
-      origin: 'Home',
-      destination: 'Local Supermarket',
+      description: 'Weekly groceries near Ano Poli.',
+      origin: 'Kapodistriou 8, Thessaloniki',
+      destination: 'Agias Sofias 15, Thessaloniki',
+      originCoords: { lat: 40.6231, lng: 22.9294 },
+      destinationCoords: { lat: 40.6339, lng: 22.9423 },
       lastCompleted: '2025-01-12'
     },
     {
@@ -48,9 +64,11 @@ function SpecificTripRecord() {
       cost: 25.8,
       kilometers: 120.5,
       createdDate: '2024-12-20',
-      description: 'Family trip to coastal city',
-      origin: 'Home',
-      destination: 'Seaside Town',
+      description: 'Family escape to Agios Nikolaos beach.',
+      origin: 'Miaouli 4, Thessaloniki',
+      destination: 'Agios Nikolaos Beach, Chalkidiki',
+      originCoords: { lat: 40.6401, lng: 22.9361 },
+      destinationCoords: { lat: 40.2509, lng: 23.0795 },
       lastCompleted: '2024-12-20'
     },
     {
@@ -61,9 +79,11 @@ function SpecificTripRecord() {
       cost: 1.8,
       kilometers: 12.0,
       createdDate: '2024-03-10',
-      description: 'Regular gym sessions',
-      origin: 'Home',
-      destination: 'City Gym',
+      description: 'Trip to the fitness center in Marousi.',
+      origin: 'Kifisias Avenue 115, Marousi',
+      destination: 'Leoforos Marathonos 12, Marousi',
+      originCoords: { lat: 38.0483, lng: 23.7852 },
+      destinationCoords: { lat: 38.0432, lng: 23.8087 },
       lastCompleted: '2025-01-11'
     },
     {
@@ -74,9 +94,11 @@ function SpecificTripRecord() {
       cost: 18.5,
       kilometers: 45.2,
       createdDate: '2024-11-15',
-      description: 'Picking up friend from airport',
-      origin: 'Home',
-      destination: 'International Airport',
+      description: 'Pickup from Athena International Airport.',
+      origin: 'Miaouli 4, Thessaloniki',
+      destination: 'Athens International Airport, Spata',
+      originCoords: { lat: 40.6401, lng: 22.9361 },
+      destinationCoords: { lat: 37.9366, lng: 23.9471 },
       lastCompleted: '2024-11-15'
     },
     {
@@ -87,9 +109,11 @@ function SpecificTripRecord() {
       cost: 3.2,
       kilometers: 22.8,
       createdDate: '2024-06-05',
-      description: 'Monthly medical checkups',
-      origin: 'Home',
-      destination: 'City Clinic',
+      description: 'Monthly checkup in Kifisia.',
+      origin: 'Miaouli 4, Thessaloniki',
+      destination: 'Stratonikos 25, Kifisia',
+      originCoords: { lat: 40.6401, lng: 22.9361 },
+      destinationCoords: { lat: 38.0157, lng: 23.7972 },
       lastCompleted: '2025-01-05'
     }
   ];
@@ -135,6 +159,14 @@ function SpecificTripRecord() {
 
   const cancelDelete = () => {
     setShowDeleteModal(false);
+  };
+
+  const openMapFor = (title, coords) => {
+    setMapLocation({
+      label: title,
+      coords
+    });
+    setShowMapModal(true);
   };
 
   if (loading) {
@@ -192,21 +224,26 @@ function SpecificTripRecord() {
     : null;
 
   const isRepeating = trip.type === 'Repeating';
-  
-  // Per-time data (single trip metrics)
-  const perTimeData = {
-    cost: trip.cost,
-    kilometers: trip.kilometers,
-    costPerKm: trip.cost / trip.kilometers
-  };
 
-  // Repeating data (weekly metrics) - only for repeating trips
-  const repeatingData = isRepeating ? {
-    tripsPerWeek: trip.frequency,
-    weeklyDistance: trip.frequency * trip.kilometers,
-    weeklyCost: trip.frequency * trip.cost,
-    costPerKm: (trip.frequency * trip.cost) / (trip.frequency * trip.kilometers)
-  } : null;
+  const baseConsumptionPerTime = trip.cost > 0 ? trip.cost / FUEL_PRICE_PER_LITER : 0;
+
+  const buildScenarioData = (baseCost, baseConsumption, unit) =>
+    COST_SCENARIOS.map((scenario) => ({
+      ...scenario,
+      unit,
+      cost: baseCost * scenario.multiplier,
+      consumption: baseConsumption * scenario.multiplier
+    }));
+
+  const perTimeScenarios = buildScenarioData(trip.cost, baseConsumptionPerTime, 'per time');
+
+  const weeklyScenarios = isRepeating
+    ? buildScenarioData(
+        trip.cost * trip.frequency,
+        baseConsumptionPerTime * trip.frequency,
+        'per week'
+      )
+    : [];
 
   return (
     <div className="trips-page">
@@ -237,19 +274,6 @@ function SpecificTripRecord() {
 
                 <Card className="fuel-fill-record-card mb-4">
                   <Card.Body className="p-4">
-                    <div className="date-section mb-4">
-                      <div className="date-info text-center">
-                        <div className="date-day-of-week">
-                          {createdDate.toLocaleDateString('en-US', { weekday: 'long' })}
-                        </div>
-                        <div className="date-month-day">
-                          {createdDate.toLocaleDateString('en-US', { month: 'long' })}{' '}
-                          {createdDate.getDate()}
-                        </div>
-                        <div className="date-year">{createdDate.getFullYear()}</div>
-                      </div>
-                    </div>
-
                     <div className="title-description-section mb-4">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <h2 className="record-title mb-0">{trip.name}</h2>
@@ -258,77 +282,111 @@ function SpecificTripRecord() {
                         </Badge>
                       </div>
                       <div className="record-description">
-                        <p className="mb-0">
-                          {trip.origin} → {trip.destination}
-                        </p>
+                        {trip.description && (
+                          <>
+                            <p className="mb-0">
+                              {showFullDescription || trip.description.length <= MAX_DESCRIPTION_LENGTH
+                                ? trip.description
+                                : `${trip.description.substring(0, MAX_DESCRIPTION_LENGTH)}...`}
+                            </p>
+                            {trip.description.length > MAX_DESCRIPTION_LENGTH && (
+                              <Button
+                                variant="link"
+                                className="p-0 mt-2 text-decoration-none"
+                                onClick={() => setShowFullDescription(!showFullDescription)}
+                              >
+                                {showFullDescription ? 'Show less' : 'Show more'}
+                              </Button>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
 
+                    <div className="analytics-legend mb-3">
+                      <span className="legend-item best">Best case</span>
+                      <span className="legend-item average">Average case</span>
+                      <span className="legend-item worst">Worst case</span>
+                    </div>
+
                     <Row className="g-4">
-                      <Col md={6}>
-                        <Card className="metrics-card h-100">
+                      <Col md={isRepeating ? 6 : 12}>
+                        <Card className="analytics-card h-100">
                           <Card.Body className="p-4">
-                            <h4 className="metrics-title mb-3">Per-Time Data</h4>
-                            <div className="metric-item">
-                              <div className="metric-label">Best case cost</div>
-                              <div className="metric-value">€{perTimeData.cost.toFixed(2)}</div>
+                            <div className="analytics-header mb-3">
+                              <h4 className="metrics-title mb-0">Analytics Per Time</h4>
                             </div>
-                            <div className="metric-item">
-                              <div className="metric-label">Average distance</div>
-                              <div className="metric-value">{perTimeData.kilometers} km</div>
-                            </div>
-                            <div className="metric-item">
-                              <div className="metric-label">Worst case cost per km</div>
-                              <div className="metric-value">€{perTimeData.costPerKm.toFixed(3)}/km</div>
-                            </div>
+                            {perTimeScenarios.map((scenario) => (
+                              <div className={`analytics-row ${scenario.key}`} key={scenario.key}>
+                                <div className={`analytics-cost text-${scenario.color}`}>
+                                  €{scenario.cost.toFixed(2)} {scenario.unit}
+                                </div>
+                                <div className="analytics-consumption">
+                                  {(scenario.consumption).toFixed(2)} lt. {scenario.unit}
+                                </div>
+                              </div>
+                            ))}
                           </Card.Body>
                         </Card>
                       </Col>
 
-                      {isRepeating && repeatingData && (
+                      {isRepeating && (
                         <Col md={6}>
-                          <Card className="metrics-card h-100">
+                          <Card className="analytics-card h-100">
                             <Card.Body className="p-4">
-                              <h4 className="metrics-title mb-3">Repeating Data (Per Week)</h4>
-                              <div className="metric-item">
-                                <div className="metric-label">Best case trips per week</div>
-                                <div className="metric-value">{repeatingData.tripsPerWeek} times</div>
+                              <div className="analytics-header mb-3">
+                                <h4 className="metrics-title mb-0">Weekly Analytics</h4>
                               </div>
-                              <div className="metric-item">
-                                <div className="metric-label">Average weekly distance</div>
-                                <div className="metric-value">{repeatingData.weeklyDistance.toFixed(1)} km</div>
-                              </div>
-                              <div className="metric-item">
-                                <div className="metric-label">Worst case weekly cost</div>
-                                <div className="metric-value">€{repeatingData.weeklyCost.toFixed(2)}</div>
-                              </div>
-                            </Card.Body>
-                          </Card>
-                        </Col>
-                      )}
-
-                      {!isRepeating && (
-                        <Col md={6}>
-                          <Card className="metrics-card h-100">
-                            <Card.Body className="p-4">
-                              <h4 className="metrics-title mb-3">Trip Details</h4>
-                              <div className="metric-item">
-                                <div className="metric-label">Created</div>
-                                <div className="metric-value">{daysSinceCreated} days ago</div>
-                              </div>
-                              {daysSinceLastCompleted !== null && (
-                                <div className="metric-item">
-                                  <div className="metric-label">Last completed</div>
-                                  <div className="metric-value">
-                                    {daysSinceLastCompleted} days ago
+                              {weeklyScenarios.map((scenario) => (
+                                <div className={`analytics-row ${scenario.key}`} key={scenario.key}>
+                                  <div className={`analytics-cost text-${scenario.color}`}>
+                                    €{scenario.cost.toFixed(2)} {scenario.unit}
+                                  </div>
+                                  <div className="analytics-consumption">
+                                    {(scenario.consumption).toFixed(2)} lt. {scenario.unit}
                                   </div>
                                 </div>
-                              )}
+                              ))}
                             </Card.Body>
                           </Card>
                         </Col>
                       )}
                     </Row>
+
+                    <Card className="route-card mt-4">
+                      <Card.Body className="p-4">
+                        <div className="route-row">
+                          <span className="route-icon">📍</span>
+                          <div>
+                            <p className="route-label mb-0">Origin</p>
+                            <button
+                              type="button"
+                              className="address-link"
+                              onClick={() =>
+                                openMapFor(`Origin · ${trip.origin}`, trip.originCoords)
+                              }
+                            >
+                              {trip.origin}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="route-row">
+                          <span className="route-icon">🎯</span>
+                          <div>
+                            <p className="route-label mb-0">Destination</p>
+                            <button
+                              type="button"
+                              className="address-link"
+                              onClick={() =>
+                                openMapFor(`Destination · ${trip.destination}`, trip.destinationCoords)
+                              }
+                            >
+                              {trip.destination}
+                            </button>
+                          </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
 
                     <div className="action-buttons mt-4 d-flex gap-3 justify-content-center">
                       <Button
@@ -365,9 +423,15 @@ function SpecificTripRecord() {
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
+      <LocationMapModal
+        show={showMapModal}
+        onHide={() => setShowMapModal(false)}
+        location={mapLocation}
+      />
     </div>
   );
 }
 
 export default SpecificTripRecord;
+
 
