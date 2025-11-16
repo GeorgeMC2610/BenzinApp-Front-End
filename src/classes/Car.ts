@@ -1,6 +1,6 @@
-// import { FuelFillRecordManager } from '@/services/managers/FuelFillRecordManager';
-// import { MalfunctionManager } from '@/services/managers/MalfunctionManager';
-// import { ServiceManager } from '@/services/managers/ServiceManager';
+import { useFuelFillRecordStore } from "../services/managers/FuelFillRecordManager";
+import { useMalfunctionStore } from "../services/managers/MalfunctionManager";
+import { useServiceStore } from "../services/managers/ServiceManager";
 
 export interface CarData {
     id: number;
@@ -45,114 +45,132 @@ export class Car {
 
     // ----- Static Utility Methods -----
 
-    // static getTotalConsumption(): number {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     if (fuelFills.length <= 1) return 0;
-    //
-    //     const totalKilometers = fuelFills
-    //         .slice(1)
-    //         .reduce((sum, f) => sum + f.kilometers, 0);
-    //     const totalLiters = fuelFills.reduce((sum, f) => sum + f.liters, 0);
-    //
-    //     return totalKilometers === 0 ? 0 : (100 * totalLiters) / totalKilometers;
-    // }
-    //
-    // static getTotalEfficiency(): number {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     if (fuelFills.length <= 1) return 0;
-    //
-    //     const totalKilometers = fuelFills
-    //         .slice(1)
-    //         .reduce((sum, f) => sum + f.kilometers, 0);
-    //     const totalLiters = fuelFills.reduce((sum, f) => sum + f.liters, 0);
-    //
-    //     return totalLiters === 0 ? 0 : totalKilometers / totalLiters;
-    // }
-    //
-    // static getTotalTravelCost(): number {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     if (fuelFills.length <= 1) return 0;
-    //
-    //     const totalCost = fuelFills.reduce((sum, f) => sum + f.cost, 0);
-    //     const totalKilometers = fuelFills
-    //         .slice(1)
-    //         .reduce((sum, f) => sum + f.kilometers, 0);
-    //
-    //     return totalKilometers === 0 ? 0 : totalCost / totalKilometers;
-    // }
-    //
-    // static getTotalLitersFilled(): number {
-    //     return FuelFillRecordManager.local.reduce((sum, f) => sum + f.liters, 0);
-    // }
-    //
-    // static getTotalKilometersTraveled(): number {
-    //     return FuelFillRecordManager.local.reduce((sum, f) => sum + f.kilometers, 0);
-    // }
-    //
-    // static getTotalFuelFillCosts(): number {
-    //     return FuelFillRecordManager.local.reduce((sum, f) => sum + f.cost, 0);
-    // }
-    //
-    // static getTotalMalfunctionCosts(): number {
-    //     return MalfunctionManager.local.reduce(
-    //         (sum, m) => sum + (m.cost ?? 0),
-    //         0
-    //     );
-    // }
-    //
-    // static getTotalServiceCosts(): number {
-    //     return ServiceManager.local.reduce((sum, s) => sum + (s.cost ?? 0), 0);
-    // }
-    //
-    // static getTotalCost(): number {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     const services = ServiceManager.local;
-    //     const malfunctions = MalfunctionManager.local;
-    //
-    //     const fuelCost = fuelFills.reduce((sum, f) => sum + f.cost, 0);
-    //     const serviceCost = services.reduce((sum, s) => sum + (s.cost ?? 0), 0);
-    //     const malfunctionCost = malfunctions.reduce((sum, m) => sum + (m.cost ?? 0), 0);
-    //
-    //     return fuelCost + serviceCost + malfunctionCost;
-    // }
-    //
-    // static getBestEfficiency(): number {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     const efficiencies = fuelFills
-    //         .filter(f => f.getNext())
-    //         .map(f => f.getEfficiency());
-    //     return efficiencies.length ? Math.max(...efficiencies) : 0;
-    // }
-    //
-    // static getWorstEfficiency(): number {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     const efficiencies = fuelFills
-    //         .filter(f => f.getNext())
-    //         .map(f => f.getEfficiency());
-    //     return efficiencies.length ? Math.min(...efficiencies) : 0;
-    // }
-    //
-    // static getBestTravelCost(): number {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     const travelCosts = fuelFills
-    //         .filter(f => f.getNext())
-    //         .map(f => f.getTravelCost());
-    //     return travelCosts.length ? Math.min(...travelCosts) : 0;
-    // }
-    //
-    // static getWorstTravelCost(): number {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     const travelCosts = fuelFills
-    //         .filter(f => f.getNext())
-    //         .map(f => f.getTravelCost());
-    //     return travelCosts.length ? Math.max(...travelCosts) : 0;
-    // }
-    //
-    // static getMostRecentTotalKilometers(): number | null {
-    //     const fuelFills = FuelFillRecordManager.local;
-    //     if (fuelFills.length === 0) return null;
-    //     return fuelFills[0].totalKilometers;
-    // }
+    static getTotalConsumption(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+        if (fuelFills.length <= 1) return 0;
+    
+        const totalKilometers = fuelFills
+            .slice(1)
+            .reduce((sum, f) => sum + f.km, 0);
+        const totalLiters = fuelFills.reduce((sum, f) => sum + f.lt, 0);
+    
+        return totalKilometers === 0 ? 0 : (100 * totalLiters) / totalKilometers;
+    }
+    
+    static getTotalEfficiency(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+        if (fuelFills.length <= 1) return 0;
+    
+        const totalKilometers = fuelFills
+            .slice(1)
+            .reduce((sum, f) => sum + f.km, 0);
+        const totalLiters = fuelFills.reduce((sum, f) => sum + f.lt, 0);
+    
+        return totalLiters === 0 ? 0 : totalKilometers / totalLiters;
+    }
+    
+    static getTotalTravelCost(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+        if (fuelFills.length <= 1) return 0;
+    
+        const totalCost = fuelFills.reduce((sum, f) => sum + f.cost, 0);
+        const totalKilometers = fuelFills
+            .slice(1)
+            .reduce((sum, f) => sum + f.km, 0);
+    
+        return totalKilometers === 0 ? 0 : totalCost / totalKilometers;
+    }
+    
+    static getTotalLitersFilled(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+        return fuelFills.reduce((sum, f) => sum + f.lt, 0);
+    }
+    
+    static getTotalKilometersTraveled(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+        return fuelFills.reduce((sum, f) => sum + f.km, 0);
+    }
+    
+    static getTotalFuelFillCosts(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+        return fuelFills.reduce((sum, f) => sum + f.cost, 0);
+    }
+    
+    static getTotalMalfunctionCosts(): number {
+        const malfunctions = useMalfunctionStore((state) => state.list);
+        if (malfunctions === null) return NaN;
+        return malfunctions.reduce(
+            (sum, m) => sum + (m.cost ?? 0),
+            0
+        );
+    }
+    
+    static getTotalServiceCosts(): number {
+        const services = useServiceStore((state) => state.list);
+        if (services === null) return NaN;
+        return services.reduce((sum, s) => sum + (s.cost ?? 0), 0);
+    }
+    
+    static getTotalCost(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        const services = useServiceStore((state) => state.list);
+        const malfunctions = useMalfunctionStore((state) => state.list);
+    
+        const fuelCost = fuelFills?.reduce((sum, f) => sum + f.cost, 0) ?? 0;
+        const serviceCost = services?.reduce((sum, s) => sum + (s.cost ?? 0), 0) ?? 0;
+        const malfunctionCost = malfunctions?.reduce((sum, m) => sum + (m.cost ?? 0), 0) ?? 0;
+    
+        return fuelCost + serviceCost + malfunctionCost;
+    }
+    
+    static getBestEfficiency(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+
+        const efficiencies = fuelFills
+            .map(f => f.getEfficiency());
+        return efficiencies.length ? Math.max(...efficiencies) : 0;
+    }
+    
+    static getWorstEfficiency(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+
+        const efficiencies = fuelFills
+            .map(f => f.getEfficiency());
+        return efficiencies.length ? Math.min(...efficiencies) : 0;
+    }
+    
+    static getBestTravelCost(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+
+        const travelCosts = fuelFills
+            .map(f => f.getTravelCost());
+        return travelCosts.length ? Math.min(...travelCosts) : 0;
+    }
+    
+    static getWorstTravelCost(): number {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return NaN;
+
+        const travelCosts = fuelFills
+            .map(f => f.getTravelCost());
+        return travelCosts.length ? Math.max(...travelCosts) : 0;
+    }
+    
+    static getMostRecentTotalKilometers(): number | null {
+        const fuelFills = useFuelFillRecordStore((state) => state.list);
+        if (fuelFills === null) return null;
+        if (fuelFills.length === 0) return null;
+        return fuelFills[0].totalKm;
+    }
 }
 
 export class CarFields {

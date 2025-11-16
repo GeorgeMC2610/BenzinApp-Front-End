@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { FuelFillRecord } from "../../classes/FuelFillRecord"
 import RequestHelper from '../RequestHelper';
+import SpecificFuelFillRecord from '../../components/SpecificFuelFillRecord';
 
 type FuelFillRecordState = {
     viewingFuelFillRecord: FuelFillRecord | null;
@@ -30,7 +31,6 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(fuelFillUrl);
                     const fuelFills = response.data.map((jsonRecord: Record<string, any>[]) => FuelFillRecord.fromJson(jsonRecord));
-                    console.log(fuelFills);
                     set({ list: fuelFills });
                 }
                 catch (error) {
@@ -41,7 +41,14 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
 
             },
             read: async (id) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(fuelFillUrlId(id));
+                    const fuelFill = FuelFillRecord.fromJson(response.data);
+                    set({ viewingFuelFillRecord: fuelFill });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             update: async (fuelFillRecord) => {
 

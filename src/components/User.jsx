@@ -4,9 +4,12 @@ import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGasPump, faWrench, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { Pie } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
   Chart as ChartJS,
   CategoryScale,
+  ArcElement,
   LinearScale,
   PointElement,
   LineElement,
@@ -16,15 +19,22 @@ import {
   Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { useCarStore } from '../services/managers/CarManager';
+import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
+import zoomPlugin from 'chartjs-plugin-zoom';
+import { Car } from '../classes/Car';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  ArcElement,
+  ChartDataLabels,
   Title,
   Tooltip,
   Legend,
+  zoomPlugin,
   Filler
 );
 
@@ -32,22 +42,89 @@ function User() {
   const [selectedMetric, setSelectedMetric] = useState('Liters per 100km');
   const [selectedTimeFilter, setSelectedTimeFilter] = useState('All Time');
 
+  const car = useCarStore((state) => state.car);
+  const fuelFills = useFuelFillRecordStore((state) => state.list);
+
   // Color mapping for different metrics
   const metricColors = {
-    'Liters per 100km': { line: '#82b1ff', bg: 'rgba(130, 177, 255, 0.1)' },
-    'Kilometers Per Liter': { line: '#ff5252', bg: 'rgba(255, 82, 82, 0.1)' },
-    'Cost per Kilometer': { line: '#4caf50', bg: 'rgba(76, 175, 80, 0.1)' }
+    'Liters per 100km': { line: '#82b1ff', bg: 'rgba(130, 177, 255, 0.1)', shortened: 'lt/100km' },
+    'Kilometers Per Liter': { line: '#ff5252', bg: 'rgba(255, 82, 82, 0.1)', shortened: 'km/lt' },
+    'Cost per Kilometer': { line: '#4caf50', bg: 'rgba(76, 175, 80, 0.1)', shortened: '€/km' }
+  };
+
+  const getMetricData = (metric) => {
+    switch (metric) {
+      case 'Liters per 100km':
+        return fuelFills.map((fill) => fill.getConsumption().toLocaleString(undefined, { minimumFractionDigits: 4 })).reverse();
+      case 'Kilometers Per Liter':
+        return fuelFills.map((fill) => fill.getEfficiency().toLocaleString(undefined, { minimumFractionDigits: 4 })).reverse();
+      case 'Cost per Kilometer':
+        return fuelFills.map((fill) => fill.getTravelCost().toLocaleString(undefined, { minimumFractionDigits: 4 })).reverse();
+      default:
+        return [];
+    }
   };
 
   const currentColor = metricColors[selectedMetric];
 
-  // Sample data for the chart
-  const chartData = {
-    labels: ['2022-03-04', '2022-08-09', '2023-03-28', '2023-11-15', '2024-07-03', '2025-02-19', '2025-09-25'],
+  const totalFuelCosts = Car.getTotalFuelFillCosts() || 0;
+  const totalMalfunctionCosts = Car.getTotalMalfunctionCosts() || 0;
+  const totalServiceCosts = Car.getTotalServiceCosts() || 0;
+  const totalCosts = totalFuelCosts + totalMalfunctionCosts + totalServiceCosts;
+
+  const fuelPercentage = totalCosts > 0 ? (totalFuelCosts / totalCosts) * 100 : 0;
+  const malfunctionPercentage = totalCosts > 0 ? (totalMalfunctionCosts / totalCosts) * 100 : 0;
+  const servicePercentage = totalCosts > 0 ? (totalServiceCosts / totalCosts) * 100 : 0;
+
+  const pieData = {
+    labels: ['Fuel', 'Malfunctions', 'Services'],
     datasets: [
       {
-        label: 'Fuel Consumption (L/100km)',
-        data: [8.2, 9.1, 7.8, 8.9, 7.5, 8.3, 7.9],
+        data: [fuelPercentage, malfunctionPercentage, servicePercentage],
+        backgroundColor: [
+          '#ff9800',
+          '#ff5252',
+          '#ff6e40',             
+        ],
+      },
+    ],
+  };
+  
+  const pieOptions = {
+    plugins: {
+      legend: {
+        display: false
+      },
+      title: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.label}: ${context.formattedValue}%`
+        }
+      },
+      datalabels: {
+        color: '#fff',
+        font: {
+          weight: 'bold',
+          size: 14,
+        },
+        formatter: (value) => `${value.toFixed(1)}%`,
+        anchor: 'center',
+        align: 'center',
+      },
+    },
+    responsive: true,
+    maintainAspectRatio: true,
+  };
+
+  // Sample data for the chart
+  const chartData = {
+    labels: fuelFills.map((fill) => fill.filledAt).reverse(),
+    datasets: [
+      {
+        label: selectedMetric,
+        data: getMetricData(selectedMetric),
         borderColor: currentColor.line,
         backgroundColor: currentColor.bg,
         borderWidth: 3,
@@ -70,23 +147,52 @@ function User() {
         display: false
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: currentColor.line,
-        borderWidth: 1,
-        cornerRadius: 8,
-        displayColors: false
+        enabled: true,
+        backgroundColor: '#333',
+        titleColor: '#fff',
+        bodyColor: '#fff'
+      },
+      datalabels: {
+        display: false
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'x'
+        },
+        zoom: {
+          wheel: {
+            enabled: true
+          },
+          drag: {
+            enabled: true
+          },
+          mode: 'x'
+        }
       }
     },
     scales: {
       y: {
-        beginAtZero: false,
-        min: 7,
-        max: 12,
+        position: 'left',
         grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
-          drawBorder: false
+          display: true
+        },
+        ticks: {
+          color: '#8C7A6A',
+          font: {
+            size: 12
+          }
+        }
+      },
+      y1: {
+        position: 'right',
+        afterBuildTicks: (axis) => {
+          axis.ticks = [...axis.chart.scales.y.ticks];
+          axis.min = axis.chart.scales.y.min;
+          axis.max = axis.chart.scales.y.max;
+        },
+        grid: {
+          display: true
         },
         ticks: {
           color: '#8C7A6A',
@@ -119,7 +225,7 @@ function User() {
   return (
     <div className="user-page">
       <DrawerMenu />
-      
+
       {/* Main Content */}
       <div className="drawer-content">
         <section className="user-content py-4">
@@ -132,13 +238,15 @@ function User() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div className="flex-grow-1">
                       <div className="d-flex align-items-center gap-3 mb-3">
-                        <h2 className="car-name mb-0">Volkswagen Polo</h2>
-                        <div className="car-year-badge">2006</div>
+                        <h2 className="car-name mb-0">{car?.manufacturer} {car?.model}</h2>
+                        <div className="car-year-badge">{car?.year}</div>
                       </div>
                       <div className="d-flex align-items-center gap-2">
                         <FontAwesomeIcon icon={faGasPump} className="fuel-icon" />
-                        <span className="last-filled">Last filled yesterday</span>
-                        <span className="last-filled-details">38.39 lt | €65.99</span>
+                        <span className="last-filled">Last filled {fuelFills[0].filledAt}</span>
+                        <span className="last-filled-details">
+                          {fuelFills[0].lt.toLocaleString(undefined, {minimumFractionDigits: 2})} lt. | 
+                          €{fuelFills[0].cost.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                       </div>
                     </div>
                   </div>
@@ -175,15 +283,15 @@ function User() {
                   <h3 className="card-title mb-3">Average Consumption</h3>
                   <div className="consumption-grid">
                     <div className="consumption-item">
-                      <div className="consumption-value">9.31</div>
+                      <div className="consumption-value">{Car.getTotalConsumption().toFixed(3)}</div>
                       <div className="consumption-label">lt/100km</div>
                     </div>
                     <div className="consumption-item">
-                      <div className="consumption-value">10.75</div>
+                      <div className="consumption-value">{Car.getTotalEfficiency().toFixed(3)}</div>
                       <div className="consumption-label">km/lt</div>
                     </div>
                     <div className="consumption-item">
-                      <div className="consumption-value">0,18</div>
+                      <div className="consumption-value">{Car.getTotalTravelCost().toFixed(2)}</div>
                       <div className="consumption-label">€/km</div>
                     </div>
                   </div>
@@ -236,7 +344,7 @@ function User() {
                     </div>
                   </div>
                   <div className="graph-container">
-                    <div className="graph-title">It./100km</div>
+                    <div className="graph-title">{currentColor.shortened}</div>
                     <div className="chart-wrapper">
                       <Line data={chartData} options={chartOptions} />
                     </div>
@@ -251,29 +359,35 @@ function User() {
                 <Card.Body className="p-4">
                   <h3 className="card-title mb-4">Combined Costs</h3>
                   <div className="costs-content">
-                    <div className="costs-chart">
-                      <div className="pie-chart">
-                        <div className="pie-slice fuel" style={{'--percentage': '93.1%'}}></div>
-                        <div className="pie-slice malfunctions" style={{'--percentage': '6.9%'}}></div>
-                        <div className="pie-slice services" style={{'--percentage': '0%'}}></div>
-                        <div className="pie-percentages">
-                          <div className="percentage fuel-percentage">93.1%</div>
-                          <div className="percentage malfunctions-percentage">6.9%</div>
-                        </div>
-                      </div>
-                    </div>
+                      {(() => {
+                              return (
+                                <>
+                                  <div>
+                                    <div style={{ width: '250px', height: '250px' }}>
+                                      <Pie data={pieData} options={pieOptions} />
+                                    </div>
+                                  </div>
+                                </>
+                              );
+                            })()}
                     <div className="costs-legend">
                       <div className="legend-item">
                         <span className="legend-color fuel"></span>
-                        <span className="legend-text">fuel fills: €5,230.73</span>
+                        <span className="legend-text">
+                          Fuel Fills: €{Car.getTotalFuelFillCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
                       </div>
                       <div className="legend-item">
                         <span className="legend-color malfunctions"></span>
-                        <span className="legend-text">malfunctions: €385</span>
+                        <span className="legend-text">
+                          Malfunction Repairs: €{Car.getTotalMalfunctionCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
                       </div>
                       <div className="legend-item">
                         <span className="legend-color services"></span>
-                        <span className="legend-text">services: €0</span>
+                        <span className="legend-text">
+                          Services: €{Car.getTotalServiceCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -298,41 +412,19 @@ function User() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td><Link to="/fuel-fill/1" className="fuel-fill-link">2025-01-15</Link></td>
-                          <td>€70.00</td>
-                          <td>95 Octane</td>
-                          <td>Shell Station</td>
-                          <td>8.2</td>
-                        </tr>
-                        <tr>
-                          <td><Link to="/fuel-fill/2" className="fuel-fill-link">2024-12-28</Link></td>
-                          <td>€68.50</td>
-                          <td>95 Octane</td>
-                          <td>BP Station</td>
-                          <td>7.9</td>
-                        </tr>
-                        <tr>
-                          <td><Link to="/fuel-fill/3" className="fuel-fill-link">2024-12-10</Link></td>
-                          <td>€72.30</td>
-                          <td>95 Octane</td>
-                          <td>Esso Station</td>
-                          <td>8.5</td>
-                        </tr>
-                        <tr>
-                          <td><Link to="/fuel-fill/4" className="fuel-fill-link">2024-11-25</Link></td>
-                          <td>€65.80</td>
-                          <td>95 Octane</td>
-                          <td>Shell Station</td>
-                          <td>7.6</td>
-                        </tr>
-                        <tr>
-                          <td><Link to="/fuel-fill/5" className="fuel-fill-link">2024-11-08</Link></td>
-                          <td>€69.20</td>
-                          <td>95 Octane</td>
-                          <td>BP Station</td>
-                          <td>8.1</td>
-                        </tr>
+                        {fuelFills.slice(0, 5).map((fill) => (
+                          <tr key={fill.id}>
+                            <td>
+                              <Link to={`/fuel-fill/${fill.id}`} className="fuel-fill-link">
+                                {fill.filledAt}
+                              </Link>
+                            </td>
+                            <td>€{fill.cost.toFixed(2)}</td>
+                            <td>{fill.fuelType === null || fill.fuelType === '' ? '-' : fill.fuelType }</td>
+                            <td>{fill.station === null || fill.station === '' ? '-' : fill.station}</td>
+                            <td>{fill.getConsumption().toFixed(3)}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -348,15 +440,15 @@ function User() {
                   <div className="statistics-stats">
                     <div className="stat-item">
                       <span className="stat-label">Total Liters Filled:</span>
-                      <span className="stat-value">2.640 lt</span>
+                      <span className="stat-value">{Car.getTotalLitersFilled().toLocaleString(undefined, {maximumFractionDigits: 3})} lt</span>
                     </div>
                     <div className="stat-item">
                       <span className="stat-label">Total Kilometers Traveled:</span>
-                      <span className="stat-value">28.371,5 km</span>
+                      <span className="stat-value">{Car.getTotalKilometersTraveled().toLocaleString(undefined, {maximumFractionDigits: 3})} km</span>
                     </div>
                     <div className="stat-item">
                       <span className="stat-label">Total Costs:</span>
-                      <span className="stat-value">€5.623,31</span>
+                      <span className="stat-value">€{Car.getTotalCost().toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                     </div>
                   </div>
                 </Card.Body>

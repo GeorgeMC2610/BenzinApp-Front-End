@@ -5,7 +5,7 @@ import DrawerMenu from './DrawerMenu';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import { FuelFillRecord } from '../classes/FuelFillRecord';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faRefresh } from '@fortawesome/free-solid-svg-icons';
 
 function FuelFills() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,8 +76,18 @@ function FuelFills() {
               <div className="page-header mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h1 className="page-title">Fuel Fills</h1>
-                  <p className="page-subtitle">Manage your fuel fill records</p>
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <h1 className="page-title mb-0">Fuel Fills</h1>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className='ms-2'
+                      onClick={() => store.index()} // or whatever function reloads your data
+                    >
+                      <FontAwesomeIcon icon={faRefresh} />
+                    </Button>
+                  </div>
+                  <p className="page-subtitle">{fuelFills?.length ?? 0} total fuel fills.</p>
                 </div>
                 <Button as={Link} to="/add-fuel-fill" className="add-btn">
                   + Add New Fill

@@ -1,18 +1,22 @@
 import { Container, Row, Col, Card, Form, Button, Spinner, InputGroup } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import TokenHelper from '../services/TokenHelper';
-import RequestHelper from "../services/RequestHelper.ts";
 import { useCarStore } from '../services/managers/CarManager.ts';
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager.ts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { faGasPump } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from "react-router";
+import { useMalfunctionStore } from '../services/managers/MalfunctionManager.ts';
+import { useServiceStore } from '../services/managers/ServiceManager.ts';
 
 function Login() {
   const carStore = useCarStore();
+  const fuelFillStore = useFuelFillRecordStore();
+  const malfunctionStore = useMalfunctionStore();
+  const serviceStore = useServiceStore();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -38,6 +42,11 @@ function Login() {
 
     if (response) {
         toast.success("Successfully logged in.", { position: 'top-center' });
+        carStore.getCarDetails();
+        await fuelFillStore.index();
+        await malfunctionStore.index();
+        await serviceStore.index();
+        navigate('/dashboard');
     }
     else {
         toast.error("Invalid Credentials. Please, try again.", { position: 'top-center' });

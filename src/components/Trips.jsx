@@ -3,86 +3,30 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faCar } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faCar, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { useTripStore } from '../services/managers/TripManager';
 
 function Trips() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Sample data - in a real app, this would come from an API
-  const trips = [
-    {
-      id: 1,
-      name: 'Work Commute',
-      type: 'Repeating',
-      frequency: 5,
-      cost: 2.50,
-      kilometers: 15.5,
-      createdDate: '2024-01-15',
-      description: 'Daily commute to office'
-    },
-    {
-      id: 2,
-      name: 'Grocery Shopping',
-      type: 'Repeating',
-      frequency: 2,
-      cost: 1.20,
-      kilometers: 8.2,
-      createdDate: '2024-02-01',
-      description: 'Weekly grocery trips'
-    },
-    {
-      id: 3,
-      name: 'Weekend Trip to Beach',
-      type: 'One-Time',
-      frequency: null,
-      cost: 25.80,
-      kilometers: 120.5,
-      createdDate: '2024-12-20',
-      description: 'Family trip to coastal city'
-    },
-    {
-      id: 4,
-      name: 'Gym Visits',
-      type: 'Repeating',
-      frequency: 3,
-      cost: 1.80,
-      kilometers: 12.0,
-      createdDate: '2024-03-10',
-      description: 'Regular gym sessions'
-    },
-    {
-      id: 5,
-      name: 'Airport Pickup',
-      type: 'One-Time',
-      frequency: null,
-      cost: 18.50,
-      kilometers: 45.2,
-      createdDate: '2024-11-15',
-      description: 'Picking up friend from airport'
-    },
-    {
-      id: 6,
-      name: 'Doctor Appointments',
-      type: 'Repeating',
-      frequency: 1,
-      cost: 3.20,
-      kilometers: 22.8,
-      createdDate: '2024-06-05',
-      description: 'Monthly medical checkups'
-    }
-  ];
+  const store = useTripStore();
+  const trips = useTripStore((state) => state.list);
+
+  if (!trips) {
+    store.index();
+  }
 
   // Filter trips based on search term
-  const filteredTrips = trips.filter(trip =>
-    trip.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    trip.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    trip.createdDate.includes(searchTerm) ||
-    trip.kilometers.toString().includes(searchTerm)
-  );
+  const filteredTrips = trips?.filter(trip =>
+    trip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    trip.timesRepeating.toString().includes(searchTerm) ||
+    trip.created.includes(searchTerm) ||
+    trip.totalKm.toString().includes(searchTerm)
+  ) ?? [];
 
   // Separate repeating and one-time trips
-  const repeatingTrips = filteredTrips.filter(trip => trip.type === 'Repeating');
-  const oneTimeTrips = filteredTrips.filter(trip => trip.type === 'One-Time');
+  const repeatingTrips = filteredTrips.filter(trip => trip.timesRepeating > 1);
+  const oneTimeTrips = filteredTrips.filter(trip => trip.timesRepeating === 1);
 
   const handleEdit = (id) => {
     console.log('Edit trip:', id);
@@ -111,11 +55,10 @@ function Trips() {
           <Table responsive className="trips-table mb-0">
             <thead>
               <tr>
-                <th>Name of Trip</th>
-                <th>Frequency</th>
-                <th>Cost</th>
-                <th>Kilometers</th>
-                <th>Created Date</th>
+                <th>Title</th>
+                <th>Times Repeating</th>
+                <th>Total Km</th>
+                <th>Created At</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -124,18 +67,20 @@ function Trips() {
                 <tr key={trip.id}>
                   <td>
                     <div className="trip-name">
-                      {trip.name}
+                      <Link to={`/trip/${trip.id}`} className="fuel-fill-link">
+                        {trip.title}
+                      </Link>
                     </div>
-                    <div className="trip-description">
-                      {trip.description}
+                    <div className="trip-addresses mt-1">
+                      <small>Origin: {trip.originAddress}</small>
+                      <small>Destination: {trip.destinationAddress}</small>
                     </div>
                   </td>
                   <td>
-                    {trip.frequency ? `${trip.frequency} times per week` : 'One-time'}
+                    {trip.timesRepeating > 1 ? `${trip.timesRepeating} times per week` : 'One-time'}
                   </td>
-                  <td>€{trip.cost.toFixed(2)}</td>
-                  <td>{trip.kilometers} km</td>
-                  <td>{trip.createdDate}</td>
+                  <td>{trip.totalKm.toFixed(2)} km</td>
+                  <td>{trip.created}</td>
                   <td>
                     <div className="action-buttons">
                       <Button
@@ -179,8 +124,18 @@ function Trips() {
               <div className="page-header mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h1 className="page-title">Trips</h1>
-                  <p className="page-subtitle">Manage your regular and one-time trips</p>
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <h1 className="page-title mb-0">Trips</h1>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className='ms-2'
+                      onClick={() => store.index()}
+                    >
+                      <FontAwesomeIcon icon={faRefresh} />
+                    </Button>
+                  </div>
+                  <p className="page-subtitle">{trips?.length} total trips</p>
                 </div>
                 <Button as={Link} to="/add-trip" className="add-btn">
                   + Add New Trip

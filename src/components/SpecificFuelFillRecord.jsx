@@ -1,114 +1,34 @@
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
+import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
+import { FuelFillRecord } from '../classes/FuelFillRecord';
+import ConfirmModal from './ConfirmModal';
+
+const MAX_COMMENT_LENGTH = 150;
 
 function SpecificFuelFillRecord() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [fuelFill, setFuelFill] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Sample data - in a real app, this would come from an API
-  const fuelFills = [
-    {
-      id: 1,
-      date: '2025-01-15',
-      mileage: 28500,
-      cost: 70.00,
-      liters: 45.2,
-      fuelType: '95 Octane',
-      stationName: 'Shell Station',
-      efficiency: 8.2,
-      comments: 'Regular fill-up during morning commute. Traffic was heavy today.'
-    },
-    {
-      id: 2,
-      date: '2024-12-28',
-      mileage: 28100,
-      cost: 68.50,
-      liters: 44.1,
-      fuelType: '95 Octane',
-      stationName: 'BP Station',
-      efficiency: 7.9,
-      comments: 'Holiday trip to the mountains. Great fuel efficiency on the highway.'
-    },
-    {
-      id: 3,
-      date: '2024-12-10',
-      mileage: 27700,
-      cost: 72.30,
-      liters: 46.8,
-      fuelType: '95 Octane',
-      stationName: 'Esso Station',
-      efficiency: 8.5,
-      comments: 'City driving mostly. Cold weather affecting efficiency.'
-    },
-    {
-      id: 4,
-      date: '2024-11-25',
-      mileage: 27300,
-      cost: 65.80,
-      liters: 42.5,
-      fuelType: '95 Octane',
-      stationName: 'Shell Station',
-      efficiency: 7.6,
-      comments: 'Excellent efficiency this time. Mostly highway driving.'
-    },
-    {
-      id: 5,
-      date: '2024-11-08',
-      mileage: 26900,
-      cost: 69.20,
-      liters: 44.7,
-      fuelType: '95 Octane',
-      stationName: 'BP Station',
-      efficiency: 8.1,
-      comments: 'Regular city commute. Normal consumption patterns.'
-    },
-    {
-      id: 6,
-      date: '2024-10-20',
-      mileage: 26500,
-      cost: 71.10,
-      liters: 45.9,
-      fuelType: '95 Octane',
-      stationName: 'Total Station',
-      efficiency: 8.3,
-      comments: 'Mixed driving conditions. Some highway, some city.'
-    },
-    {
-      id: 7,
-      date: '2024-10-05',
-      mileage: 26100,
-      cost: 67.40,
-      liters: 43.6,
-      fuelType: '95 Octane',
-      stationName: 'Shell Station',
-      efficiency: 7.8,
-      comments: 'Good efficiency achieved. Mostly suburban driving.'
-    },
-    {
-      id: 8,
-      date: '2024-09-18',
-      mileage: 25700,
-      cost: 73.50,
-      liters: 47.2,
-      fuelType: '95 Octane',
-      stationName: 'Esso Station',
-      efficiency: 8.7,
-      comments: 'Heavy traffic conditions. Lower efficiency due to stop-and-go driving.'
-    }
-  ];
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const store = useFuelFillRecordStore();
 
   useEffect(() => {
-    // Simulate API call
     const fetchFuelFill = () => {
-      const foundFill = fuelFills.find(fill => fill.id === parseInt(id));
-      if (foundFill) {
-        setFuelFill(foundFill);
+      const listFill = store.list?.find(fill => fill.id === parseInt(id));
+      if (listFill) {
+        setFuelFill(new FuelFillRecord(listFill));
+        setLoading(false);
       }
-      setLoading(false);
+      else {
+        store.read(id).then(_ => {
+          setFuelFill(new FuelFillRecord(store.viewingFuelFillRecord));
+          setLoading(false);
+        });
+      }
     };
 
     fetchFuelFill();
@@ -129,21 +49,6 @@ function SpecificFuelFillRecord() {
     };
   };
 
-  const calculateConsumption = (liters, previousMileage, currentMileage) => {
-    const kilometers = currentMileage - previousMileage;
-    return kilometers > 0 ? (liters / kilometers * 100).toFixed(1) : 'N/A';
-  };
-
-  const calculateEfficiency = (liters, previousMileage, currentMileage) => {
-    const kilometers = currentMileage - previousMileage;
-    return kilometers > 0 ? (kilometers / liters).toFixed(1) : 'N/A';
-  };
-
-  const calculateTravelCost = (cost, previousMileage, currentMileage) => {
-    const kilometers = currentMileage - previousMileage;
-    return kilometers > 0 ? (cost / kilometers).toFixed(2) : 'N/A';
-  };
-
   const handleEdit = () => {
     // Navigate to edit page - for now, we'll redirect to the add fuel fill page
     // In a real app, this would navigate to a dedicated edit form with pre-filled data
@@ -156,14 +61,21 @@ function SpecificFuelFillRecord() {
   };
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this fuel fill record? This action cannot be undone.')) {
-      // In a real app, this would call an API to delete the record
-      console.log('Delete fuel fill:', fuelFill.id);
-      
-      // Show success message and redirect
-      alert('Fuel fill record deleted successfully!');
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    console.log('Delete fuel fill:', fuelFill.id);
+    setShowDeleteModal(false);
+    setFeedbackMessage('Fuel fill record deleted successfully.');
+
+    deleteRedirectTimeout.current = setTimeout(() => {
       navigate('/fuel-fills');
-    }
+    }, 1200);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
   };
 
   if (loading) {
@@ -206,12 +118,6 @@ function SpecificFuelFillRecord() {
     );
   }
 
-  const dateInfo = formatDate(fuelFill.date);
-  const previousMileage = fuelFill.mileage - 400; // Simulate previous mileage
-  const consumption = calculateConsumption(fuelFill.liters, previousMileage, fuelFill.mileage);
-  const efficiency = calculateEfficiency(fuelFill.liters, previousMileage, fuelFill.mileage);
-  const travelCost = calculateTravelCost(fuelFill.cost, previousMileage, fuelFill.mileage);
-
   return (
     <div className="fuel-fill-record-page">
       <DrawerMenu />
@@ -241,13 +147,13 @@ function SpecificFuelFillRecord() {
                   {/* Date and Basic Info Section */}
                   <div className="date-section mb-4">
                     <div className="date-info text-center">
-                      <div className="date-day-of-week">{dateInfo.dayOfWeek}</div>
-                      <div className="date-month-day">{dateInfo.month} {dateInfo.day}</div>
-                      <div className="date-year">{dateInfo.year}</div>
+                      <div className="date-day-of-week">{formatDate(new Date(fuelFill?.filledAt)).dayOfWeek}</div>
+                      <div className="date-month-day">{formatDate(new Date(fuelFill?.filledAt)).month} {formatDate(new Date(fuelFill?.filledAt)).day}</div>
+                      <div className="date-year">{formatDate(new Date(fuelFill?.filledAt)).year}</div>
                     </div>
                     <div className="fuel-station-info text-center mt-3">
                       <div className="fuel-type">{fuelFill.fuelType}</div>
-                      <div className="station-name">{fuelFill.stationName}</div>
+                      <div className="station-name">{fuelFill.station}</div>
                     </div>
                   </div>
 
@@ -260,11 +166,11 @@ function SpecificFuelFillRecord() {
                           <h4 className="metrics-title mb-3">Basic Metrics</h4>
                           <div className="metric-item">
                             <div className="metric-label">Liters</div>
-                            <div className="metric-value">{fuelFill.liters}L</div>
+                            <div className="metric-value">{fuelFill.lt.toLocaleString(undefined, { maximumFractionDigits: 2 })} L</div>
                           </div>
                           <div className="metric-item">
                             <div className="metric-label">Kilometers</div>
-                            <div className="metric-value">{(fuelFill.mileage - previousMileage).toLocaleString()} km</div>
+                            <div className="metric-value">{fuelFill.km.toLocaleString(undefined, { maximumFractionDigits: 2 })} km</div>
                           </div>
                           <div className="metric-item">
                             <div className="metric-label">Cost</div>
@@ -281,15 +187,15 @@ function SpecificFuelFillRecord() {
                           <h4 className="metrics-title mb-3">Calculated Metrics</h4>
                           <div className="metric-item">
                             <div className="metric-label">Consumption</div>
-                            <div className="metric-value">{consumption} L/100km</div>
+                            <div className="metric-value">{fuelFill?.getConsumption().toLocaleString(undefined, { maximumFractionDigits: 3 })} L/100km</div>
                           </div>
                           <div className="metric-item">
                             <div className="metric-label">Efficiency</div>
-                            <div className="metric-value">{efficiency} km/L</div>
+                            <div className="metric-value">{fuelFill?.getEfficiency().toLocaleString(undefined, { maximumFractionDigits: 3 })} km/L</div>
                           </div>
                           <div className="metric-item">
                             <div className="metric-label">Travel Cost</div>
-                            <div className="metric-value">€{travelCost}/km</div>
+                            <div className="metric-value">€{fuelFill?.getTravelCost().toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}/km</div>
                           </div>
                         </Card.Body>
                       </Card>
@@ -302,7 +208,20 @@ function SpecificFuelFillRecord() {
                       <Card className="comments-card">
                         <Card.Body className="p-4">
                           <h4 className="comments-title mb-3">Comments</h4>
-                          <p className="comments-text">{fuelFill.comments}</p>
+                          <p className="comments-text mb-0">
+                            {showFullComments || fuelFill.comments.length <= MAX_COMMENT_LENGTH
+                              ? fuelFill.comments
+                              : `${fuelFill.comments.substring(0, MAX_COMMENT_LENGTH)}...`}
+                          </p>
+                          {fuelFill.comments.length > MAX_COMMENT_LENGTH && (
+                            <Button
+                              variant="link"
+                              className="p-0 mt-2 text-decoration-none"
+                              onClick={() => setShowFullComments(!showFullComments)}
+                            >
+                              {showFullComments ? 'Show less' : 'Show more'}
+                            </Button>
+                          )}
                         </Card.Body>
                       </Card>
                     </div>
@@ -334,6 +253,16 @@ function SpecificFuelFillRecord() {
         </Container>
         </section>
       </div>
+
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Delete Fuel Fill Record"
+        message="Are you sure you want to delete this fuel fill record? This action cannot be undone."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 }

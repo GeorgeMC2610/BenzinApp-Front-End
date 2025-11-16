@@ -61,6 +61,11 @@ export const useCarStore = create<CarState & CarActions>()(
         {
             name: 'car-store',
             storage: createJSONStorage(() => sessionStorage),
+            onRehydrateStorage: () => (state) => {
+                if (state?.car) {
+                    state.car = new Car(state.car)
+                }
+            }
         }
     )
 )
