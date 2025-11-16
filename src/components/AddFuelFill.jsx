@@ -1,6 +1,7 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+const defaultFuelTypes = ['95 Octane', '98 Octane', 'Diesel', 'E10', 'E5', 'LPG'];
 
 function AddFuelFill() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,29 @@ function AddFuelFill() {
     stationName: '',
     comments: ''
   });
+  const [fuelTypeOptions, setFuelTypeOptions] = useState(defaultFuelTypes);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedOptions = window.localStorage.getItem('fuelTypeOptions');
+      if (storedOptions) {
+        try {
+          const parsedOptions = JSON.parse(storedOptions);
+          if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+            setFuelTypeOptions(parsedOptions);
+          }
+        } catch (error) {
+          console.error('Failed to parse stored fuel type options:', error);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('fuelTypeOptions', JSON.stringify(fuelTypeOptions));
+    }
+  }, [fuelTypeOptions]);
 
   const handleChange = (e) => {
     setFormData({
@@ -24,6 +48,18 @@ function AddFuelFill() {
     e.preventDefault();
     // Handle form submission here
     console.log('Fuel fill record:', formData);
+    const normalizedFuelType = formData.fuelType.trim();
+    if (normalizedFuelType) {
+      setFuelTypeOptions((prevOptions) => {
+        const exists = prevOptions.some(
+          (option) => option.toLowerCase() === normalizedFuelType.toLowerCase()
+        );
+        if (exists) {
+          return prevOptions;
+        }
+        return [...prevOptions, normalizedFuelType];
+      });
+    }
     // Redirect to fuel fills page or show success message
   };
 
@@ -33,15 +69,8 @@ function AddFuelFill() {
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="add-fuel-fill-container">
-              {/* Header */}
               <div className="text-center mb-4">
-                <Link to="/user" className="brand-link">
-                  <div className="brand-logo">
-                    <span className="brand-icon">⛽</span>
-                    <span className="brand-text">BenzinApp</span>
-                  </div>
-                </Link>
-                <h1 className="page-title mt-3">Add Fuel Fill Record</h1>
+                <h1 className="page-title">Add Fuel Fill Record</h1>
               </div>
 
               {/* Form */}
@@ -148,21 +177,22 @@ function AddFuelFill() {
                             <Form.Label htmlFor="fuelType" className="form-label">
                               Fuel Type
                             </Form.Label>
-                            <Form.Select
+                            <Form.Control
                               id="fuelType"
                               name="fuelType"
+                              type="text"
+                              list="fuelTypeOptions"
                               value={formData.fuelType}
                               onChange={handleChange}
                               className="form-input"
-                            >
-                              <option value="">Select fuel type</option>
-                              <option value="95-octane">95 Octane</option>
-                              <option value="98-octane">98 Octane</option>
-                              <option value="diesel">Diesel</option>
-                              <option value="e10">E10</option>
-                              <option value="e5">E5</option>
-                              <option value="lpg">LPG</option>
-                            </Form.Select>
+                              placeholder="e.g. 95 Octane"
+                              autoComplete="on"
+                            />
+                            <datalist id="fuelTypeOptions">
+                              {fuelTypeOptions.map((option) => (
+                                <option value={option} key={option} />
+                              ))}
+                            </datalist>
                           </Form.Group>
                         </Col>
                         <Col md={6}>

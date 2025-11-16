@@ -15,60 +15,78 @@ function Trips() {
       name: 'Work Commute',
       type: 'Repeating',
       frequency: 5,
-      cost: 2.50,
+      cost: 2.5,
       kilometers: 15.5,
       createdDate: '2024-01-15',
-      description: 'Daily commute to office'
+      description: 'Daily trip from Miaouli to Tsimiski in Thessaloniki.',
+      origin: 'Miaouli 4, Thessaloniki',
+      destination: 'Tsimiski 50, Thessaloniki',
+      lastCompleted: '2025-01-10'
     },
     {
       id: 2,
       name: 'Grocery Shopping',
       type: 'Repeating',
       frequency: 2,
-      cost: 1.20,
+      cost: 1.2,
       kilometers: 8.2,
       createdDate: '2024-02-01',
-      description: 'Weekly grocery trips'
+      description: 'Weekly runs between Kapodistriou and Agias Sofias.',
+      origin: 'Kapodistriou 8, Thessaloniki',
+      destination: 'Agias Sofias 15, Thessaloniki',
+      lastCompleted: '2025-01-12'
     },
     {
       id: 3,
       name: 'Weekend Trip to Beach',
       type: 'One-Time',
       frequency: null,
-      cost: 25.80,
+      cost: 25.8,
       kilometers: 120.5,
       createdDate: '2024-12-20',
-      description: 'Family trip to coastal city'
+      description: 'Family escape down to Agios Nikolaos beach.',
+      origin: 'Miaouli 4, Thessaloniki',
+      destination: 'Agios Nikolaos Beach, Chalkidiki',
+      lastCompleted: '2024-12-20'
     },
     {
       id: 4,
       name: 'Gym Visits',
       type: 'Repeating',
       frequency: 3,
-      cost: 1.80,
+      cost: 1.8,
       kilometers: 12.0,
       createdDate: '2024-03-10',
-      description: 'Regular gym sessions'
+      description: 'Training sessions around the Marousi fitness center.',
+      origin: 'Kifisias Avenue 115, Marousi',
+      destination: 'Leoforos Marathonos 12, Marousi',
+      lastCompleted: '2025-01-11'
     },
     {
       id: 5,
       name: 'Airport Pickup',
       type: 'One-Time',
       frequency: null,
-      cost: 18.50,
+      cost: 18.5,
       kilometers: 45.2,
       createdDate: '2024-11-15',
-      description: 'Picking up friend from airport'
+      description: 'Pick-up from Athens International Airport in Spata.',
+      origin: 'Miaouli 4, Thessaloniki',
+      destination: 'Athens International Airport, Spata',
+      lastCompleted: '2024-11-15'
     },
     {
       id: 6,
       name: 'Doctor Appointments',
       type: 'Repeating',
       frequency: 1,
-      cost: 3.20,
+      cost: 3.2,
       kilometers: 22.8,
       createdDate: '2024-06-05',
-      description: 'Monthly medical checkups'
+      description: 'Monthly visits to Kifisia clinics.',
+      origin: 'Miaouli 4, Thessaloniki',
+      destination: 'Stratonikos 25, Kifisia',
+      lastCompleted: '2025-01-05'
     }
   ];
 
@@ -124,10 +142,16 @@ function Trips() {
                 <tr key={trip.id}>
                   <td>
                     <div className="trip-name">
-                      {trip.name}
+                      <Link to={`/trip/${trip.id}`} className="fuel-fill-link">
+                        {trip.name}
+                      </Link>
                     </div>
                     <div className="trip-description">
                       {trip.description}
+                    </div>
+                    <div className="trip-addresses mt-1">
+                      <small>Origin: {trip.origin}</small>
+                      <small>Destination: {trip.destination}</small>
                     </div>
                   </td>
                   <td>

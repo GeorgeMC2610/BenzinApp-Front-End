@@ -1,13 +1,20 @@
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
+import ConfirmModal from './ConfirmModal';
+
+const MAX_COMMENT_LENGTH = 150;
 
 function SpecificFuelFillRecord() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [fuelFill, setFuelFill] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showFullComments, setShowFullComments] = useState(false);
+  const deleteRedirectTimeout = useRef(null);
 
   // Sample data - in a real app, this would come from an API
   const fuelFills = [
@@ -156,15 +163,30 @@ function SpecificFuelFillRecord() {
   };
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this fuel fill record? This action cannot be undone.')) {
-      // In a real app, this would call an API to delete the record
-      console.log('Delete fuel fill:', fuelFill.id);
-      
-      // Show success message and redirect
-      alert('Fuel fill record deleted successfully!');
-      navigate('/fuel-fills');
-    }
+    setShowDeleteModal(true);
   };
+
+  const confirmDelete = () => {
+    console.log('Delete fuel fill:', fuelFill.id);
+    setShowDeleteModal(false);
+    setFeedbackMessage('Fuel fill record deleted successfully.');
+
+    deleteRedirectTimeout.current = setTimeout(() => {
+      navigate('/fuel-fills');
+    }, 1200);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (deleteRedirectTimeout.current) {
+        clearTimeout(deleteRedirectTimeout.current);
+      }
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -222,6 +244,11 @@ function SpecificFuelFillRecord() {
         <Container>
           <Row className="justify-content-center">
             <Col xs={12} lg={10} xl={8}>
+              {feedbackMessage && (
+                <Alert variant="success" className="mb-4">
+                  {feedbackMessage}
+                </Alert>
+              )}
               {/* Header */}
               <div className="page-header mb-4">
                 <div className="d-flex justify-content-between align-items-center">
@@ -302,7 +329,20 @@ function SpecificFuelFillRecord() {
                       <Card className="comments-card">
                         <Card.Body className="p-4">
                           <h4 className="comments-title mb-3">Comments</h4>
-                          <p className="comments-text">{fuelFill.comments}</p>
+                          <p className="comments-text mb-0">
+                            {showFullComments || fuelFill.comments.length <= MAX_COMMENT_LENGTH
+                              ? fuelFill.comments
+                              : `${fuelFill.comments.substring(0, MAX_COMMENT_LENGTH)}...`}
+                          </p>
+                          {fuelFill.comments.length > MAX_COMMENT_LENGTH && (
+                            <Button
+                              variant="link"
+                              className="p-0 mt-2 text-decoration-none"
+                              onClick={() => setShowFullComments(!showFullComments)}
+                            >
+                              {showFullComments ? 'Show less' : 'Show more'}
+                            </Button>
+                          )}
                         </Card.Body>
                       </Card>
                     </div>
@@ -334,6 +374,16 @@ function SpecificFuelFillRecord() {
         </Container>
         </section>
       </div>
+
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Delete Fuel Fill Record"
+        message="Are you sure you want to delete this fuel fill record? This action cannot be undone."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 }

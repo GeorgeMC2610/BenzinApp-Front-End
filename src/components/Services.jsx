@@ -16,7 +16,11 @@ function Services() {
       date: '2025-01-05',
       status: 'Completed',
       discoveredAt: 28500,
-      description: 'Regular oil change with synthetic oil'
+      description: 'Regular oil change with synthetic oil',
+      serviceCenter: 'AutoFix Garage',
+      cost: 120.0,
+      nextServiceMileage: 33500,
+      notes: 'Used Castrol Edge 5W-30 oil and replaced oil filter.'
     },
     {
       id: 2,
@@ -24,7 +28,11 @@ function Services() {
       date: '2024-12-20',
       status: 'Scheduled',
       discoveredAt: 28000,
-      description: 'Brake pad replacement and rotor inspection'
+      description: 'Brake pad replacement and rotor inspection',
+      serviceCenter: 'Downtown Brake Specialists',
+      cost: null,
+      nextServiceMileage: 31000,
+      notes: 'Waiting for OEM brake pads to arrive before appointment.'
     },
     {
       id: 3,
@@ -32,7 +40,11 @@ function Services() {
       date: '2024-11-15',
       status: 'Completed',
       discoveredAt: 27500,
-      description: 'Tire rotation and alignment check'
+      description: 'Tire rotation and alignment check',
+      serviceCenter: 'WheelWorks Alignment Center',
+      cost: 65.0,
+      nextServiceMileage: 30500,
+      notes: 'Front tires showed minor wear difference; alignment adjusted.'
     },
     {
       id: 4,
@@ -40,7 +52,11 @@ function Services() {
       date: '2024-10-10',
       status: 'Scheduled',
       discoveredAt: 27000,
-      description: 'Transmission fluid change and filter replacement'
+      description: 'Transmission fluid change and filter replacement',
+      serviceCenter: 'Precision Auto Care',
+      cost: null,
+      nextServiceMileage: 32000,
+      notes: 'Scheduled during next maintenance window.'
     },
     {
       id: 5,
@@ -48,7 +64,11 @@ function Services() {
       date: '2024-09-25',
       status: 'Completed',
       discoveredAt: 26500,
-      description: 'Battery test and terminal cleaning'
+      description: 'Battery test and terminal cleaning',
+      serviceCenter: 'ElectroStart Service',
+      cost: 45.0,
+      nextServiceMileage: 29500,
+      notes: 'Terminals cleaned and protective spray applied.'
     }
   ];
 
@@ -147,7 +167,9 @@ function Services() {
                         <tr key={service.id}>
                           <td>
                             <div className="service-name">
-                              {service.name}
+                              <Link to={`/service/${service.id}`} className="fuel-fill-link">
+                                {service.name}
+                              </Link>
                             </div>
                             <div className="service-description">
                               {service.description}
