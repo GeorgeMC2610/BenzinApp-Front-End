@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import { Malfunction } from '../classes/Malfunction';
+import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
 
 const MAX_DESCRIPTION_LENGTH = 150;
 
@@ -15,90 +17,25 @@ function SpecificMalfunctionRecord() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [showFullDescription, setShowFullDescription] = useState(false);
   const deleteRedirectTimeout = useRef(null);
-
-  const malfunctions = [
-    {
-      id: 1,
-      name: 'Engine Misfire',
-      date: '2025-01-10',
-      status: 'Fixed',
-      discoveredAt: 28450,
-      description: 'Cylinder 3 misfiring at idle',
-      severity: 4,
-      repairCost: 385,
-      endDate: '2025-01-18',
-      location: 'City Motors Workshop',
-      notes: 'Spark plugs and ignition coils replaced.'
-    },
-    {
-      id: 2,
-      name: 'Brake Pad Wear',
-      date: '2024-12-15',
-      status: 'Ongoing',
-      discoveredAt: 28000,
-      description: 'Front brake pads need replacement',
-      severity: 3,
-      repairCost: null,
-      endDate: null,
-      location: '',
-      notes: 'Monitoring pad thickness weekly until service appointment.'
-    },
-    {
-      id: 3,
-      name: 'AC Compressor Failure',
-      date: '2024-11-20',
-      status: 'Fixed',
-      discoveredAt: 27500,
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      severity: 2,
-      repairCost: 620,
-      endDate: '2024-11-28',
-      location: 'CoolAir Specialists',
-      notes: 'Compressor rebuilt and refrigerant topped up.'
-    },
-    {
-      id: 4,
-      name: 'Transmission Slipping',
-      date: '2024-10-05',
-      status: 'Ongoing',
-      discoveredAt: 27000,
-      description: 'Gear slipping in 3rd gear',
-      severity: 5,
-      repairCost: null,
-      endDate: null,
-      location: '',
-      notes: 'Diagnostic appointment scheduled for next week.'
-    },
-    {
-      id: 5,
-      name: 'Battery Drain',
-      date: '2024-09-12',
-      status: 'Fixed',
-      discoveredAt: 26500,
-      description: 'Battery dying overnight',
-      severity: 2,
-      repairCost: 210,
-      endDate: '2024-09-18',
-      location: 'ElectroStart Service',
-      notes: 'Parasitic drain traced to faulty trunk light switch.'
-    }
-  ];
+  const store = useMalfunctionStore();
 
   useEffect(() => {
-    const foundMalfunction = malfunctions.find((item) => item.id === parseInt(id, 10));
-    if (foundMalfunction) {
-      setMalfunction(foundMalfunction);
-    }
-    setLoading(false);
-  }, [id]);
-
-  useEffect(() => {
-    return () => {
-      if (deleteRedirectTimeout.current) {
-        clearTimeout(deleteRedirectTimeout.current);
+    const fetchMalfunction = () => {
+      const listMalfunction = store.list?.find(mlfnctn => mlfnctn.id === parseInt(id));
+      if (listMalfunction) {
+        setMalfunction(new Malfunction(listMalfunction));
+        setLoading(false);
+      }
+      else {
+        store.read(id).then(_ => {
+          setMalfunction(new Malfunction(store.viewingMalfunction));
+          setLoading(false);
+        });
       }
     };
-  }, []);
+    
+    fetchMalfunction();
+  }, [id]);
 
   const handleEdit = () => {
     navigate('/add-malfunction', {
@@ -167,8 +104,9 @@ function SpecificMalfunctionRecord() {
     );
   }
 
-  const discoveryDate = new Date(malfunction.date);
-  const resolvedDate = malfunction.endDate ? new Date(malfunction.endDate) : null;
+  const locationFixed = !!malfunction.location ? (malfunction.location.includes('|') ? malfunction.location.split('|')[0] : malfunction.location) : 'Unassigned'
+  const discoveryDate = new Date(malfunction.dateStarted);
+  const resolvedDate = malfunction.dateEnded ? new Date(malfunction.dateEnded) : null;
   const today = new Date();
   const daysSinceDiscovery = Math.max(
     Math.round((today.getTime() - discoveryDate.getTime()) / (1000 * 60 * 60 * 24)),
@@ -196,8 +134,8 @@ function SpecificMalfunctionRecord() {
   }[malfunction.severity || 3];
 
   const repairCostLabel =
-    typeof malfunction.repairCost === 'number'
-      ? `€${malfunction.repairCost.toFixed(2)}`
+    typeof malfunction.cost === 'number'
+      ? `€${malfunction.cost.toFixed(2)}`
       : 'Not recorded yet';
 
   return (
@@ -231,7 +169,7 @@ function SpecificMalfunctionRecord() {
                   <Card.Body className="p-4">
                     <div className="title-description-section mb-4">
                       <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h2 className="record-title mb-0">{malfunction.name}</h2>
+                        <h2 className="record-title mb-0">{malfunction.title}</h2>
                         <Badge bg={severityVariant} className="ms-2">
                           Severity Level {malfunction.severity}{' '}
                           {severityDescriptions[malfunction.severity] || ''}
@@ -265,8 +203,8 @@ function SpecificMalfunctionRecord() {
                             <div className="metric-item">
                               <div className="metric-label">Current status</div>
                               <div className="metric-value d-flex gap-2 align-items-center">
-                                <Badge bg={malfunction.status === 'Fixed' ? 'success' : 'warning'}>
-                                  {malfunction.status}
+                                <Badge bg={!!malfunction.dateEnded ? 'success' : 'warning'}>
+                                  {!!malfunction.dateEnded ? 'Fixed' : 'Ongoing'}
                                 </Badge>
                               </div>
                             </div>
@@ -274,7 +212,7 @@ function SpecificMalfunctionRecord() {
                               <div className="metric-label">Days since discovery</div>
                               <div className="metric-value">{daysSinceDiscovery} days</div>
                             </div>
-                            {malfunction.status === 'Fixed' && daysToResolve !== null && (
+                            {!!malfunction.dateEnded && daysToResolve !== null && (
                               <div className="metric-item">
                                 <div className="metric-label">Resolution time</div>
                                 <div className="metric-value">{daysToResolve} days</div>
@@ -295,13 +233,13 @@ function SpecificMalfunctionRecord() {
                             <div className="metric-item">
                               <div className="metric-label">Repair location</div>
                               <div className="metric-value">
-                                {malfunction.location || 'Not assigned yet'}
+                                {locationFixed}
                               </div>
                             </div>
                             <div className="metric-item">
                               <div className="metric-label">Discovered at</div>
                               <div className="metric-value">
-                                {malfunction.discoveredAt.toLocaleString()} km
+                                {malfunction.kilometersDiscovered.toLocaleString()} km
                               </div>
                             </div>
                           </Card.Body>
