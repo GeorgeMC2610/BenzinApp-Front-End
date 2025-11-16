@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import { Service } from '../classes/Service';
+import { useServiceStore } from '../services/managers/ServiceManager';
 
 const MAX_DESCRIPTION_LENGTH = 150;
 
@@ -15,85 +17,25 @@ function SpecificServiceRecord() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [showFullDescription, setShowFullDescription] = useState(false);
   const deleteRedirectTimeout = useRef(null);
-
-  const services = [
-    {
-      id: 1,
-      name: 'Oil Change',
-      date: '2025-01-05',
-      status: 'Completed',
-      discoveredAt: 28500,
-      description: 'Regular oil change with synthetic oil',
-      serviceCenter: 'AutoFix Garage',
-      cost: 120.0,
-      nextServiceMileage: 33500,
-      notes: 'Used Castrol Edge 5W-30 oil and replaced oil filter.'
-    },
-    {
-      id: 2,
-      name: 'Brake Service',
-      date: '2024-12-20',
-      status: 'Scheduled',
-      discoveredAt: 28000,
-      description: 'Brake pad replacement and rotor inspection',
-      serviceCenter: 'Downtown Brake Specialists',
-      cost: null,
-      nextServiceMileage: 31000,
-      notes: 'Waiting for OEM brake pads to arrive before appointment.'
-    },
-    {
-      id: 3,
-      name: 'Tire Rotation',
-      date: '2024-11-15',
-      status: 'Completed',
-      discoveredAt: 27500,
-      description: 'Tire rotation and alignment check',
-      serviceCenter: 'WheelWorks Alignment Center',
-      cost: 65.0,
-      nextServiceMileage: 30500,
-      notes: 'Front tires showed minor wear difference; alignment adjusted.'
-    },
-    {
-      id: 4,
-      name: 'Transmission Service',
-      date: '2024-10-10',
-      status: 'Scheduled',
-      discoveredAt: 27000,
-      description: 'Transmission fluid change and filter replacement',
-      serviceCenter: 'Precision Auto Care',
-      cost: null,
-      nextServiceMileage: 32000,
-      notes: 'Scheduled during next maintenance window.'
-    },
-    {
-      id: 5,
-      name: 'Battery Check',
-      date: '2024-09-25',
-      status: 'Completed',
-      discoveredAt: 26500,
-      description: 'Battery test and terminal cleaning',
-      serviceCenter: 'ElectroStart Service',
-      cost: 45.0,
-      nextServiceMileage: 29500,
-      notes: 'Terminals cleaned and protective spray applied.'
-    }
-  ];
+  const store = useServiceStore();
 
   useEffect(() => {
-    const foundService = services.find((item) => item.id === parseInt(id, 10));
-    if (foundService) {
-      setService(foundService);
-    }
-    setLoading(false);
-  }, [id]);
-
-  useEffect(() => {
-    return () => {
-      if (deleteRedirectTimeout.current) {
-        clearTimeout(deleteRedirectTimeout.current);
+    const fetchService = () => {
+      const listService = store.list?.find(service => service.id === parseInt(id));
+      if (listService) {
+        setService(new Service(listService));
+        setLoading(false);
+      }
+      else {
+        store.read(id).then(_ => {
+          setService(new Service(store.viewingService));
+          setLoading(false);
+        });
       }
     };
-  }, []);
+
+    fetchService();
+  }, [id]);
 
   const handleEdit = () => {
     navigate('/add-service', {
@@ -162,13 +104,13 @@ function SpecificServiceRecord() {
     );
   }
 
-  const serviceDate = new Date(service.date);
+  const serviceDate = new Date(service.dateHappened);
   const today = new Date();
   const daysSinceService = Math.max(
     Math.round((today.getTime() - serviceDate.getTime()) / (1000 * 60 * 60 * 24)),
     0
   );
-  const nextServiceMileage = service.nextServiceMileage ?? service.discoveredAt + 10000;
+  const nextServiceMileage = service.nextServiceKilometers;
   const costLabel =
     typeof service.cost === 'number' ? `€${service.cost.toFixed(2)}` : 'Not recorded yet';
 
@@ -246,13 +188,13 @@ function SpecificServiceRecord() {
                             <div className="metric-item">
                               <div className="metric-label">Logged at mileage</div>
                               <div className="metric-value">
-                                {service.discoveredAt.toLocaleString()} km
+                                {service.kilometersDone.toLocaleString()} km
                               </div>
                             </div>
                             <div className="metric-item">
                               <div className="metric-label">Estimated next service</div>
                               <div className="metric-value">
-                                {nextServiceMileage.toLocaleString()} km
+                                {nextServiceMileage?.toLocaleString() ?? '-'} km
                               </div>
                             </div>
                             <div className="metric-item">
@@ -268,28 +210,19 @@ function SpecificServiceRecord() {
                           <Card.Body className="p-4">
                             <h4 className="metrics-title mb-3">Status Insights</h4>
                             <div className="metric-item">
-                              <div className="metric-label">Current status</div>
-                              <div className="metric-value d-flex align-items-center gap-2">
-                                <Badge bg={service.status === 'Completed' ? 'success' : 'warning'}>
-                                  {service.status}
-                                </Badge>
-                              </div>
-                            </div>
-                            <div className="metric-item">
                               <div className="metric-label">Days since logged</div>
                               <div className="metric-value">{daysSinceService} days</div>
                             </div>
                             <div className="metric-item">
                               <div className="metric-label">Service center</div>
-                              <div className="metric-value">
-                                {service.serviceCenter || 'Not specified'}
+                              <div className="metric-value text-end">
+                                {!!service.location ? (service.location.includes('|') ? service.location.split('|')[0] : service.location) : 'Unassigned'}
                               </div>
                             </div>
                           </Card.Body>
                         </Card>
                       </Col>
                     </Row>
-
 
                     <div className="action-buttons mt-4 d-flex gap-3 justify-content-center">
                       <Button
