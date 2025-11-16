@@ -17,12 +17,12 @@ function Trips() {
   }
 
   // Filter trips based on search term
-  const filteredTrips = trips.filter(trip =>
+  const filteredTrips = trips?.filter(trip =>
     trip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     trip.timesRepeating.toString().includes(searchTerm) ||
     trip.created.includes(searchTerm) ||
     trip.totalKm.toString().includes(searchTerm)
-  );
+  ) ?? [];
 
   // Separate repeating and one-time trips
   const repeatingTrips = filteredTrips.filter(trip => trip.timesRepeating > 1);
