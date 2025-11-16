@@ -4,6 +4,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
 import LocationMapModal from './LocationMapModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLocationDot, faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { faLongArrowAltRight } from '@fortawesome/free-solid-svg-icons/faLongArrowAltRight';
 
 const MAX_DESCRIPTION_LENGTH = 150;
 const FUEL_PRICE_PER_LITER = 2.0;
@@ -212,10 +215,6 @@ function SpecificTripRecord() {
   const createdDate = new Date(trip.createdDate);
   const lastCompletedDate = trip.lastCompleted ? new Date(trip.lastCompleted) : null;
   const today = new Date();
-  const daysSinceCreated = Math.max(
-    Math.round((today.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24)),
-    0
-  );
   const daysSinceLastCompleted = lastCompletedDate
     ? Math.max(
         Math.round((today.getTime() - lastCompletedDate.getTime()) / (1000 * 60 * 60 * 24)),
@@ -277,29 +276,13 @@ function SpecificTripRecord() {
                     <div className="title-description-section mb-4">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <h2 className="record-title mb-0">{trip.name}</h2>
-                        <Badge bg={isRepeating ? 'info' : 'secondary'} className="ms-2">
-                          {trip.type}
-                        </Badge>
+                      
                       </div>
                       <div className="record-description">
-                        {trip.description && (
-                          <>
-                            <p className="mb-0">
-                              {showFullDescription || trip.description.length <= MAX_DESCRIPTION_LENGTH
-                                ? trip.description
-                                : `${trip.description.substring(0, MAX_DESCRIPTION_LENGTH)}...`}
-                            </p>
-                            {trip.description.length > MAX_DESCRIPTION_LENGTH && (
-                              <Button
-                                variant="link"
-                                className="p-0 mt-2 text-decoration-none"
-                                onClick={() => setShowFullDescription(!showFullDescription)}
-                              >
-                                {showFullDescription ? 'Show less' : 'Show more'}
-                              </Button>
-                            )}
-                          </>
-                        )}
+                        <Badge bg={isRepeating ? 'info' : 'secondary'}>
+                          <FontAwesomeIcon icon={isRepeating ? faRepeat : faLongArrowAltRight} className='me-2' />
+                          {trip.type}
+                        </Badge>
                       </div>
                     </div>
 
@@ -356,7 +339,7 @@ function SpecificTripRecord() {
                     <Card className="route-card mt-4">
                       <Card.Body className="p-4">
                         <div className="route-row">
-                          <span className="route-icon">📍</span>
+                          <FontAwesomeIcon icon={faLocationDot} size='xl' className='text-success' />
                           <div>
                             <p className="route-label mb-0">Origin</p>
                             <button
@@ -371,7 +354,7 @@ function SpecificTripRecord() {
                           </div>
                         </div>
                         <div className="route-row">
-                          <span className="route-icon">🎯</span>
+                          <FontAwesomeIcon icon={faLocationDot} size='xl' className='text-danger' />
                           <div>
                             <p className="route-label mb-0">Destination</p>
                             <button
