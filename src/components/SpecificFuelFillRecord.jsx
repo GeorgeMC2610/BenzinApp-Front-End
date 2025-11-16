@@ -13,6 +13,7 @@ function SpecificFuelFillRecord() {
   const navigate = useNavigate();
   const [fuelFill, setFuelFill] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const store = useFuelFillRecordStore();
 
   useEffect(() => {
@@ -77,14 +78,6 @@ function SpecificFuelFillRecord() {
     setShowDeleteModal(false);
   };
 
-  useEffect(() => {
-    return () => {
-      if (deleteRedirectTimeout.current) {
-        clearTimeout(deleteRedirectTimeout.current);
-      }
-    };
-  }, []);
-
   if (loading) {
     return (
       <div className="fuel-fill-record-page">
@@ -135,11 +128,6 @@ function SpecificFuelFillRecord() {
         <Container>
           <Row className="justify-content-center">
             <Col xs={12} lg={10} xl={8}>
-              {feedbackMessage && (
-                <Alert variant="success" className="mb-4">
-                  {feedbackMessage}
-                </Alert>
-              )}
               {/* Header */}
               <div className="page-header mb-4">
                 <div className="d-flex justify-content-between align-items-center">
