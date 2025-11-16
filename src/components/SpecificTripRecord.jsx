@@ -173,7 +173,7 @@ function SpecificTripRecord() {
                       <div className="record-description">
                         <Badge bg={isRepeating ? 'info' : 'secondary'}>
                           <FontAwesomeIcon icon={isRepeating ? faRepeat : faLongArrowAltRight} className='me-2' />
-                          {isRepeating ? 'Repeating' : 'One-Time'}
+                          {isRepeating ? `Repeating ${trip.timesRepeating} times per week` : 'One-Time'}
                         </Badge>
                       </div>
                     </div>
