@@ -22,6 +22,7 @@ import { Line } from 'react-chartjs-2';
 import { useCarStore } from '../services/managers/CarManager';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import zoomPlugin from 'chartjs-plugin-zoom';
+import { Car } from '../classes/Car';
 
 ChartJS.register(
   CategoryScale,
@@ -66,9 +67,9 @@ function User() {
 
   const currentColor = metricColors[selectedMetric];
 
-  const totalFuelCosts = car?.getTotalFuelFillCosts() || 0;
-  const totalMalfunctionCosts = car?.getTotalMalfunctionCosts() || 0;
-  const totalServiceCosts = car?.getTotalServiceCosts() || 0;
+  const totalFuelCosts = Car.getTotalFuelFillCosts() || 0;
+  const totalMalfunctionCosts = Car.getTotalMalfunctionCosts() || 0;
+  const totalServiceCosts = Car.getTotalServiceCosts() || 0;
   const totalCosts = totalFuelCosts + totalMalfunctionCosts + totalServiceCosts;
 
   const fuelPercentage = totalCosts > 0 ? (totalFuelCosts / totalCosts) * 100 : 0;
@@ -282,15 +283,15 @@ function User() {
                   <h3 className="card-title mb-3">Average Consumption</h3>
                   <div className="consumption-grid">
                     <div className="consumption-item">
-                      <div className="consumption-value">{car?.getTotalConsumption().toFixed(3)}</div>
+                      <div className="consumption-value">{Car.getTotalConsumption().toFixed(3)}</div>
                       <div className="consumption-label">lt/100km</div>
                     </div>
                     <div className="consumption-item">
-                      <div className="consumption-value">{car?.getTotalEfficiency().toFixed(3)}</div>
+                      <div className="consumption-value">{Car.getTotalEfficiency().toFixed(3)}</div>
                       <div className="consumption-label">km/lt</div>
                     </div>
                     <div className="consumption-item">
-                      <div className="consumption-value">{car?.getTotalTravelCost().toFixed(2)}</div>
+                      <div className="consumption-value">{Car.getTotalTravelCost().toFixed(2)}</div>
                       <div className="consumption-label">€/km</div>
                     </div>
                   </div>
@@ -373,19 +374,19 @@ function User() {
                       <div className="legend-item">
                         <span className="legend-color fuel"></span>
                         <span className="legend-text">
-                          Fuel Fills: €{car?.getTotalFuelFillCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          Fuel Fills: €{Car.getTotalFuelFillCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                       </div>
                       <div className="legend-item">
                         <span className="legend-color malfunctions"></span>
                         <span className="legend-text">
-                          Malfunction Repairs: €{car?.getTotalMalfunctionCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          Malfunction Repairs: €{Car.getTotalMalfunctionCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                       </div>
                       <div className="legend-item">
                         <span className="legend-color services"></span>
                         <span className="legend-text">
-                          Services: €{car?.getTotalServiceCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          Services: €{Car.getTotalServiceCosts().toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                       </div>
                     </div>
@@ -439,15 +440,15 @@ function User() {
                   <div className="statistics-stats">
                     <div className="stat-item">
                       <span className="stat-label">Total Liters Filled:</span>
-                      <span className="stat-value">{car?.getTotalLitersFilled().toLocaleString(undefined, {maximumFractionDigits: 3})} lt</span>
+                      <span className="stat-value">{Car.getTotalLitersFilled().toLocaleString(undefined, {maximumFractionDigits: 3})} lt</span>
                     </div>
                     <div className="stat-item">
                       <span className="stat-label">Total Kilometers Traveled:</span>
-                      <span className="stat-value">{car?.getTotalKilometersTraveled().toLocaleString(undefined, {maximumFractionDigits: 3})} km</span>
+                      <span className="stat-value">{Car.getTotalKilometersTraveled().toLocaleString(undefined, {maximumFractionDigits: 3})} km</span>
                     </div>
                     <div className="stat-item">
                       <span className="stat-label">Total Costs:</span>
-                      <span className="stat-value">€{car?.getTotalCost().toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                      <span className="stat-value">€{Car.getTotalCost().toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                     </div>
                   </div>
                 </Card.Body>

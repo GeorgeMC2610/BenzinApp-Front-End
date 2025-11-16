@@ -45,7 +45,7 @@ export class Car {
 
     // ----- Static Utility Methods -----
 
-    getTotalConsumption(): number {
+    static getTotalConsumption(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
         if (fuelFills.length <= 1) return 0;
@@ -58,7 +58,7 @@ export class Car {
         return totalKilometers === 0 ? 0 : (100 * totalLiters) / totalKilometers;
     }
     
-    getTotalEfficiency(): number {
+    static getTotalEfficiency(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
         if (fuelFills.length <= 1) return 0;
@@ -71,7 +71,7 @@ export class Car {
         return totalLiters === 0 ? 0 : totalKilometers / totalLiters;
     }
     
-    getTotalTravelCost(): number {
+    static getTotalTravelCost(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
         if (fuelFills.length <= 1) return 0;
@@ -84,25 +84,25 @@ export class Car {
         return totalKilometers === 0 ? 0 : totalCost / totalKilometers;
     }
     
-    getTotalLitersFilled(): number {
+    static getTotalLitersFilled(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
         return fuelFills.reduce((sum, f) => sum + f.lt, 0);
     }
     
-    getTotalKilometersTraveled(): number {
+    static getTotalKilometersTraveled(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
         return fuelFills.reduce((sum, f) => sum + f.km, 0);
     }
     
-    getTotalFuelFillCosts(): number {
+    static getTotalFuelFillCosts(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
         return fuelFills.reduce((sum, f) => sum + f.cost, 0);
     }
     
-    getTotalMalfunctionCosts(): number {
+    static getTotalMalfunctionCosts(): number {
         const malfunctions = useMalfunctionStore((state) => state.list);
         if (malfunctions === null) return NaN;
         return malfunctions.reduce(
@@ -111,13 +111,13 @@ export class Car {
         );
     }
     
-    getTotalServiceCosts(): number {
+    static getTotalServiceCosts(): number {
         const services = useServiceStore((state) => state.list);
         if (services === null) return NaN;
         return services.reduce((sum, s) => sum + (s.cost ?? 0), 0);
     }
     
-    getTotalCost(): number {
+    static getTotalCost(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         const services = useServiceStore((state) => state.list);
         const malfunctions = useMalfunctionStore((state) => state.list);
@@ -129,7 +129,7 @@ export class Car {
         return fuelCost + serviceCost + malfunctionCost;
     }
     
-    getBestEfficiency(): number {
+    static getBestEfficiency(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
 
@@ -138,7 +138,7 @@ export class Car {
         return efficiencies.length ? Math.max(...efficiencies) : 0;
     }
     
-    getWorstEfficiency(): number {
+    static getWorstEfficiency(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
 
@@ -147,7 +147,7 @@ export class Car {
         return efficiencies.length ? Math.min(...efficiencies) : 0;
     }
     
-    getBestTravelCost(): number {
+    static getBestTravelCost(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
 
@@ -156,7 +156,7 @@ export class Car {
         return travelCosts.length ? Math.min(...travelCosts) : 0;
     }
     
-    getWorstTravelCost(): number {
+    static getWorstTravelCost(): number {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return NaN;
 
@@ -165,7 +165,7 @@ export class Car {
         return travelCosts.length ? Math.max(...travelCosts) : 0;
     }
     
-    getMostRecentTotalKilometers(): number | null {
+    static getMostRecentTotalKilometers(): number | null {
         const fuelFills = useFuelFillRecordStore((state) => state.list);
         if (fuelFills === null) return null;
         if (fuelFills.length === 0) return null;
