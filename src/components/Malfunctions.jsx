@@ -130,7 +130,9 @@ function Malfunctions() {
                       {filteredMalfunctions.map((malfunction) => (
                         <tr key={malfunction.id}>
                           <td>
-                            <div className="malfunction-name">{malfunction.title}</div>
+                            <div>
+                              <Link to={`/malfunction/${malfunction.id}`} className='fuel-fill-link'>{malfunction.title}</Link>
+                            </div>
                           </td>
                           <td>{malfunction.dateStarted}</td>
                           <td>

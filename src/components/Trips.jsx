@@ -67,7 +67,13 @@ function Trips() {
                 <tr key={trip.id}>
                   <td>
                     <div className="trip-name">
-                      {trip.title}
+                      <Link to={`/trip/${trip.id}`} className="fuel-fill-link">
+                        {trip.title}
+                      </Link>
+                    </div>
+                    <div className="trip-addresses mt-1">
+                      <small>Origin: {trip.originAddress}</small>
+                      <small>Destination: {trip.destinationAddress}</small>
                     </div>
                   </td>
                   <td>

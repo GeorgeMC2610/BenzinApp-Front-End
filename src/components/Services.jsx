@@ -119,7 +119,7 @@ function Services() {
                         <tr key={service.id}>
                           <td>
                             <div className="service-name">
-                              {service.dateHappened}
+                              <Link to={`/service/${service.id}`} className='fuel-fill-link'>{service.dateHappened}</Link>
                             </div>
                             <div className="service-description">
                               {service.description}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button, Offcanvas } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartLine, faGasPump, faTriangleExclamation, faWrench, faCar, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faGasPump, faTriangleExclamation, faWrench, faCar, faBars, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
 
 function DrawerMenu() {
   const location = useLocation();
@@ -44,6 +44,12 @@ function DrawerMenu() {
       path: '/trips',
       label: 'Trips',
       icon: faCar,
+      altPaths: []
+    },
+    {
+      path: '/edit-car',
+      label: 'Edit Car',
+      icon: faScrewdriverWrench,
       altPaths: []
     }
   ];
