@@ -7,14 +7,10 @@ import LocationMapModal from './LocationMapModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faRepeat } from '@fortawesome/free-solid-svg-icons';
 import { faLongArrowAltRight } from '@fortawesome/free-solid-svg-icons/faLongArrowAltRight';
-
-const MAX_DESCRIPTION_LENGTH = 150;
-const FUEL_PRICE_PER_LITER = 2.0;
-const COST_SCENARIOS = [
-  { key: 'best', label: 'Best case', color: 'success', multiplier: 0.8 },
-  { key: 'average', label: 'Average case', color: 'secondary', multiplier: 1 },
-  { key: 'worst', label: 'Worst case', color: 'danger', multiplier: 1.15 }
-];
+import { Trip } from '../classes/Trip';
+import { useTripStore } from '../services/managers/TripManager';
+import { useCarStore } from '../services/managers/CarManager';
+import { Car } from '../classes/Car';
 
 function SpecificTripRecord() {
   const { id } = useParams();
@@ -23,119 +19,45 @@ function SpecificTripRecord() {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
-  const [showFullDescription, setShowFullDescription] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
   const [mapLocation, setMapLocation] = useState(null);
   const deleteRedirectTimeout = useRef(null);
+  const store = useTripStore();
 
-  const trips = [
-    {
-      id: 1,
-      name: 'Work Commute',
-      type: 'Repeating',
-      frequency: 5,
-      cost: 2.5,
-      kilometers: 15.5,
-      createdDate: '2024-01-15',
-      description: 'Daily trip from the port area to the central offices.',
-      origin: 'Miaouli 4, Thessaloniki',
-      destination: 'Tsimiski 50, Thessaloniki',
-      originCoords: { lat: 40.6401, lng: 22.9361 },
-      destinationCoords: { lat: 40.6387, lng: 22.9469 },
-      lastCompleted: '2025-01-10'
-    },
-    {
-      id: 2,
-      name: 'Grocery Shopping',
-      type: 'Repeating',
-      frequency: 2,
-      cost: 1.2,
-      kilometers: 8.2,
-      createdDate: '2024-02-01',
-      description: 'Weekly groceries near Ano Poli.',
-      origin: 'Kapodistriou 8, Thessaloniki',
-      destination: 'Agias Sofias 15, Thessaloniki',
-      originCoords: { lat: 40.6231, lng: 22.9294 },
-      destinationCoords: { lat: 40.6339, lng: 22.9423 },
-      lastCompleted: '2025-01-12'
-    },
-    {
-      id: 3,
-      name: 'Weekend Trip to Beach',
-      type: 'One-Time',
-      frequency: null,
-      cost: 25.8,
-      kilometers: 120.5,
-      createdDate: '2024-12-20',
-      description: 'Family escape to Agios Nikolaos beach.',
-      origin: 'Miaouli 4, Thessaloniki',
-      destination: 'Agios Nikolaos Beach, Chalkidiki',
-      originCoords: { lat: 40.6401, lng: 22.9361 },
-      destinationCoords: { lat: 40.2509, lng: 23.0795 },
-      lastCompleted: '2024-12-20'
-    },
-    {
-      id: 4,
-      name: 'Gym Visits',
-      type: 'Repeating',
-      frequency: 3,
-      cost: 1.8,
-      kilometers: 12.0,
-      createdDate: '2024-03-10',
-      description: 'Trip to the fitness center in Marousi.',
-      origin: 'Kifisias Avenue 115, Marousi',
-      destination: 'Leoforos Marathonos 12, Marousi',
-      originCoords: { lat: 38.0483, lng: 23.7852 },
-      destinationCoords: { lat: 38.0432, lng: 23.8087 },
-      lastCompleted: '2025-01-11'
-    },
-    {
-      id: 5,
-      name: 'Airport Pickup',
-      type: 'One-Time',
-      frequency: null,
-      cost: 18.5,
-      kilometers: 45.2,
-      createdDate: '2024-11-15',
-      description: 'Pickup from Athena International Airport.',
-      origin: 'Miaouli 4, Thessaloniki',
-      destination: 'Athens International Airport, Spata',
-      originCoords: { lat: 40.6401, lng: 22.9361 },
-      destinationCoords: { lat: 37.9366, lng: 23.9471 },
-      lastCompleted: '2024-11-15'
-    },
-    {
-      id: 6,
-      name: 'Doctor Appointments',
-      type: 'Repeating',
-      frequency: 1,
-      cost: 3.2,
-      kilometers: 22.8,
-      createdDate: '2024-06-05',
-      description: 'Monthly checkup in Kifisia.',
-      origin: 'Miaouli 4, Thessaloniki',
-      destination: 'Stratonikos 25, Kifisia',
-      originCoords: { lat: 40.6401, lng: 22.9361 },
-      destinationCoords: { lat: 38.0157, lng: 23.7972 },
-      lastCompleted: '2025-01-05'
-    }
-  ];
+  let bestConsumption;
+  let worstConsumption;
+  let averageConsumption;
+
+  let bestCostPerKm;
+  let worstCostPerKm;
+  let averageCostPerKm;
+
+  bestConsumption = (trip?.totalKm ?? 0) / Car.getBestEfficiency();
+  bestCostPerKm = Car.getBestTravelCost() * trip?.totalKm;
+
+  worstConsumption = (trip?.totalKm ?? 0) / Car.getWorstEfficiency();
+  worstCostPerKm = Car.getWorstTravelCost() * trip?.totalKm;
+
+  averageConsumption = (trip?.totalKm ?? 0) / Car.getTotalConsumption();
+  averageCostPerKm = Car.getTotalTravelCost() * trip?.totalKm;
 
   useEffect(() => {
-    const foundTrip = trips.find((item) => item.id === parseInt(id, 10));
-    if (foundTrip) {
-      setTrip(foundTrip);
-    }
-    setLoading(false);
-  }, [id]);
-
-  useEffect(() => {
-    return () => {
-      if (deleteRedirectTimeout.current) {
-        clearTimeout(deleteRedirectTimeout.current);
+    const fetchTrip = () => {
+      const listTrip = store.list?.find(trip => trip.id === parseInt(id));
+      if (listTrip) {
+        setTrip(new Trip(listTrip));
+        setLoading(false);
+      }
+      else {
+        store.read(id).then(_ => {
+          setTrip(new Trip(store.viewingMalfunction));
+          setLoading(false);
+        });
       }
     };
-  }, []);
+    
+    fetchTrip();
+  }, [id]);
 
   const handleEdit = () => {
     navigate('/add-trip', {
@@ -212,37 +134,7 @@ function SpecificTripRecord() {
     );
   }
 
-  const createdDate = new Date(trip.createdDate);
-  const lastCompletedDate = trip.lastCompleted ? new Date(trip.lastCompleted) : null;
-  const today = new Date();
-  const daysSinceLastCompleted = lastCompletedDate
-    ? Math.max(
-        Math.round((today.getTime() - lastCompletedDate.getTime()) / (1000 * 60 * 60 * 24)),
-        0
-      )
-    : null;
-
-  const isRepeating = trip.type === 'Repeating';
-
-  const baseConsumptionPerTime = trip.cost > 0 ? trip.cost / FUEL_PRICE_PER_LITER : 0;
-
-  const buildScenarioData = (baseCost, baseConsumption, unit) =>
-    COST_SCENARIOS.map((scenario) => ({
-      ...scenario,
-      unit,
-      cost: baseCost * scenario.multiplier,
-      consumption: baseConsumption * scenario.multiplier
-    }));
-
-  const perTimeScenarios = buildScenarioData(trip.cost, baseConsumptionPerTime, 'per time');
-
-  const weeklyScenarios = isRepeating
-    ? buildScenarioData(
-        trip.cost * trip.frequency,
-        baseConsumptionPerTime * trip.frequency,
-        'per week'
-      )
-    : [];
+  const isRepeating = trip.timesRepeating !== 1;
 
   return (
     <div className="trips-page">
@@ -275,13 +167,13 @@ function SpecificTripRecord() {
                   <Card.Body className="p-4">
                     <div className="title-description-section mb-4">
                       <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h2 className="record-title mb-0">{trip.name}</h2>
+                        <h2 className="record-title mb-0">{trip.title}</h2>
                       
                       </div>
                       <div className="record-description">
                         <Badge bg={isRepeating ? 'info' : 'secondary'}>
                           <FontAwesomeIcon icon={isRepeating ? faRepeat : faLongArrowAltRight} className='me-2' />
-                          {trip.type}
+                          {isRepeating ? 'Repeating' : 'One-Time'}
                         </Badge>
                       </div>
                     </div>
@@ -299,16 +191,30 @@ function SpecificTripRecord() {
                             <div className="analytics-header mb-3">
                               <h4 className="metrics-title mb-0">Analytics Per Time</h4>
                             </div>
-                            {perTimeScenarios.map((scenario) => (
-                              <div className={`analytics-row ${scenario.key}`} key={scenario.key}>
-                                <div className={`analytics-cost text-${scenario.color}`}>
-                                  €{scenario.cost.toFixed(2)} {scenario.unit}
+                            <div className='analytics-row best'>
+                                <div className='analytics-cost text-success'>
+                                  €{bestCostPerKm.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                 </div>
-                                <div className="analytics-consumption">
-                                  {(scenario.consumption).toFixed(2)} lt. {scenario.unit}
+                                <div className="analytics-consumption text-success">
+                                  {bestConsumption.toLocaleString(undefined, {maximumFractionDigits: 3})} lt
                                 </div>
                               </div>
-                            ))}
+                              <div className='analytics-row average'>
+                                <div className='analytics-cost text-secondary'>
+                                  €{averageCostPerKm.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </div>
+                                <div className="analytics-consumption text-secondary">
+                                  {averageConsumption.toLocaleString(undefined, {maximumFractionDigits: 3})} lt
+                                </div>
+                              </div>
+                              <div className='analytics-row worst'>
+                                <div className='analytics-cost text-danger'>
+                                  €{worstCostPerKm.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </div>
+                                <div className="analytics-consumption text-danger">
+                                  {worstConsumption.toLocaleString(undefined, {maximumFractionDigits: 3})} lt
+                                </div>
+                              </div>
                           </Card.Body>
                         </Card>
                       </Col>
@@ -320,16 +226,30 @@ function SpecificTripRecord() {
                               <div className="analytics-header mb-3">
                                 <h4 className="metrics-title mb-0">Weekly Analytics</h4>
                               </div>
-                              {weeklyScenarios.map((scenario) => (
-                                <div className={`analytics-row ${scenario.key}`} key={scenario.key}>
-                                  <div className={`analytics-cost text-${scenario.color}`}>
-                                    €{scenario.cost.toFixed(2)} {scenario.unit}
-                                  </div>
-                                  <div className="analytics-consumption">
-                                    {(scenario.consumption).toFixed(2)} lt. {scenario.unit}
-                                  </div>
+                              <div className='analytics-row best'>
+                                <div className='analytics-cost text-success'>
+                                  €{(bestCostPerKm * trip.timesRepeating).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                 </div>
-                              ))}
+                                <div className="analytics-consumption text-success">
+                                  {(bestConsumption * trip.timesRepeating).toLocaleString(undefined, {maximumFractionDigits: 3})} lt
+                                </div>
+                              </div>
+                              <div className='analytics-row average'>
+                                <div className='analytics-cost text-secondary'>
+                                  €{(averageCostPerKm * trip.timesRepeating).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </div>
+                                <div className="analytics-consumption text-secondary">
+                                  {(averageConsumption * trip.timesRepeating).toLocaleString(undefined, {maximumFractionDigits: 3})} lt
+                                </div>
+                              </div>
+                              <div className='analytics-row worst'>
+                                <div className='analytics-cost text-danger'>
+                                  €{(worstCostPerKm * trip.timesRepeating).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </div>
+                                <div className="analytics-consumption text-danger">
+                                  {(worstConsumption * trip.timesRepeating).toLocaleString(undefined, {maximumFractionDigits: 3})} lt
+                                </div>
+                              </div>
                             </Card.Body>
                           </Card>
                         </Col>
@@ -346,10 +266,10 @@ function SpecificTripRecord() {
                               type="button"
                               className="address-link"
                               onClick={() =>
-                                openMapFor(`Origin · ${trip.origin}`, trip.originCoords)
+                                openMapFor(`Origin · ${trip.originAddress}`, {lat: trip.originLatitude, lng: trip.originLongitude})
                               }
                             >
-                              {trip.origin}
+                              {trip.originAddress}
                             </button>
                           </div>
                         </div>
@@ -361,10 +281,10 @@ function SpecificTripRecord() {
                               type="button"
                               className="address-link"
                               onClick={() =>
-                                openMapFor(`Destination · ${trip.destination}`, trip.destinationCoords)
+                                openMapFor(`Destination · ${trip.destinationAddress}`, {lat: trip.destinationLatitude, lng: trip.destinationLongitude} )
                               }
                             >
-                              {trip.destination}
+                              {trip.destinationAddress}
                             </button>
                           </div>
                         </div>
@@ -416,5 +336,3 @@ function SpecificTripRecord() {
 }
 
 export default SpecificTripRecord;
-
-
