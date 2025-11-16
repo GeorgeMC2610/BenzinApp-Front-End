@@ -232,7 +232,7 @@ function SpecificMalfunctionRecord() {
                             </div>
                             <div className="metric-item">
                               <div className="metric-label">Repair location</div>
-                              <div className="metric-value">
+                              <div className="metric-value text-end">
                                 {locationFixed}
                               </div>
                             </div>
