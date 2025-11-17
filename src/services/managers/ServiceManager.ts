@@ -18,7 +18,7 @@ type ServiceActions = {
 }
 
 const serviceUrl = RequestHelper._baseUrl + '/service';
-const serviceUrlId = (id: number) => RequestHelper._baseUrl + '/service/' + id; 
+const serviceUrlId = (id: number) => RequestHelper._baseUrl + '/service/' + id;
 
 export const useServiceStore = create<ServiceState & ServiceActions>() (
     persist(
@@ -46,8 +46,12 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
 
             },
             delete: async (id) => {
-                
-            }
+
+            },
+            destroyValues: () => {
+                set({ viewingService: null });
+                set({ list: null });
+            },
         }),
         {
             name: 'service-store',

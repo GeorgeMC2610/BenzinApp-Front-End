@@ -41,13 +41,16 @@ export const useCarStore = create<CarState & CarActions>()(
 
             logout: () => {
                 TokenHelper.getInstance().removeToken();
-                set({ car: null });
             },
 
             getCarDetails: async () => {
                 const response = await RequestHelper.getInstance().sendGetRequest(RequestHelper._baseUrl + '/car', true);
                 const car = Car.fromJson(response.data);
-                set({ car });
+                set({ car: car });
+            },
+
+            destroyValues: () => {
+                set({ car: null });
             },
 
             register: async (manufacturer, model, year) => {
@@ -55,7 +58,7 @@ export const useCarStore = create<CarState & CarActions>()(
             },
 
             update: async (manufacturer, model, year) => {
-                
+
             }
         }),
         {

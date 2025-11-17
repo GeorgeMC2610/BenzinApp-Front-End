@@ -18,7 +18,7 @@ type TripActions = {
 }
 
 const repeatedTripUrl = RequestHelper._baseUrl + '/repeated_trip';
-const repeatedTripUrlId = (id: number) => RequestHelper._baseUrl + '/repeated_trip/' + id; 
+const repeatedTripUrlId = (id: number) => RequestHelper._baseUrl + '/repeated_trip/' + id;
 
 export const useTripStore = create<TripState & TripActions>() (
     persist(
@@ -46,8 +46,12 @@ export const useTripStore = create<TripState & TripActions>() (
 
             },
             delete: async (id) => {
-                
-            }
+
+            },
+            destroyValues: () => {
+                set({ viewingTrip: null });
+                set({ list: null });
+            },
         }),
         {
             name: 'trip-store',

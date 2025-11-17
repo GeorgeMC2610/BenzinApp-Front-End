@@ -18,7 +18,7 @@ type MalfunctionActions = {
 }
 
 const malfunctionUrl = RequestHelper._baseUrl + '/malfunction';
-const malfunctionUrlId = (id: number) => RequestHelper._baseUrl + '/malfunction/' + id; 
+const malfunctionUrlId = (id: number) => RequestHelper._baseUrl + '/malfunction/' + id;
 
 export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>() (
     persist(
@@ -46,8 +46,12 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
 
             },
             delete: async (id) => {
-                
-            }
+
+            },
+            destroyValues: () => {
+                set({ viewingMalfunction: null });
+                set({ list: null });
+            },
         }),
         {
             name: 'malfunction-store',

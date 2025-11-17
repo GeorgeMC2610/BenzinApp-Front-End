@@ -19,7 +19,7 @@ type FuelFillRecordActions = {
 }
 
 const fuelFillUrl = RequestHelper._baseUrl + '/fuel_fill_record';
-const fuelFillUrlId = (id: number) => RequestHelper._baseUrl + '/fuel_fill_record/' + id; 
+const fuelFillUrlId = (id: number) => RequestHelper._baseUrl + '/fuel_fill_record/' + id;
 
 export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecordActions>() (
     persist(
@@ -50,11 +50,17 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
                     console.log(error);
                 }
             },
+
+            destroyValues: () => {
+                set({ viewingFuelFillRecord: null });
+                set({ list: null });
+            },
+
             update: async (fuelFillRecord) => {
 
             },
             delete: async (id) => {
-                
+
             }
         }),
         {
