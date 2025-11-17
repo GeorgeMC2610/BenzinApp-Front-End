@@ -92,7 +92,57 @@ function User() {
     );
   }
 
-  const lastFill = fuelFills && fuelFills.length > 0 ? fuelFills[0] : null;
+  const lastFill = fuelFills.length > 0 ? fuelFills[0] : null;
+  const lastService = services.length > 0 ? services[0] : null;
+
+  // Compute service due statuses (km and date)
+  // Prefer strings that describe the future reference and a status level for styling.
+  const toDate = (d) => (d instanceof Date ? d : d ? new Date(d) : null);
+
+  // Kilometers-based status
+  let serviceKmStatusText = null;
+  let serviceKmStatusLevel = null; // 'ok' | 'warning' | 'danger'
+  let kmRemaining = null;
+  if (lastService && lastService.nextServiceKilometers != null && lastFill && lastFill.totalKm != null) {
+    kmRemaining = lastService.nextServiceKilometers - lastFill.totalKm;
+    if (kmRemaining > 500) {
+      serviceKmStatusLevel = 'ok';
+      serviceKmStatusText = `Next service in: ${kmRemaining.toLocaleString()} km`;
+    } else if (kmRemaining >= 0) {
+      serviceKmStatusLevel = 'warning';
+      serviceKmStatusText = `Next service in: ${kmRemaining.toLocaleString()} km`;
+    } else {
+      serviceKmStatusLevel = 'danger';
+      const overdueKm = Math.abs(Math.round(kmRemaining));
+      serviceKmStatusText = `Next service overdue by ${overdueKm} km`;
+    }
+  }
+
+  // Date-based status
+  let serviceDateStatusText = null;
+  let serviceDateStatusLevel = null;
+  let daysRemaining = null;
+  if (lastService && lastService.nextServiceDate) {
+    const nextDate = toDate(lastService.nextServiceDate);
+    if (nextDate) {
+      const today = new Date();
+      // Strip time for day-diff
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const startOfDay = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+      daysRemaining = Math.floor((startOfDay(nextDate).getTime() - startOfDay(today).getTime()) / msPerDay);
+      if (daysRemaining > 30) {
+        serviceDateStatusLevel = 'ok';
+        serviceDateStatusText = `Service due in ${daysRemaining} days`;
+      } else if (daysRemaining >= 0) {
+        serviceDateStatusLevel = 'warning';
+        serviceDateStatusText = `Service due in ${daysRemaining} days`;
+      } else {
+        serviceDateStatusLevel = 'danger';
+        const overdueDays = Math.abs(daysRemaining);
+        serviceDateStatusText = `Service overdue by ${overdueDays} days (danger)`;
+      }
+    }
+  }
 
   // Color mapping for different metrics
   const metricColors = {
@@ -308,26 +358,55 @@ function User() {
                   </div>
 
                   {/* Service Status Section */}
-                  <div className="service-status-section mt-4 pt-3">
-                    <div className="service-status-item">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center gap-2">
-                          <FontAwesomeIcon icon={faWrench} className="service-icon" />
-                          <span className="service-label">Next service in 3,545 km.</span>
+                  {lastService && (
+                    <div className="service-status-section mt-4 pt-3">
+                      {/* Kilometers-based status (render only if we can compute it) */}
+                      {serviceKmStatusText && (
+                        <div className="service-status-item">
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div className="d-flex align-items-center gap-2">
+                              <FontAwesomeIcon icon={faWrench} className="service-icon" />
+                              <span className="service-label">{serviceKmStatusText}</span>
+                            </div>
+                            <Button
+                              className={
+                                serviceKmStatusLevel === 'ok'
+                                  ? 'service-ok-btn'
+                                  : serviceKmStatusLevel === 'warning'
+                                  ? 'service-warning-btn'
+                                  : 'service-danger-btn'
+                              }
+                            >
+                              {serviceKmStatusLevel === 'ok' ? 'OK' : serviceKmStatusLevel === 'warning' ? 'Warning' : 'Overdue'}
+                            </Button>
+                          </div>
                         </div>
-                        <Button variant="success" className="service-ok-btn">OK</Button>
-                      </div>
-                    </div>
-                    <div className="service-status-item mt-3">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center gap-2">
-                          <FontAwesomeIcon icon={faCalendar} className="service-icon" />
-                          <span className="service-label">Service due in 6 month(s)</span>
+                      )}
+
+                      {/* Date-based status (render only if available) */}
+                      {serviceDateStatusText && (
+                        <div className="service-status-item mt-3">
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div className="d-flex align-items-center gap-2">
+                              <FontAwesomeIcon icon={faCalendar} className="service-icon" />
+                              <span className="service-label">{serviceDateStatusText}</span>
+                            </div>
+                            <Button
+                              className={
+                                serviceDateStatusLevel === 'ok'
+                                  ? 'service-ok-btn'
+                                  : serviceDateStatusLevel === 'warning'
+                                  ? 'service-warning-btn'
+                                  : 'service-danger-btn'
+                              }
+                            >
+                              {serviceDateStatusLevel === 'ok' ? 'OK' : serviceDateStatusLevel === 'warning' ? 'Warning' : 'Overdue'}
+                            </Button>
+                          </div>
                         </div>
-                        <Button variant="success" className="service-ok-btn">OK</Button>
-                      </div>
+                      )}
                     </div>
-                  </div>
+                  )}
                 </Card.Body>
               </Card>
             </Col>
