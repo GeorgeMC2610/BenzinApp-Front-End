@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Malfunction } from "../../classes/Malfunction"
 import RequestHelper from '../RequestHelper';
+import {Service} from "../../classes/Service";
 
 type MalfunctionState = {
     viewingMalfunction: Malfunction | null;
@@ -41,7 +42,14 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
 
             },
             read: async (id) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(malfunctionUrlId(id));
+                    const malfunction = Malfunction.fromJson(response.data);
+                    set({ viewingMalfunction: malfunction });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             update: async (malfunction) => {
 

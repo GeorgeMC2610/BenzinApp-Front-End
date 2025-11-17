@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Trip } from "../../classes/Trip"
 import RequestHelper from '../RequestHelper';
+import {FuelFillRecord} from "../../classes/FuelFillRecord";
 
 type TripState = {
     viewingTrip: Trip | null;
@@ -41,7 +42,14 @@ export const useTripStore = create<TripState & TripActions>() (
 
             },
             read: async (id) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(repeatedTripUrlId(id));
+                    const trip = Trip.fromJson(response.data);
+                    set({ viewingTrip: trip });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             update: async (trip) => {
 

@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Service } from "../../classes/Service"
 import RequestHelper from '../RequestHelper';
+import {Trip} from "../../classes/Trip";
 
 type ServiceState = {
     viewingService: Service | null;
@@ -41,7 +42,14 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
 
             },
             read: async (id) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(serviceUrlId(id));
+                    const service = Service.fromJson(response.data);
+                    set({ viewingService: service });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             update: async (service) => {
 
