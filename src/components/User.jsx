@@ -49,34 +49,28 @@ function User() {
   const fuelFills = useFuelFillRecordStore((state) => state.list);
   const services = useServiceStore((state) => state.list);
   const malfunctions = useMalfunctionStore((state) => state.list);
-  const trips = useTripStore((state) => state.list);
+  // const trips = useTripStore((state) => state.list);
 
-  // Actions
+  // index actions; they retrieve the data from the back-end.
   const getCarDetails = useCarStore((state) => state.getCarDetails);
   const indexFuelFills = useFuelFillRecordStore((state) => state.index);
   const indexServices = useServiceStore((state) => state.index);
   const indexMalfunctions = useMalfunctionStore((state) => state.index);
-  const indexTrips = useTripStore((state) => state.index);
+  // const indexTrips = useTripStore((state) => state.index);
 
-  // Kick off loading on mount (no await; loading gate will handle UI)
   useEffect(() => {
-    try { getCarDetails(); } catch {}
-    try { indexFuelFills(); } catch {}
-    try { indexServices(); } catch {}
-    try { indexMalfunctions(); } catch {}
-    try { indexTrips(); } catch {}
-    // We intentionally leave deps empty to run only once on mount
-    // and avoid re-fetch loops when store references change.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (car === null) getCarDetails();
+    if (fuelFills === null) indexFuelFills();
+    if (services === null) indexServices();
+    if (malfunctions === null) indexMalfunctions();
+    // We don't care that much about trips, since they're not any helpful in the dashboard.
+    // if (trips === null) indexTrips();
   }, []);
 
   const isReady = car !== null &&
                   fuelFills !== null &&
                   services !== null &&
-                  malfunctions !== null &&
-                  trips !== null;
-
-  const lastFill = fuelFills && fuelFills.length > 0 ? fuelFills[0] : null;
+                  malfunctions !== null
 
   if (!isReady) {
     return (
@@ -97,6 +91,8 @@ function User() {
       </div>
     );
   }
+
+  const lastFill = fuelFills && fuelFills.length > 0 ? fuelFills[0] : null;
 
   // Color mapping for different metrics
   const metricColors = {
