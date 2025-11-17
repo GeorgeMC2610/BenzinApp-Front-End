@@ -42,10 +42,6 @@ function Login() {
 
     if (response) {
         toast.success("Successfully logged in.", { position: 'top-center' });
-        carStore.getCarDetails();
-        await fuelFillStore.index();
-        await malfunctionStore.index();
-        await serviceStore.index();
         navigate('/dashboard');
     }
     else {
@@ -66,9 +62,9 @@ function Login() {
               <div className="text-center mb-5">
                 <Link to="/" className="brand-link">
                   <div className="brand-logo d-flex align-items-center justify-content-center">
-                    <img 
-                      src="/logo.png" 
-                      alt="BenzinApp Logo" 
+                    <img
+                      src="/logo.png"
+                      alt="BenzinApp Logo"
                       className="brand-icon me-2"
                     />
                   </div>

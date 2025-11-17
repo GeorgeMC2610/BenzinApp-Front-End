@@ -1,5 +1,5 @@
-import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
-import { useState } from 'react';
+import { Container, Row, Col, Card, Button, Dropdown, ProgressBar } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,6 +20,9 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useCarStore } from '../services/managers/CarManager';
+import { useServiceStore } from '../services/managers/ServiceManager';
+import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
+import { useTripStore } from '../services/managers/TripManager';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { Car } from '../classes/Car';
@@ -44,6 +47,56 @@ function User() {
 
   const car = useCarStore((state) => state.car);
   const fuelFills = useFuelFillRecordStore((state) => state.list);
+  const services = useServiceStore((state) => state.list);
+  const malfunctions = useMalfunctionStore((state) => state.list);
+  const trips = useTripStore((state) => state.list);
+
+  // Actions
+  const getCarDetails = useCarStore((state) => state.getCarDetails);
+  const indexFuelFills = useFuelFillRecordStore((state) => state.index);
+  const indexServices = useServiceStore((state) => state.index);
+  const indexMalfunctions = useMalfunctionStore((state) => state.index);
+  const indexTrips = useTripStore((state) => state.index);
+
+  // Kick off loading on mount (no await; loading gate will handle UI)
+  useEffect(() => {
+    try { getCarDetails(); } catch {}
+    try { indexFuelFills(); } catch {}
+    try { indexServices(); } catch {}
+    try { indexMalfunctions(); } catch {}
+    try { indexTrips(); } catch {}
+    // We intentionally leave deps empty to run only once on mount
+    // and avoid re-fetch loops when store references change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const isReady = car !== null &&
+                  fuelFills !== null &&
+                  services !== null &&
+                  malfunctions !== null &&
+                  trips !== null;
+
+  const lastFill = fuelFills && fuelFills.length > 0 ? fuelFills[0] : null;
+
+  if (!isReady) {
+    return (
+      <div className="user-page">
+        <DrawerMenu />
+        <div className="drawer-content">
+          <Container className="py-5">
+            <Row className="justify-content-center">
+              <Col md={8} lg={6}>
+                <Card className="p-4 text-center">
+                  <h5 className="mb-3">Loading your data...</h5>
+                  <ProgressBar now={100} animated striped />
+                </Card>
+              </Col>
+            </Row>
+          </Container>
+        </div>
+      </div>
+    );
+  }
 
   // Color mapping for different metrics
   const metricColors = {
@@ -84,12 +137,12 @@ function User() {
         backgroundColor: [
           '#ff9800',
           '#ff5252',
-          '#ff6e40',             
+          '#ff6e40',
         ],
       },
     ],
   };
-  
+
   const pieOptions = {
     plugins: {
       legend: {
@@ -243,14 +296,21 @@ function User() {
                       </div>
                       <div className="d-flex align-items-center gap-2">
                         <FontAwesomeIcon icon={faGasPump} className="fuel-icon" />
-                        <span className="last-filled">Last filled {fuelFills[0].filledAt}</span>
-                        <span className="last-filled-details">
-                          {fuelFills[0].lt.toLocaleString(undefined, {minimumFractionDigits: 2})} lt. | 
-                          €{fuelFills[0].cost.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                        {lastFill ? (
+                          <>
+                            <span className="last-filled">Last filled {lastFill.filledAt}</span>
+                            <span className="last-filled-details">
+                              {lastFill.lt.toLocaleString(undefined, { minimumFractionDigits: 2 })} lt. |
+                              €{lastFill.cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="last-filled">No fuel fills yet</span>
+                        )}
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Service Status Section */}
                   <div className="service-status-section mt-4 pt-3">
                     <div className="service-status-item">
