@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGasPump, faWrench, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { faGasPump, faWrench, faCalendar, faClock } from '@fortawesome/free-solid-svg-icons';
 import { Pie } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
@@ -400,7 +400,12 @@ function User() {
                                   : 'service-danger-btn'
                               }
                             >
-                              {serviceDateStatusLevel === 'ok' ? 'OK' : serviceDateStatusLevel === 'warning' ? 'Warning' : 'Overdue'}
+                              {serviceDateStatusLevel === 'ok' ? 'OK' : 
+                              serviceDateStatusLevel === 'warning' ? (
+                                <FontAwesomeIcon icon={faClock} />
+                              ) : 
+                                (<FontAwesomeIcon icon={faWarning} />)
+                              }
                             </Button>
                           </div>
                         </div>
