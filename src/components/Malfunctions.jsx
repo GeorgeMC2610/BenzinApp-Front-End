@@ -1,5 +1,5 @@
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
@@ -9,12 +9,38 @@ import { faMagnifyingGlass, faRefresh, faWrench } from '@fortawesome/free-solid-
 function Malfunctions() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const store = useMalfunctionStore();
-  const malfunctions = useMalfunctionStore((state) => state.list);
+    const malfunctions = useMalfunctionStore((state) => state.list);
+    const indexMalfunctions = useMalfunctionStore((state) => state.index);
 
-  if (!malfunctions) {
-    store.index();
-  }
+    useEffect(() => {
+        if (malfunctions === null) indexMalfunctions();
+    }, []);
+
+    const refresh = () => {
+        indexMalfunctions();
+    }
+
+    const isReady = malfunctions !== null;
+
+    if (!isReady) {
+        return (
+            <div className="user-page">
+                <DrawerMenu />
+                <div className="drawer-content">
+                    <Container className="py-5">
+                        <Row className="justify-content-center">
+                            <Col md={8} lg={6}>
+                                <Card className="p-4 text-center">
+                                    <h5 className="mb-3">Loading your data...</h5>
+                                    <ProgressBar now={100} animated striped />
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+            </div>
+        );
+    }
 
   // Filter malfunctions based on search term
   const filteredMalfunctions = malfunctions?.reverse().filter(malfunction =>
@@ -37,7 +63,7 @@ function Malfunctions() {
   return (
     <div className="malfunctions-page">
       <DrawerMenu />
-      
+
       {/* Main Content */}
       <div className="drawer-content">
         <section className="malfunctions-content py-4">
@@ -54,7 +80,7 @@ function Malfunctions() {
                       variant="outline-secondary"
                       size="sm"
                       className='ms-2'
-                      onClick={() => store.index()}
+                      onClick={refresh}
                     >
                       <FontAwesomeIcon icon={faRefresh} />
                     </Button>

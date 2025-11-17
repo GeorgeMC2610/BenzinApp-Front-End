@@ -27,6 +27,7 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
             errors: null,
             list: null,
             index: async () => {
+                set({ list: null })
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(malfunctionUrl);
                     const malfunctions = response.data.map((jsonRecord: Record<string, any>[]) => Malfunction.fromJson(jsonRecord));
