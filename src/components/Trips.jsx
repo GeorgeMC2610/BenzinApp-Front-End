@@ -1,5 +1,5 @@
-import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
-import { useState } from 'react';
+import { Container, Row, Col, Card, Table, Button, Form, InputGroup, ProgressBar } from 'react-bootstrap';
+import {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,12 +9,38 @@ import { useTripStore } from '../services/managers/TripManager';
 function Trips() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const store = useTripStore();
-  const trips = useTripStore((state) => state.list);
+    const trips = useTripStore((state) => state.list);
+    const indexTrips = useTripStore((state) => state.index);
 
-  if (!trips) {
-    store.index();
-  }
+    useEffect(() => {
+        if (trips === null) indexTrips();
+    }, []);
+
+    const refresh = () => {
+        indexTrips();
+    }
+
+    const isReady = trips !== null;
+
+    if (!isReady) {
+        return (
+            <div className="user-page">
+                <DrawerMenu />
+                <div className="drawer-content">
+                    <Container className="py-5">
+                        <Row className="justify-content-center">
+                            <Col md={8} lg={6}>
+                                <Card className="p-4 text-center">
+                                    <h5 className="mb-3">Loading your data...</h5>
+                                    <ProgressBar now={100} animated striped />
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+            </div>
+        );
+    }
 
   // Filter trips based on search term
   const filteredTrips = trips?.filter(trip =>
@@ -113,7 +139,7 @@ function Trips() {
   return (
     <div className="trips-page">
       <DrawerMenu />
-      
+
       {/* Main Content */}
       <div className="drawer-content">
         <section className="trips-content py-4">
@@ -130,7 +156,7 @@ function Trips() {
                       variant="outline-secondary"
                       size="sm"
                       className='ms-2'
-                      onClick={() => store.index()}
+                      onClick={refresh}
                     >
                       <FontAwesomeIcon icon={faRefresh} />
                     </Button>

@@ -2,7 +2,6 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { FuelFillRecord } from "../../classes/FuelFillRecord"
 import RequestHelper from '../RequestHelper';
-import SpecificFuelFillRecord from '../../components/SpecificFuelFillRecord';
 
 type FuelFillRecordState = {
     viewingFuelFillRecord: FuelFillRecord | null;

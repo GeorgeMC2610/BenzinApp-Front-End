@@ -27,6 +27,7 @@ export const useTripStore = create<TripState & TripActions>() (
             errors: null,
             list: null,
             index: async () => {
+                set({ list: null });
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(repeatedTripUrl);
                     const trips = response.data.map((jsonRecord: Record<string, any>[]) => Trip.fromJson(jsonRecord));

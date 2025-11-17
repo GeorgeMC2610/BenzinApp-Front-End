@@ -27,6 +27,7 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
             errors: null,
             list: null,
             index: async () => {
+                set({ list: null });
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(serviceUrl);
                     const services = response.data.map((jsonRecord: Record<string, any>[]) => Service.fromJson(jsonRecord));

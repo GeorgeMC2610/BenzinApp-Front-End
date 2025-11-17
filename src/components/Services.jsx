@@ -1,5 +1,5 @@
-import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
-import { useState } from 'react';
+import { Container, Row, Col, Card, Table, Button, Form, InputGroup, ProgressBar } from 'react-bootstrap';
+import {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,12 +9,38 @@ import { useServiceStore } from '../services/managers/ServiceManager';
 function Services() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const store = useServiceStore();
-  const services = useServiceStore((state) => state.list);
+    const services = useServiceStore((state) => state.list);
+    const indexServices = useServiceStore((state) => state.index);
 
-  if (!services) {
-    store.index();
-  }
+    useEffect(() => {
+        if (services === null) indexServices();
+    }, []);
+
+    const refresh = () => {
+        indexServices();
+    }
+
+    const isReady = services !== null;
+
+    if (!isReady) {
+        return (
+            <div className="user-page">
+                <DrawerMenu />
+                <div className="drawer-content">
+                    <Container className="py-5">
+                        <Row className="justify-content-center">
+                            <Col md={8} lg={6}>
+                                <Card className="p-4 text-center">
+                                    <h5 className="mb-3">Loading your data...</h5>
+                                    <ProgressBar now={100} animated striped />
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+            </div>
+        );
+    }
 
   // Filter services based on search term
   const filteredServices = services?.reverse().filter(service =>
@@ -35,7 +61,7 @@ function Services() {
   return (
     <div className="services-page">
       <DrawerMenu />
-      
+
       {/* Main Content */}
       <div className="drawer-content">
         <section className="services-content py-4">
@@ -52,7 +78,7 @@ function Services() {
                       variant="outline-secondary"
                       size="sm"
                       className='ms-2'
-                      onClick={() => store.index()}
+                      onClick={refresh}
                     >
                       <FontAwesomeIcon icon={faRefresh} />
                     </Button>
