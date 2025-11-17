@@ -158,7 +158,7 @@ function User() {
           weight: 'bold',
           size: 14,
         },
-        formatter: (value) => `${value.toFixed(1)}%`,
+        formatter: (value) => value === 0 ? null : `${value.toFixed(1)}%`,
         anchor: 'center',
         align: 'center',
       },
