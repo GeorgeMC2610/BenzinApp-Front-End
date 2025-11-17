@@ -1,5 +1,5 @@
-import { Container, Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
-import { useState } from 'react';
+import {Container, Row, Col, Card, Table, Button, Form, InputGroup, ProgressBar} from 'react-bootstrap';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
@@ -9,20 +9,46 @@ import { faMagnifyingGlass, faRefresh } from '@fortawesome/free-solid-svg-icons'
 
 function FuelFills() {
   const [searchTerm, setSearchTerm] = useState('');
-  
-  const store = useFuelFillRecordStore();
-  const fuelFills = useFuelFillRecordStore((state) => state.list);
 
-  if (!fuelFills) {
-    store.index();
+  const fuelFills = useFuelFillRecordStore((state) => state.list);
+  const indexFuelFills = useFuelFillRecordStore((state) => state.index);
+
+  useEffect(() => {
+    if (fuelFills === null) indexFuelFills();
+  }, []);
+
+  const refresh = () => {
+    indexFuelFills();
   }
+
+  const isReady = fuelFills !== null;
+
+  if (!isReady) {
+    return (
+        <div className="user-page">
+        <DrawerMenu />
+            <div className="drawer-content">
+                <Container className="py-5">
+                    <Row className="justify-content-center">
+                        <Col md={8} lg={6}>
+                            <Card className="p-4 text-center">
+                                <h5 className="mb-3">Loading your data...</h5>
+                                <ProgressBar now={100} animated striped />
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+        </div>
+    );
+    }
 
   // Group fuel fills by month
   const groupedFills = fuelFills?.reduce((groups, fill) => {
     const date = new Date(fill.filledAt);
     const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    
+
     if (!groups[monthYear]) {
       groups[monthYear] = {
         monthName,
@@ -42,7 +68,7 @@ function FuelFills() {
       fill.filledAt.includes(searchTerm) ||
       fill.km.toString().includes(searchTerm)
     );
-    
+
     if (filteredMonthFills.length > 0) {
       filtered[monthKey] = {
         ...monthData,
@@ -65,7 +91,7 @@ function FuelFills() {
   return (
     <div className="fuel-fills-page">
       <DrawerMenu />
-      
+
       {/* Main Content */}
       <div className="drawer-content">
         <section className="fuel-fills-content py-4">
@@ -82,7 +108,7 @@ function FuelFills() {
                       variant="outline-secondary"
                       size="sm"
                       className='ms-2'
-                      onClick={() => store.index()} // or whatever function reloads your data
+                      onClick={refresh}
                     >
                       <FontAwesomeIcon icon={faRefresh} />
                     </Button>

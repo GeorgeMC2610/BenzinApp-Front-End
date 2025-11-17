@@ -28,6 +28,7 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
             errors: null,
             list: null,
             index: async () => {
+                set({list: null})
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(fuelFillUrl);
                     const fuelFills = response.data.map((jsonRecord: Record<string, any>[]) => FuelFillRecord.fromJson(jsonRecord));
