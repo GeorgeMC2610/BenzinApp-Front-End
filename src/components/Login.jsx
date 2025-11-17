@@ -4,12 +4,9 @@ import { Link } from 'react-router-dom';
 import { useCarStore } from '../services/managers/CarManager.ts';
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager.ts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router";
-import { useMalfunctionStore } from '../services/managers/MalfunctionManager.ts';
-import { useServiceStore } from '../services/managers/ServiceManager.ts';
 
 function Login() {
   const carStore = useCarStore();
