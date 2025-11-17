@@ -24,6 +24,24 @@ function SpecificTripRecord() {
   const deleteRedirectTimeout = useRef(null);
   const store = useTripStore();
 
+    useEffect(() => {
+        const fetchTrip = () => {
+            const listTrip = store.list?.find(trip => trip.id === parseInt(id));
+            if (listTrip) {
+                setTrip(new Trip(listTrip));
+                setLoading(false);
+            }
+            else {
+                store.read(id).then(_ => {
+                    setTrip(new Trip(store.viewingTrip));
+                    setLoading(false);
+                });
+            }
+        };
+
+        fetchTrip();
+    }, [id]);
+
   let bestConsumption;
   let worstConsumption;
   let averageConsumption;
@@ -40,24 +58,6 @@ function SpecificTripRecord() {
 
   averageConsumption = (trip?.totalKm ?? 0) / Car.getTotalConsumption();
   averageCostPerKm = Car.getTotalTravelCost() * trip?.totalKm;
-
-  useEffect(() => {
-    const fetchTrip = () => {
-      const listTrip = store.list?.find(trip => trip.id === parseInt(id));
-      if (listTrip) {
-        setTrip(new Trip(listTrip));
-        setLoading(false);
-      }
-      else {
-        store.read(id).then(_ => {
-          setTrip(new Trip(store.viewingMalfunction));
-          setLoading(false);
-        });
-      }
-    };
-    
-    fetchTrip();
-  }, [id]);
 
   const handleEdit = () => {
     navigate('/add-trip', {
@@ -168,7 +168,7 @@ function SpecificTripRecord() {
                     <div className="title-description-section mb-4">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <h2 className="record-title mb-0">{trip.title}</h2>
-                      
+
                       </div>
                       <div className="record-description">
                         <Badge bg={isRepeating ? 'info' : 'secondary'}>

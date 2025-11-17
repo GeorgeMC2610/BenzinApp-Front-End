@@ -1,9 +1,9 @@
-import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
-import { useState } from 'react';
+import { Container, Row, Col, Card, Button, Dropdown, ProgressBar } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGasPump, faWrench, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { faGasPump, faWrench, faCalendar, faClock } from '@fortawesome/free-solid-svg-icons';
 import { Pie } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
@@ -20,6 +20,9 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useCarStore } from '../services/managers/CarManager';
+import { useServiceStore } from '../services/managers/ServiceManager';
+import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
+import { useTripStore } from '../services/managers/TripManager';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { Car } from '../classes/Car';
@@ -44,6 +47,102 @@ function User() {
 
   const car = useCarStore((state) => state.car);
   const fuelFills = useFuelFillRecordStore((state) => state.list);
+  const services = useServiceStore((state) => state.list);
+  const malfunctions = useMalfunctionStore((state) => state.list);
+  // const trips = useTripStore((state) => state.list);
+
+  // index actions; they retrieve the data from the back-end.
+  const getCarDetails = useCarStore((state) => state.getCarDetails);
+  const indexFuelFills = useFuelFillRecordStore((state) => state.index);
+  const indexServices = useServiceStore((state) => state.index);
+  const indexMalfunctions = useMalfunctionStore((state) => state.index);
+  // const indexTrips = useTripStore((state) => state.index);
+
+  useEffect(() => {
+    if (car === null) getCarDetails();
+    if (fuelFills === null) indexFuelFills();
+    if (services === null) indexServices();
+    if (malfunctions === null) indexMalfunctions();
+    // We don't care that much about trips, since they're not any helpful in the dashboard.
+    // if (trips === null) indexTrips();
+  }, []);
+
+  const isReady = car !== null &&
+                  fuelFills !== null &&
+                  services !== null &&
+                  malfunctions !== null
+
+  if (!isReady) {
+    return (
+      <div className="user-page">
+        <DrawerMenu />
+        <div className="drawer-content">
+          <Container className="py-5">
+            <Row className="justify-content-center">
+              <Col md={8} lg={6}>
+                <Card className="p-4 text-center">
+                  <h5 className="mb-3">Loading your data...</h5>
+                  <ProgressBar now={100} animated striped />
+                </Card>
+              </Col>
+            </Row>
+          </Container>
+        </div>
+      </div>
+    );
+  }
+
+  const lastFill = fuelFills.length > 0 ? fuelFills[0] : null;
+  const lastService = services.length > 0 ? services[0] : null;
+
+  // Compute service due statuses (km and date)
+  // Prefer strings that describe the future reference and a status level for styling.
+  const toDate = (d) => (d instanceof Date ? d : d ? new Date(d) : null);
+
+  // Kilometers-based status
+  let serviceKmStatusText = null;
+  let serviceKmStatusLevel = null; // 'ok' | 'warning' | 'danger'
+  let kmRemaining = null;
+  if (lastService && lastService.nextServiceKilometers != null && lastFill && lastFill.totalKm != null) {
+    kmRemaining = lastService.nextServiceKilometers - lastFill.totalKm;
+    if (kmRemaining > 500) {
+      serviceKmStatusLevel = 'ok';
+      serviceKmStatusText = `Next service in: ${kmRemaining.toLocaleString()} km`;
+    } else if (kmRemaining >= 0) {
+      serviceKmStatusLevel = 'warning';
+      serviceKmStatusText = `Next service in: ${kmRemaining.toLocaleString()} km`;
+    } else {
+      serviceKmStatusLevel = 'danger';
+      const overdueKm = Math.abs(Math.round(kmRemaining));
+      serviceKmStatusText = `Next service overdue by ${overdueKm} km`;
+    }
+  }
+
+  // Date-based status
+  let serviceDateStatusText = null;
+  let serviceDateStatusLevel = null;
+  let daysRemaining = null;
+  if (lastService && lastService.nextServiceDate) {
+    const nextDate = toDate(lastService.nextServiceDate);
+    if (nextDate) {
+      const today = new Date();
+      // Strip time for day-diff
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const startOfDay = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+      daysRemaining = Math.floor((startOfDay(nextDate).getTime() - startOfDay(today).getTime()) / msPerDay);
+      if (daysRemaining > 30) {
+        serviceDateStatusLevel = 'ok';
+        serviceDateStatusText = `Service due in ${daysRemaining} days`;
+      } else if (daysRemaining >= 0) {
+        serviceDateStatusLevel = 'warning';
+        serviceDateStatusText = `Service due in ${daysRemaining} days`;
+      } else {
+        serviceDateStatusLevel = 'danger';
+        const overdueDays = Math.abs(daysRemaining);
+        serviceDateStatusText = `Service overdue by ${overdueDays} days (danger)`;
+      }
+    }
+  }
 
   // Color mapping for different metrics
   const metricColors = {
@@ -84,12 +183,12 @@ function User() {
         backgroundColor: [
           '#ff9800',
           '#ff5252',
-          '#ff6e40',             
+          '#ff6e40',
         ],
       },
     ],
   };
-  
+
   const pieOptions = {
     plugins: {
       legend: {
@@ -109,7 +208,7 @@ function User() {
           weight: 'bold',
           size: 14,
         },
-        formatter: (value) => `${value.toFixed(1)}%`,
+        formatter: (value) => value === 0 ? null : `${value.toFixed(1)}%`,
         anchor: 'center',
         align: 'center',
       },
@@ -243,35 +342,76 @@ function User() {
                       </div>
                       <div className="d-flex align-items-center gap-2">
                         <FontAwesomeIcon icon={faGasPump} className="fuel-icon" />
-                        <span className="last-filled">Last filled {fuelFills[0].filledAt}</span>
-                        <span className="last-filled-details">
-                          {fuelFills[0].lt.toLocaleString(undefined, {minimumFractionDigits: 2})} lt. | 
-                          €{fuelFills[0].cost.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                        {lastFill ? (
+                          <>
+                            <span className="last-filled">Last filled {lastFill.filledAt}</span>
+                            <span className="last-filled-details">
+                              {lastFill.lt.toLocaleString(undefined, { minimumFractionDigits: 2 })} lt. |
+                              €{lastFill.cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="last-filled">No fuel fills yet</span>
+                        )}
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Service Status Section */}
-                  <div className="service-status-section mt-4 pt-3">
-                    <div className="service-status-item">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center gap-2">
-                          <FontAwesomeIcon icon={faWrench} className="service-icon" />
-                          <span className="service-label">Next service in 3,545 km.</span>
+                  {lastService && (
+                    <div className="service-status-section mt-4 pt-3">
+                      {/* Kilometers-based status (render only if we can compute it) */}
+                      {serviceKmStatusText && (
+                        <div className="service-status-item">
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div className="d-flex align-items-center gap-2">
+                              <FontAwesomeIcon icon={faWrench} className="service-icon" />
+                              <span className="service-label">{serviceKmStatusText}</span>
+                            </div>
+                            <Button
+                              className={
+                                serviceKmStatusLevel === 'ok'
+                                  ? 'service-ok-btn'
+                                  : serviceKmStatusLevel === 'warning'
+                                  ? 'service-warning-btn'
+                                  : 'service-danger-btn'
+                              }
+                            >
+                              {serviceKmStatusLevel === 'ok' ? 'OK' : serviceKmStatusLevel === 'warning' ? 'Warning' : 'Overdue'}
+                            </Button>
+                          </div>
                         </div>
-                        <Button variant="success" className="service-ok-btn">OK</Button>
-                      </div>
-                    </div>
-                    <div className="service-status-item mt-3">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center gap-2">
-                          <FontAwesomeIcon icon={faCalendar} className="service-icon" />
-                          <span className="service-label">Service due in 6 month(s)</span>
+                      )}
+
+                      {/* Date-based status (render only if available) */}
+                      {serviceDateStatusText && (
+                        <div className="service-status-item mt-3">
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div className="d-flex align-items-center gap-2">
+                              <FontAwesomeIcon icon={faCalendar} className="service-icon" />
+                              <span className="service-label">{serviceDateStatusText}</span>
+                            </div>
+                            <Button
+                              className={
+                                serviceDateStatusLevel === 'ok'
+                                  ? 'service-ok-btn'
+                                  : serviceDateStatusLevel === 'warning'
+                                  ? 'service-warning-btn'
+                                  : 'service-danger-btn'
+                              }
+                            >
+                              {serviceDateStatusLevel === 'ok' ? 'OK' : 
+                              serviceDateStatusLevel === 'warning' ? (
+                                <FontAwesomeIcon icon={faClock} />
+                              ) : 
+                                (<FontAwesomeIcon icon={faWarning} />)
+                              }
+                            </Button>
+                          </div>
                         </div>
-                        <Button variant="success" className="service-ok-btn">OK</Button>
-                      </div>
+                      )}
                     </div>
-                  </div>
+                  )}
                 </Card.Body>
               </Card>
             </Col>

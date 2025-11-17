@@ -49,7 +49,7 @@ export class Trip {
         this.polyline = polyline;
     }
 
-    static fromJson(object: Record<string, any>) {
+    static fromJson(object: Record<string, any>): Trip {
         return new Trip({
             id: object[TripFields.id],
             title: object[TripFields.title],

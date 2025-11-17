@@ -4,18 +4,12 @@ import { Link } from 'react-router-dom';
 import { useCarStore } from '../services/managers/CarManager.ts';
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager.ts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router";
-import { useMalfunctionStore } from '../services/managers/MalfunctionManager.ts';
-import { useServiceStore } from '../services/managers/ServiceManager.ts';
 
 function Login() {
   const carStore = useCarStore();
-  const fuelFillStore = useFuelFillRecordStore();
-  const malfunctionStore = useMalfunctionStore();
-  const serviceStore = useServiceStore();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -42,10 +36,6 @@ function Login() {
 
     if (response) {
         toast.success("Successfully logged in.", { position: 'top-center' });
-        carStore.getCarDetails();
-        await fuelFillStore.index();
-        await malfunctionStore.index();
-        await serviceStore.index();
         navigate('/dashboard');
     }
     else {
@@ -66,9 +56,9 @@ function Login() {
               <div className="text-center mb-5">
                 <Link to="/" className="brand-link">
                   <div className="brand-logo d-flex align-items-center justify-content-center">
-                    <img 
-                      src="/logo.png" 
-                      alt="BenzinApp Logo" 
+                    <img
+                      src="/logo.png"
+                      alt="BenzinApp Logo"
                       className="brand-icon me-2"
                     />
                   </div>

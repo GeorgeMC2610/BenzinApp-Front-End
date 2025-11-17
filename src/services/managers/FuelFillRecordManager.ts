@@ -2,7 +2,6 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { FuelFillRecord } from "../../classes/FuelFillRecord"
 import RequestHelper from '../RequestHelper';
-import SpecificFuelFillRecord from '../../components/SpecificFuelFillRecord';
 
 type FuelFillRecordState = {
     viewingFuelFillRecord: FuelFillRecord | null;
@@ -19,7 +18,7 @@ type FuelFillRecordActions = {
 }
 
 const fuelFillUrl = RequestHelper._baseUrl + '/fuel_fill_record';
-const fuelFillUrlId = (id: number) => RequestHelper._baseUrl + '/fuel_fill_record/' + id; 
+const fuelFillUrlId = (id: number) => RequestHelper._baseUrl + '/fuel_fill_record/' + id;
 
 export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecordActions>() (
     persist(
@@ -28,6 +27,7 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
             errors: null,
             list: null,
             index: async () => {
+                set({list: null})
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(fuelFillUrl);
                     const fuelFills = response.data.map((jsonRecord: Record<string, any>[]) => FuelFillRecord.fromJson(jsonRecord));
@@ -50,11 +50,17 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
                     console.log(error);
                 }
             },
+
+            destroyValues: () => {
+                set({ viewingFuelFillRecord: null });
+                set({ list: null });
+            },
+
             update: async (fuelFillRecord) => {
 
             },
             delete: async (id) => {
-                
+
             }
         }),
         {

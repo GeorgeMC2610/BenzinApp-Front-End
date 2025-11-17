@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Malfunction } from "../../classes/Malfunction"
 import RequestHelper from '../RequestHelper';
+import {Service} from "../../classes/Service";
 
 type MalfunctionState = {
     viewingMalfunction: Malfunction | null;
@@ -18,7 +19,7 @@ type MalfunctionActions = {
 }
 
 const malfunctionUrl = RequestHelper._baseUrl + '/malfunction';
-const malfunctionUrlId = (id: number) => RequestHelper._baseUrl + '/malfunction/' + id; 
+const malfunctionUrlId = (id: number) => RequestHelper._baseUrl + '/malfunction/' + id;
 
 export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>() (
     persist(
@@ -27,6 +28,7 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
             errors: null,
             list: null,
             index: async () => {
+                set({ list: null })
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(malfunctionUrl);
                     const malfunctions = response.data.map((jsonRecord: Record<string, any>[]) => Malfunction.fromJson(jsonRecord));
@@ -40,14 +42,25 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
 
             },
             read: async (id) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(malfunctionUrlId(id));
+                    const malfunction = Malfunction.fromJson(response.data);
+                    set({ viewingMalfunction: malfunction });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             update: async (malfunction) => {
 
             },
             delete: async (id) => {
-                
-            }
+
+            },
+            destroyValues: () => {
+                set({ viewingMalfunction: null });
+                set({ list: null });
+            },
         }),
         {
             name: 'malfunction-store',

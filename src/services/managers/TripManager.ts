@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Trip } from "../../classes/Trip"
 import RequestHelper from '../RequestHelper';
+import {FuelFillRecord} from "../../classes/FuelFillRecord";
 
 type TripState = {
     viewingTrip: Trip | null;
@@ -18,7 +19,7 @@ type TripActions = {
 }
 
 const repeatedTripUrl = RequestHelper._baseUrl + '/repeated_trip';
-const repeatedTripUrlId = (id: number) => RequestHelper._baseUrl + '/repeated_trip/' + id; 
+const repeatedTripUrlId = (id: number) => RequestHelper._baseUrl + '/repeated_trip/' + id;
 
 export const useTripStore = create<TripState & TripActions>() (
     persist(
@@ -27,6 +28,7 @@ export const useTripStore = create<TripState & TripActions>() (
             errors: null,
             list: null,
             index: async () => {
+                set({ list: null });
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(repeatedTripUrl);
                     const trips = response.data.map((jsonRecord: Record<string, any>[]) => Trip.fromJson(jsonRecord));
@@ -40,14 +42,25 @@ export const useTripStore = create<TripState & TripActions>() (
 
             },
             read: async (id) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(repeatedTripUrlId(id));
+                    const trip = Trip.fromJson(response.data);
+                    set({ viewingTrip: trip });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             update: async (trip) => {
 
             },
             delete: async (id) => {
-                
-            }
+
+            },
+            destroyValues: () => {
+                set({ viewingTrip: null });
+                set({ list: null });
+            },
         }),
         {
             name: 'trip-store',

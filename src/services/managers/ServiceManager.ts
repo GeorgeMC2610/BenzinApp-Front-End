@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Service } from "../../classes/Service"
 import RequestHelper from '../RequestHelper';
+import {Trip} from "../../classes/Trip";
 
 type ServiceState = {
     viewingService: Service | null;
@@ -18,7 +19,7 @@ type ServiceActions = {
 }
 
 const serviceUrl = RequestHelper._baseUrl + '/service';
-const serviceUrlId = (id: number) => RequestHelper._baseUrl + '/service/' + id; 
+const serviceUrlId = (id: number) => RequestHelper._baseUrl + '/service/' + id;
 
 export const useServiceStore = create<ServiceState & ServiceActions>() (
     persist(
@@ -27,6 +28,7 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
             errors: null,
             list: null,
             index: async () => {
+                set({ list: null });
                 try {
                     const response = await RequestHelper.getInstance().sendGetRequest(serviceUrl);
                     const services = response.data.map((jsonRecord: Record<string, any>[]) => Service.fromJson(jsonRecord));
@@ -40,14 +42,25 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
 
             },
             read: async (id) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendGetRequest(serviceUrlId(id));
+                    const service = Service.fromJson(response.data);
+                    set({ viewingService: service });
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             update: async (service) => {
 
             },
             delete: async (id) => {
-                
-            }
+
+            },
+            destroyValues: () => {
+                set({ viewingService: null });
+                set({ list: null });
+            },
         }),
         {
             name: 'service-store',
