@@ -13,9 +13,6 @@ import { useServiceStore } from '../services/managers/ServiceManager.ts';
 
 function Login() {
   const carStore = useCarStore();
-  const fuelFillStore = useFuelFillRecordStore();
-  const malfunctionStore = useMalfunctionStore();
-  const serviceStore = useServiceStore();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
