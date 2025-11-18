@@ -29,6 +29,33 @@ class RequestHelper {
             withCredentials: false,
             headers: this.getBasicHeaders(),
         });
+        // Central response interceptor: if the server returns 401 or an
+        // "Expired token" message, clear stored token and redirect to login.
+        this.axiosInstance.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                try {
+                    const resp = error?.response;
+                    const status = resp?.status;
+                    const data = resp?.data;
+
+                    const isExpiredMessage =
+                        data && (data.message === 'Missing token' || data.message === 'Not enough or too many segments');
+
+                    if (status === 401 || isExpiredMessage) {
+                        // remove token and redirect to login page
+                        TokenHelper.getInstance().removeToken();
+                        if (typeof window !== 'undefined') {
+                            window.location.href = '/login';
+                        }
+                    }
+                } catch (e) {
+                    // swallow any errors while trying to handle auth expiry
+                    // and continue to reject the original error
+                }
+                return Promise.reject(error);
+            }
+        );
     }
 
     public static getInstance(): RequestHelper {
