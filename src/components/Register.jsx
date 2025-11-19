@@ -3,8 +3,13 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { useCarStore } from '../services/managers/CarManager.ts';
+import { useNavigate } from "react-router";
+import {toast, ToastContainer} from "react-toastify";
 
 function Register() {
+  const carStore = useCarStore();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     manufacturer: '',
@@ -23,15 +28,37 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log('Registration attempt:', formData);
+    setIsLoggingIn(true);
+    const username = formData.username
+    const password = formData.password
+    const confirmPassword = formData.password_confirmation
+    const manufacturer = formData.manufacturer
+    const model = formData.model
+    const year = formData.year
+    const response = await carStore.register(username, password, confirmPassword, manufacturer, model, parseInt(year));
+
+    if (response) {
+        toast.success("Successfully registered! Welcome to BenzinApp.", { position: 'top-center' });
+        navigate('/dashboard');
+    }
+    else {
+        toast.error("This username is already taken. Please try again, with a different username.", { position: 'top-center' });
+        setFormData({
+          ...formData,
+          password: ''
+        })
+    }
+    setIsLoggingIn(false);
   };
 
   return (
     <div className="register-page">
       <Container>
+        <ToastContainer />
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={4}>
             <div className="register-container">
@@ -68,6 +95,7 @@ function Register() {
                         id="username"
                         name="username"
                         value={formData.username}
+                        disabled={isLoggingIn}
                         onChange={handleChange}
                         placeholder="Enter your username"
                         className="form-input"
@@ -83,7 +111,8 @@ function Register() {
                         type="text"
                         id="manufacturer"
                         name="manufacturer"
-                        value={formData.carManufacturer}
+                        value={formData.manufacturer}
+                        disabled={isLoggingIn}
                         onChange={handleChange}
                         placeholder="e.g. Toyota, Honda, Ford"
                         className="form-input"
@@ -99,7 +128,8 @@ function Register() {
                         type="text"
                         id="model"
                         name="model"
-                        value={formData.carModel}
+                        disabled={isLoggingIn}
+                        value={formData.model}
                         onChange={handleChange}
                         placeholder="e.g. Camry, Civic, Focus"
                         className="form-input"
@@ -117,6 +147,7 @@ function Register() {
                         name="year"
                         value={formData.year}
                         onChange={handleChange}
+                        disabled={isLoggingIn}
                         placeholder="e.g. 2020"
                         className="form-input"
                         min="1900"
@@ -136,6 +167,7 @@ function Register() {
                           name="password"
                           value={formData.password}
                           onChange={handleChange}
+                          disabled={isLoggingIn}
                           placeholder="Create a password"
                           className="form-input password-input"
                           required
@@ -160,8 +192,9 @@ function Register() {
                           type={showConfirmPassword ? "text" : "password"}
                           id="password_confirmation"
                           name="password_confirmation"
-                          value={formData.confirmPassword}
+                          value={formData.password_confirmation}
                           onChange={handleChange}
+                          disabled={isLoggingIn}
                           placeholder="Confirm your password"
                           className="form-input password-input"
                           required
@@ -200,10 +233,21 @@ function Register() {
 
                     <Button
                       type="submit"
-                      className="register-btn w-100 mb-3"
+                      disabled={isLoggingIn}
+                      className={isLoggingIn ? 'login-btn-disabled w-100 mb-3' : 'login-btn w-100 mb-3'}
                       size="lg"
                     >
-                      Create account
+                      {isLoggingIn ? (
+                      <>
+                        <span
+                          className='spinner-border spinner-border-sm mr-3'
+                          aria-hidden="true"
+                        />
+                        Logging in...
+                      </>
+                        ) : (
+                          'Login'
+                        )}
                     </Button>
 
                     <div className="text-center">

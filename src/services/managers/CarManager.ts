@@ -12,7 +12,7 @@ type CarActions = {
     login: (username: string, password: string) => Promise<boolean>;
     logout: () => void;
     getCarDetails: () => Promise<void>;
-    register: (manufacturer: string, model: string, year: number) => Promise<boolean>;
+    register: (username: string, password: string, confirmPassword: string, manufacturer: string, model: string, year: number) => Promise<boolean>;
     update: (manufacturer: string, model: string, year: number) => Promise<void>;
 }
 
@@ -53,8 +53,26 @@ export const useCarStore = create<CarState & CarActions>()(
                 set({ car: null });
             },
 
-            register: async (manufacturer, model, year) => {
-                return true;
+            register: async (username, password, confrimPassword, manufacturer, model, year) => {
+                try {
+                    const response = await RequestHelper.getInstance().sendPostRequest(
+                        RequestHelper._baseUrl + '/signup', {
+                            username: username,
+                            password: password,
+                            confirm_password: confrimPassword,
+                            manufacturer: manufacturer,
+                            model: model,
+                            year: year
+                        }, false
+                    );
+
+                    TokenHelper.getInstance().removeToken();
+                    TokenHelper.getInstance().setToken(response.data.auth_token)
+                    return true;
+                }
+                catch (error) {
+                    return false;
+                }
             },
 
             update: async (manufacturer, model, year) => {
