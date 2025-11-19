@@ -3,16 +3,15 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { faGasPump } from '@fortawesome/free-solid-svg-icons';
 
 function Register() {
   const [formData, setFormData] = useState({
     username: '',
-    carManufacturer: '',
-    carModel: '',
+    manufacturer: '',
+    model: '',
     year: '',
     password: '',
-    confirmPassword: ''
+    password_confirmation: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -77,13 +76,13 @@ function Register() {
                     </div>
 
                     <div className="form-group mb-3">
-                      <Form.Label htmlFor="carManufacturer" className="form-label">
+                      <Form.Label htmlFor="manufacturer" className="form-label">
                         Car Manufacturer
                       </Form.Label>
                       <Form.Control
                         type="text"
-                        id="carManufacturer"
-                        name="carManufacturer"
+                        id="manufacturer"
+                        name="manufacturer"
                         value={formData.carManufacturer}
                         onChange={handleChange}
                         placeholder="e.g. Toyota, Honda, Ford"
@@ -93,13 +92,13 @@ function Register() {
                     </div>
 
                     <div className="form-group mb-3">
-                      <Form.Label htmlFor="carModel" className="form-label">
+                      <Form.Label htmlFor="model" className="form-label">
                         Car Model
                       </Form.Label>
                       <Form.Control
                         type="text"
-                        id="carModel"
-                        name="carModel"
+                        id="model"
+                        name="model"
                         value={formData.carModel}
                         onChange={handleChange}
                         placeholder="e.g. Camry, Civic, Focus"
@@ -153,14 +152,14 @@ function Register() {
                     </div>
 
                     <div className="form-group mb-4">
-                      <Form.Label htmlFor="confirmPassword" className="form-label">
+                      <Form.Label htmlFor="password_confirmation" className="form-label">
                         Confirm Password
                       </Form.Label>
                       <InputGroup>
                         <Form.Control
                           type={showConfirmPassword ? "text" : "password"}
-                          id="confirmPassword"
-                          name="confirmPassword"
+                          id="password_confirmation"
+                          name="password_confirmation"
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           placeholder="Confirm your password"
