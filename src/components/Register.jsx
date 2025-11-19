@@ -49,7 +49,8 @@ function Register() {
         toast.error("This username is already taken. Please try again, with a different username.", { position: 'top-center' });
         setFormData({
           ...formData,
-          password: ''
+          password: '',
+          password_confirmation: ''
         })
     }
     setIsLoggingIn(false);
