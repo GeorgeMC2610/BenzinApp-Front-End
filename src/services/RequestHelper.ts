@@ -42,7 +42,7 @@ class RequestHelper {
                     const isExpiredMessage =
                         data && (data.message === 'Missing token' || data.message === 'Not enough or too many segments');
 
-                    if (status === 401 || isExpiredMessage) {
+                    if (isExpiredMessage) {
                         // remove token and redirect to login page
                         TokenHelper.getInstance().removeToken();
                         if (typeof window !== 'undefined') {

@@ -40,6 +40,10 @@ function Login() {
     }
     else {
         toast.error("Invalid Credentials. Please, try again.", { position: 'top-center' });
+        setFormData({
+          ...formData,
+          password: ''
+        })
     }
     setIsLoggingIn(false);
   };
