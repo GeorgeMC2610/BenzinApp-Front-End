@@ -1,20 +1,22 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
+import { FuelFillRecord } from '../classes/FuelFillRecord';
 
 function AddFuelFill() {
   const [formData, setFormData] = useState({
     km: '',
-    cost_eur: '',
-    total_km: '',
+    cost: '',
+    totalKm: '',
     lt: '',
-    filled_at: new Date().toISOString().split('T')[0],
-    fuel_type: '',
+    filledAt: new Date().toISOString().split('T')[0],
+    fuelType: '',
     station: '',
     notes: ''
   });
   const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
   const fuelFillList = useFuelFillRecordStore((state) => state.list);
+  const [loading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fromApi = Array.isArray(fuelFillList)
@@ -37,7 +39,23 @@ function AddFuelFill() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Fuel fill record:', formData);
+    const normalizeToNull = (value) => {
+      if (value === null || value === undefined) return null;
+      const trimmed = String(value).trim();
+      return trimmed === '' ? null : trimmed;
+    };
+
+    const normalizedData = {
+      ...formData,
+      fuelType: normalizeToNull(formData.fuelType),
+      station: normalizeToNull(formData.station),
+      notes: normalizeToNull(formData.notes),
+    };
+
+    const fuelFill = new FuelFillRecord(normalizedData);
+
+    console.log(fuelFill);
+    console.log('Fuel fill record (normalized):', normalizedData);
   };
 
   return (
@@ -78,15 +96,15 @@ function AddFuelFill() {
                         </Col>
                         <Col md={4}>
                           <Form.Group>
-                            <Form.Label htmlFor="cost_eur" className="form-label">
+                            <Form.Label htmlFor="cost" className="form-label">
                               Cost (€) *
                             </Form.Label>
                             <Form.Control
                               type="number"
                               step="0.01"
-                              id="cost_eur"
-                              name="cost_eur"
-                              value={formData.cost_eur}
+                              id="cost"
+                              name="cost"
+                              value={formData.cost}
                               onChange={handleChange}
                               placeholder="e.g. 70.50"
                               className="form-input"
@@ -117,14 +135,14 @@ function AddFuelFill() {
                       <Row className="mt-3">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="filled_at" className="form-label">
+                            <Form.Label htmlFor="filledAt" className="form-label">
                               Date *
                             </Form.Label>
                             <Form.Control
                               type="date"
-                              id="filled_at"
-                              name="filled_at"
-                              value={formData.filled_at}
+                              id="filledAt"
+                              name="filledAt"
+                              value={formData.filledAt}
                               onChange={handleChange}
                               className="form-input"
                               required
@@ -136,7 +154,7 @@ function AddFuelFill() {
                             type="button"
                             variant="outline-secondary"
                             className="today-btn"
-                            onClick={() => setFormData({...formData, filled_at: new Date().toISOString().split('T')[0]})}
+                            onClick={() => setFormData({...formData, filledAt: new Date().toISOString().split('T')[0]})}
                           >
                             Today's Date
                           </Button>
