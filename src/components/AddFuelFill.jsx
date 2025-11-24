@@ -1,41 +1,32 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
-
-const defaultFuelTypes = ['95 Octane', '98 Octane', 'Diesel', 'E10', 'E5', 'LPG'];
+import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 
 function AddFuelFill() {
   const [formData, setFormData] = useState({
-    mileage: '',
-    cost: '',
-    liters: '',
-    date: new Date().toISOString().split('T')[0], // Today's date as default
-    fuelType: '',
-    stationName: '',
-    comments: ''
+    km: '',
+    cost_eur: '',
+    total_km: '',
+    lt: '',
+    filled_at: new Date().toISOString().split('T')[0],
+    fuel_type: '',
+    station: '',
+    notes: ''
   });
-  const [fuelTypeOptions, setFuelTypeOptions] = useState(defaultFuelTypes);
+  const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
+  const fuelFillList = useFuelFillRecordStore((state) => state.list);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedOptions = window.localStorage.getItem('fuelTypeOptions');
-      if (storedOptions) {
-        try {
-          const parsedOptions = JSON.parse(storedOptions);
-          if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
-            setFuelTypeOptions(parsedOptions);
-          }
-        } catch (error) {
-          console.error('Failed to parse stored fuel type options:', error);
-        }
-      }
-    }
-  }, []);
+    const fromApi = Array.isArray(fuelFillList)
+      ? fuelFillList
+          .map((f) => f?.fuelType)
+          .filter((t) => typeof t === 'string' && t.trim() !== '')
+          .map((s) => s.trim())
+      : [];
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('fuelTypeOptions', JSON.stringify(fuelTypeOptions));
-    }
-  }, [fuelTypeOptions]);
+    const unique = Array.from(new Set(fromApi));
+    setFuelTypeOptions(unique);
+  }, [fuelFillList]);
 
   const handleChange = (e) => {
     setFormData({
@@ -46,21 +37,7 @@ function AddFuelFill() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission here
     console.log('Fuel fill record:', formData);
-    const normalizedFuelType = formData.fuelType.trim();
-    if (normalizedFuelType) {
-      setFuelTypeOptions((prevOptions) => {
-        const exists = prevOptions.some(
-          (option) => option.toLowerCase() === normalizedFuelType.toLowerCase()
-        );
-        if (exists) {
-          return prevOptions;
-        }
-        return [...prevOptions, normalizedFuelType];
-      });
-    }
-    // Redirect to fuel fills page or show success message
   };
 
   return (
@@ -84,14 +61,14 @@ function AddFuelFill() {
                       <Row className="g-3">
                         <Col md={4}>
                           <Form.Group>
-                            <Form.Label htmlFor="mileage" className="form-label">
-                              Mileage *
+                            <Form.Label htmlFor="km" className="form-label">
+                              Mileage (in km) *
                             </Form.Label>
                             <Form.Control
                               type="number"
-                              id="mileage"
-                              name="mileage"
-                              value={formData.mileage}
+                              id="km"
+                              name="km"
+                              value={formData.km}
                               onChange={handleChange}
                               placeholder="e.g. 50000"
                               className="form-input"
@@ -101,15 +78,15 @@ function AddFuelFill() {
                         </Col>
                         <Col md={4}>
                           <Form.Group>
-                            <Form.Label htmlFor="cost" className="form-label">
+                            <Form.Label htmlFor="cost_eur" className="form-label">
                               Cost (€) *
                             </Form.Label>
                             <Form.Control
                               type="number"
                               step="0.01"
-                              id="cost"
-                              name="cost"
-                              value={formData.cost}
+                              id="cost_eur"
+                              name="cost_eur"
+                              value={formData.cost_eur}
                               onChange={handleChange}
                               placeholder="e.g. 70.50"
                               className="form-input"
@@ -119,15 +96,15 @@ function AddFuelFill() {
                         </Col>
                         <Col md={4}>
                           <Form.Group>
-                            <Form.Label htmlFor="liters" className="form-label">
+                            <Form.Label htmlFor="lt" className="form-label">
                               Liters *
                             </Form.Label>
                             <Form.Control
                               type="number"
                               step="0.01"
-                              id="liters"
-                              name="liters"
-                              value={formData.liters}
+                              id="lt"
+                              name="lt"
+                              value={formData.lt}
                               onChange={handleChange}
                               placeholder="e.g. 45.2"
                               className="form-input"
@@ -140,14 +117,14 @@ function AddFuelFill() {
                       <Row className="mt-3">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="date" className="form-label">
+                            <Form.Label htmlFor="filled_at" className="form-label">
                               Date *
                             </Form.Label>
                             <Form.Control
                               type="date"
-                              id="date"
-                              name="date"
-                              value={formData.date}
+                              id="filled_at"
+                              name="filled_at"
+                              value={formData.filled_at}
                               onChange={handleChange}
                               className="form-input"
                               required
@@ -159,7 +136,7 @@ function AddFuelFill() {
                             type="button"
                             variant="outline-secondary"
                             className="today-btn"
-                            onClick={() => setFormData({...formData, date: new Date().toISOString().split('T')[0]})}
+                            onClick={() => setFormData({...formData, filled_at: new Date().toISOString().split('T')[0]})}
                           >
                             Today's Date
                           </Button>
@@ -174,15 +151,15 @@ function AddFuelFill() {
                       <Row className="g-3">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="fuelType" className="form-label">
+                            <Form.Label htmlFor="fuel_type" className="form-label">
                               Fuel Type
                             </Form.Label>
                             <Form.Control
-                              id="fuelType"
-                              name="fuelType"
+                              id="fuel_type"
+                              name="fuel_type"
                               type="text"
                               list="fuelTypeOptions"
-                              value={formData.fuelType}
+                              value={formData.fuel_type}
                               onChange={handleChange}
                               className="form-input"
                               placeholder="e.g. 95 Octane"
@@ -197,14 +174,14 @@ function AddFuelFill() {
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="stationName" className="form-label">
+                            <Form.Label htmlFor="station" className="form-label">
                               Station Name
                             </Form.Label>
                             <Form.Control
                               type="text"
-                              id="stationName"
-                              name="stationName"
-                              value={formData.stationName}
+                              id="station"
+                              name="station"
+                              value={formData.station}
                               onChange={handleChange}
                               placeholder="e.g. Shell Station"
                               className="form-input"
@@ -216,14 +193,14 @@ function AddFuelFill() {
                       <Row className="mt-3">
                         <Col>
                           <Form.Group>
-                            <Form.Label htmlFor="comments" className="form-label">
+                            <Form.Label htmlFor="notes" className="form-label">
                               Comments
                             </Form.Label>
                             <Form.Control
                               as="textarea"
-                              id="comments"
-                              name="comments"
-                              value={formData.comments}
+                              id="notes"
+                              name="notes"
+                              value={formData.notes}
                               onChange={handleChange}
                               placeholder="Any additional notes about this fuel fill..."
                               rows={3}
