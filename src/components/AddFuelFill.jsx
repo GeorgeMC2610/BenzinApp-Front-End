@@ -2,8 +2,11 @@ import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import { FuelFillRecord } from '../classes/FuelFillRecord';
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 function AddFuelFill() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     km: '',
     cost: '',
@@ -16,6 +19,7 @@ function AddFuelFill() {
   });
   const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
   const fuelFillList = useFuelFillRecordStore((state) => state.list);
+  const store = useFuelFillRecordStore();
   const [loading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -37,7 +41,7 @@ function AddFuelFill() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const normalizeToNull = (value) => {
       if (value === null || value === undefined) return null;
@@ -53,9 +57,10 @@ function AddFuelFill() {
     };
 
     const fuelFill = new FuelFillRecord(normalizedData);
+    await store.create(fuelFill);
 
-    console.log(fuelFill);
-    console.log('Fuel fill record (normalized):', normalizedData);
+    toast.success("Successfully added Fuel Fill Record.", { position: 'top-center' });
+    navigate('/fuel-fills');
   };
 
   return (
@@ -185,15 +190,15 @@ function AddFuelFill() {
                       <Row className="g-3">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="fuel_type" className="form-label">
+                            <Form.Label htmlFor="fuelType" className="form-label">
                               Fuel Type
                             </Form.Label>
                             <Form.Control
-                              id="fuel_type"
-                              name="fuel_type"
+                              id="fuelType"
+                              name="fuelType"
                               type="text"
                               list="fuelTypeOptions"
-                              value={formData.fuel_type}
+                              value={formData.fuelType}
                               onChange={handleChange}
                               className="form-input"
                               placeholder="e.g. 95 Octane"

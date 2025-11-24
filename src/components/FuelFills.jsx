@@ -63,8 +63,8 @@ function FuelFills() {
   const filteredFills = Object.keys(groupedFills ?? {}).reduce((filtered, monthKey) => {
     const monthData = groupedFills[monthKey];
     const filteredMonthFills = monthData.fills.filter(fill =>
-      fill.station.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fill.fuelType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fill.station?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fill.fuelType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       fill.filledAt.includes(searchTerm) ||
       fill.km.toString().includes(searchTerm)
     );

@@ -51,7 +51,6 @@ export class FuelFillRecord {
 
     toJson(): Record<string, any> {
         return {
-            [FuelFillRecordFields.id]: this.id,
             [FuelFillRecordFields.cost]: this.cost,
             [FuelFillRecordFields.lt]: this.lt,
             [FuelFillRecordFields.km]: this.km,

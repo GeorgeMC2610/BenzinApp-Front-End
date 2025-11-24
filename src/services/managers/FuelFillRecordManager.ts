@@ -38,7 +38,18 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
                 }
             },
             create: async (fuelFillRecord) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendPostRequest(
+                        fuelFillUrl, fuelFillRecord.toJson()
+                    );
+                    const fuelFill = FuelFillRecord.fromJson(response.data.fuel_fill);
+                    if (!!get().list) {
+                        set({ list: [...get().list!, fuelFill] });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             read: async (id) => {
                 try {
