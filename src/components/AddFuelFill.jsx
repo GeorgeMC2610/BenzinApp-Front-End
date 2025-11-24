@@ -132,6 +132,22 @@ function AddFuelFill() {
                         </Col>
                       </Row>
 
+                      <Form.Group>
+                        <Form.Label htmlFor="totalKm" className="form-label mt-3">
+                          Car's Total Mileage (in km) *
+                        </Form.Label>
+                        <Form.Control
+                          type="number"
+                          id="totalKm"
+                          name="totalKm"
+                          value={formData.totalKm}
+                          onChange={handleChange}
+                          placeholder="e.g. 120000"
+                          className="form-input"
+                          required
+                        />
+                      </Form.Group>
+
                       <Row className="mt-3">
                         <Col md={6}>
                           <Form.Group>
