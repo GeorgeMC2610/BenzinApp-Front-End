@@ -54,15 +54,15 @@ export class Malfunction {
 
     toJson(): Record<string, any> {
         return {
-            id: [MalfunctionFields.id],
-            started: [MalfunctionFields.started],
-            ended: [MalfunctionFields.ended],
-            title: [MalfunctionFields.title],
-            description: [MalfunctionFields.description],
-            severity: [MalfunctionFields.severity],
-            costEur: [MalfunctionFields.costEur],
-            atKm: [MalfunctionFields.atKm],
-            location: [MalfunctionFields.location],
+            [MalfunctionFields.id]: this.id,
+            [MalfunctionFields.started]: this.dateStarted,
+            [MalfunctionFields.ended]: this.dateEnded,
+            [MalfunctionFields.title]: this.title,
+            [MalfunctionFields.description]: this.description,
+            [MalfunctionFields.severity]: this.severity,
+            [MalfunctionFields.costEur]: this.cost,
+            [MalfunctionFields.atKm]: this.kilometersDiscovered,
+            [MalfunctionFields.location]: this.location,
         }
     }
 

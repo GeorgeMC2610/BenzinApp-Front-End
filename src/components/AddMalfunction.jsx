@@ -1,6 +1,8 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useNavigate } from "react-router";
 import { useState } from 'react';
+import { normalizeToNull } from '../utils/fields';
+import { Malfunction } from '../classes/Malfunction';
 
 function AddMalfunction() {
   const navigate = useNavigate();
@@ -39,7 +41,14 @@ function AddMalfunction() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Malfunction record:', formData);
+    const normalizedData = {
+      ...formData,
+      dateEnded: normalizeToNull(formData.dateEnded),
+      cost: normalizeToNull(formData.cost),
+      location: normalizeToNull(formData.location),
+    };
+    const malfunction = new Malfunction(normalizedData);
+    console.log('Malfunction record:', malfunction.toJson());
   };
 
   return (
