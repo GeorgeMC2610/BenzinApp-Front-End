@@ -1,7 +1,11 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useState } from 'react';
+import { normalizeToNull } from '../utils/fields';
+import { Service } from '../classes/Service';
+import { useServiceStore } from '../services/managers/ServiceManager';
 
 function AddService() {
+  const store = useServiceStore();
   const [formData, setFormData] = useState({
     description: '',
     dateHappened: new Date().toISOString().split('T')[0],
@@ -21,11 +25,19 @@ function AddService() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Service record:', formData);
-    // Redirect to services page or show success message
+    const normalizedData = {
+      ...formData,
+      nextServiceDate: normalizeToNull(formData.nextServiceDate),
+      nextServiceKilometers: normalizeToNull(formData.nextServiceKilometers),
+      location: normalizeToNull(formData.location),
+    };
+
+    const service = new Service(normalizedData);
+    await store.create(service);
+
+    console.log('Service record:', service.toJson());
   };
 
   return (
@@ -109,6 +121,7 @@ function AddService() {
                               onChange={handleChange}
                               placeholder="e.g. 70.50"
                               className="form-input"
+                              required
                             />
                           </Form.Group>
                         </Col>
@@ -143,7 +156,6 @@ function AddService() {
                           value={formData.nextServiceDate}
                           onChange={handleChange}
                           className="form-input"
-                          required
                         />
                       </Form.Group>
 
@@ -159,7 +171,6 @@ function AddService() {
                           onChange={handleChange}
                           placeholder="e.g. 28500"
                           className="form-input"
-                          required
                         />
                       </Form.Group>
                     </div>
