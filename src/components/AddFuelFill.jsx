@@ -60,7 +60,12 @@ function AddFuelFill() {
     await store.create(fuelFill);
 
     toast.success("Successfully added Fuel Fill Record.", { position: 'top-center' });
-    navigate('/fuel-fills');
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } 
+    else {
+      navigate('fuel-fills', { replace: true });
+    }
   };
 
   return (
