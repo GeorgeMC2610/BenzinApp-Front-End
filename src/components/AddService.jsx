@@ -3,12 +3,15 @@ import { useState } from 'react';
 
 function AddService() {
   const [formData, setFormData] = useState({
-    name: '',
+    description: '',
     dateHappened: new Date().toISOString().split('T')[0],
     kilometersDone: '',
     description: '',
     location: '',
-    cost: ''
+    cost: '',
+
+    nextServiceDate: '',
+    nextServiceKilometers: ''
   });
 
   const handleChange = (e) => {
@@ -43,17 +46,16 @@ function AddService() {
                     <div className="required-fields mb-4">
                       <h3 className="section-title">Required Information</h3>
                       
-                      <Form.Group className="mb-3">
-                        <Form.Label htmlFor="name" className="form-label">
-                          Service Name *
+                      <Form.Group className='mb-3'>
+                        <Form.Label htmlFor="dateHappened" className="form-label">
+                          Date *
                         </Form.Label>
                         <Form.Control
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
+                          type="date"
+                          id="dateHappened"
+                          name="dateHappened"
+                          value={formData.dateHappened}
                           onChange={handleChange}
-                          placeholder="e.g. Oil Change"
                           className="form-input"
                           required
                         />
@@ -78,15 +80,16 @@ function AddService() {
                       <Row className="g-3">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="date" className="form-label">
-                              Date *
+                            <Form.Label htmlFor="kilometersDone" className="form-label">
+                              Kilometers done *
                             </Form.Label>
                             <Form.Control
-                              type="date"
-                              id="date"
-                              name="date"
-                              value={formData.date}
+                              type="number"
+                              id="kilometersDone"
+                              name="kilometersDone"
+                              value={formData.kilometersDone}
                               onChange={handleChange}
+                              placeholder="e.g. 28500"
                               className="form-input"
                               required
                             />
@@ -111,22 +114,6 @@ function AddService() {
                         </Col>
                       </Row>
 
-                      <Form.Group className='mt-3'>
-                        <Form.Label htmlFor="discoveredAt" className="form-label">
-                          Kilometers done *
-                        </Form.Label>
-                        <Form.Control
-                          type="number"
-                          id="discoveredAt"
-                          name="discoveredAt"
-                          value={formData.discoveredAt}
-                          onChange={handleChange}
-                          placeholder="e.g. 28500"
-                          className="form-input"
-                          required
-                        />
-                      </Form.Group>
-
                       <Form.Group className="mt-3">
                         <Form.Label htmlFor="location" className="form-label">
                           Repair Location
@@ -146,14 +133,14 @@ function AddService() {
                     <div className="optional-fields">
                       <h3 className="section-title">Next Service Information</h3>
                       <Form.Group>
-                        <Form.Label htmlFor="date" className="form-label">
+                        <Form.Label htmlFor="nextServiceDate" className="form-label">
                           Next Service Date
                         </Form.Label>
                         <Form.Control
                           type="date"
-                          id="date"
-                          name="date"
-                          value={formData.date}
+                          id="nextServiceDate"
+                          name="nextServiceDate"
+                          value={formData.nextServiceDate}
                           onChange={handleChange}
                           className="form-input"
                           required
@@ -161,14 +148,14 @@ function AddService() {
                       </Form.Group>
 
                       <Form.Group className='mt-3'>
-                        <Form.Label htmlFor="discoveredAt" className="form-label">
+                        <Form.Label htmlFor="nextServiceKilometers" className="form-label">
                           Next Service Kilometers
                         </Form.Label>
                         <Form.Control
                           type="number"
-                          id="discoveredAt"
-                          name="discoveredAt"
-                          value={formData.discoveredAt}
+                          id="nextServiceKilometers"
+                          name="nextServiceKilometers"
+                          value={formData.nextServiceKilometers}
                           onChange={handleChange}
                           placeholder="e.g. 28500"
                           className="form-input"
