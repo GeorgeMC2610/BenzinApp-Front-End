@@ -3,9 +3,12 @@ import { useNavigate } from "react-router";
 import { useState } from 'react';
 import { normalizeToNull } from '../utils/fields';
 import { Malfunction } from '../classes/Malfunction';
+import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
+import { toast } from "react-toastify";
 
 function AddMalfunction() {
   const navigate = useNavigate();
+  const store = useMalfunctionStore();
   const [formData, setFormData] = useState({
     title: '',
     dateStarted: new Date().toISOString().split('T')[0],
@@ -39,7 +42,7 @@ function AddMalfunction() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const normalizedData = {
       ...formData,
@@ -47,8 +50,17 @@ function AddMalfunction() {
       cost: normalizeToNull(formData.cost),
       location: normalizeToNull(formData.location),
     };
+    
     const malfunction = new Malfunction(normalizedData);
-    console.log('Malfunction record:', malfunction.toJson());
+    await store.create(malfunction);
+    
+    toast.success("Successfully added Malfunction.", { position: 'top-center' });
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } 
+    else {
+      navigate('malfunctions', { replace: true });
+    }
   };
 
   return (
