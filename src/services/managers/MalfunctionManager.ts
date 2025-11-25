@@ -39,8 +39,7 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
                 }
             },
             create: async (malfunction) => {
-                try 
-                {
+                try {
                     const response = await RequestHelper.getInstance().sendPostRequest(
                         malfunctionUrl, malfunction.toJson()
                     );

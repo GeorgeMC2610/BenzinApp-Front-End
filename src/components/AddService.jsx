@@ -3,14 +3,16 @@ import { useState } from 'react';
 import { normalizeToNull } from '../utils/fields';
 import { Service } from '../classes/Service';
 import { useServiceStore } from '../services/managers/ServiceManager';
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 function AddService() {
   const store = useServiceStore();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     description: '',
     dateHappened: new Date().toISOString().split('T')[0],
     kilometersDone: '',
-    description: '',
     location: '',
     cost: '',
 
@@ -36,8 +38,14 @@ function AddService() {
 
     const service = new Service(normalizedData);
     await store.create(service);
-
-    console.log('Service record:', service.toJson());
+        
+    toast.success("Successfully added Service.", { position: 'top-center' });
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } 
+    else {
+      navigate('services', { replace: true });
+    }
   };
 
   return (
