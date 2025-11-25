@@ -145,7 +145,36 @@ function AddService() {
 
                     <div className="optional-fields">
                       <h3 className="section-title">Next Service Information</h3>
-                      
+                      <Form.Group>
+                        <Form.Label htmlFor="date" className="form-label">
+                          Next Service Date
+                        </Form.Label>
+                        <Form.Control
+                          type="date"
+                          id="date"
+                          name="date"
+                          value={formData.date}
+                          onChange={handleChange}
+                          className="form-input"
+                          required
+                        />
+                      </Form.Group>
+
+                      <Form.Group className='mt-3'>
+                        <Form.Label htmlFor="discoveredAt" className="form-label">
+                          Next Service Kilometers
+                        </Form.Label>
+                        <Form.Control
+                          type="number"
+                          id="discoveredAt"
+                          name="discoveredAt"
+                          value={formData.discoveredAt}
+                          onChange={handleChange}
+                          placeholder="e.g. 28500"
+                          className="form-input"
+                          required
+                        />
+                      </Form.Group>
                     </div>
 
                     {/* Submit Button */}
