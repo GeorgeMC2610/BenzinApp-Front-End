@@ -4,10 +4,11 @@ import { useState } from 'react';
 function AddService() {
   const [formData, setFormData] = useState({
     name: '',
-    date: new Date().toISOString().split('T')[0],
-    status: 'Scheduled',
-    discoveredAt: '',
-    description: ''
+    dateHappened: new Date().toISOString().split('T')[0],
+    kilometersDone: '',
+    description: '',
+    location: '',
+    cost: ''
   });
 
   const handleChange = (e) => {
@@ -58,6 +59,22 @@ function AddService() {
                         />
                       </Form.Group>
 
+                      <Form.Group className="mb-3">
+                        <Form.Label htmlFor="description" className="form-label">
+                          Description *
+                        </Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          id="description"
+                          name="description"
+                          value={formData.description}
+                          onChange={handleChange}
+                          placeholder="Describe the service in detail..."
+                          rows={3}
+                          className="form-input"
+                        />
+                      </Form.Group>
+
                       <Row className="g-3">
                         <Col md={6}>
                           <Form.Group>
@@ -77,27 +94,26 @@ function AddService() {
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="status" className="form-label">
-                              Status *
+                            <Form.Label htmlFor="cost" className="form-label">
+                              Cost (€) *
                             </Form.Label>
-                            <Form.Select
-                              id="status"
-                              name="status"
-                              value={formData.status}
+                            <Form.Control
+                              type="number"
+                              step="0.01"
+                              id="cost"
+                              name="cost"
+                              value={formData.cost}
                               onChange={handleChange}
+                              placeholder="e.g. 70.50"
                               className="form-input"
-                              required
-                            >
-                              <option value="Scheduled">Scheduled</option>
-                              <option value="Completed">Completed</option>
-                            </Form.Select>
+                            />
                           </Form.Group>
                         </Col>
                       </Row>
 
-                      <Form.Group className="mt-3">
+                      <Form.Group className='mt-3'>
                         <Form.Label htmlFor="discoveredAt" className="form-label">
-                          Discovered at (km) *
+                          Kilometers done *
                         </Form.Label>
                         <Form.Control
                           type="number"
@@ -110,27 +126,26 @@ function AddService() {
                           required
                         />
                       </Form.Group>
-                    </div>
 
-                    {/* Optional Fields */}
-                    <div className="optional-fields">
-                      <h3 className="section-title">Additional Information</h3>
-                      
-                      <Form.Group>
-                        <Form.Label htmlFor="description" className="form-label">
-                          Description
+                      <Form.Group className="mt-3">
+                        <Form.Label htmlFor="location" className="form-label">
+                          Repair Location
                         </Form.Label>
                         <Form.Control
-                          as="textarea"
-                          id="description"
-                          name="description"
-                          value={formData.description}
+                          type="text"
+                          id="location"
+                          name="location"
+                          value={formData.location}
                           onChange={handleChange}
-                          placeholder="Describe the service in detail..."
-                          rows={3}
+                          placeholder="e.g. Auto Service Center"
                           className="form-input"
                         />
                       </Form.Group>
+                    </div>
+
+                    <div className="optional-fields">
+                      <h3 className="section-title">Next Service Information</h3>
+                      
                     </div>
 
                     {/* Submit Button */}
