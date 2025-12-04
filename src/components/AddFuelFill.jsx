@@ -13,7 +13,6 @@ function AddFuelFill() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(() => {
     const editRecord = useFuelFillRecordStore.getState().list.find(r => r.id.toString() === recordId);
-    console.log(useFuelFillRecordStore.getState().list);
     if (!!recordId && editRecord) {
       return {
         km: editRecord.km ?? '',

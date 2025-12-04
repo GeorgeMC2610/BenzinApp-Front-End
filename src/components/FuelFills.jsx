@@ -79,8 +79,7 @@ function FuelFills() {
   }, {});
 
   const handleEdit = (id) => {
-    console.log('Edit fuel fill:', id);
-    // Handle edit logic here
+
   };
 
   const handleDelete = (id) => {
@@ -191,14 +190,12 @@ function FuelFills() {
                               <td>{typeof fill.getConsumption === 'function' ? fill.getConsumption().toFixed(3) : 'N/A'} L/100km</td>
                               <td>
                                 <div className="action-buttons">
-                                  <Button
-                                    variant="outline-primary"
-                                    size="sm"
-                                    className="edit-btn me-2"
+                                  <Link to={`/edit-fuel-fill/${fill.id}`}
+                                    className="btn btn-sm btn-outline-primary edit-btn me-2"
                                     onClick={() => handleEdit(fill.id)}
                                   >
                                     Edit
-                                  </Button>
+                                  </Link>
                                   <Button
                                     variant="outline-danger"
                                     size="sm"
