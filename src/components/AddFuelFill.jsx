@@ -1,5 +1,5 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import { FuelFillRecord } from '../classes/FuelFillRecord';
 import { useNavigate, useParams } from "react-router";
@@ -11,36 +11,135 @@ function AddFuelFill() {
 
   const store = useFuelFillRecordStore();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(() => {
-    const editRecord = useFuelFillRecordStore.getState().list.find(r => r.id.toString() === recordId);
-    if (!!recordId && editRecord) {
-      return {
-        km: editRecord.km ?? '',
-        cost: editRecord.cost ?? '',
-        totalKm: editRecord.totalKm ?? '',
-        lt: editRecord.lt ?? '',
-        filledAt: editRecord.filledAt ? new Date(editRecord.filledAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        fuelType: editRecord.fuelType ?? '',
-        station: editRecord.station ?? '',
-        notes: editRecord.notes ?? '',
-      };
+
+  const fuelFillList = useFuelFillRecordStore((s) => s.list);
+  const indexFuelFills = useFuelFillRecordStore((s) => s.index);
+  const readFuelFill = useFuelFillRecordStore((s) => s.read);
+
+  // null = still resolving (loading). Non-null = form ready.
+  const [formData, setFormData] = useState(null);
+  const [loading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function prepareForm() {
+      // Add mode: initialize with defaults immediately
+      if (!recordId) {
+        if (!mounted) return;
+        setFormData({
+          km: '',
+          cost: '',
+          totalKm: '',
+          lt: '',
+          filledAt: new Date().toISOString().split('T')[0],
+          fuelType: '',
+          station: '',
+          notes: ''
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Edit mode: ensure list is loaded (try index), then find record
+      try {
+        if (!fuelFillList || fuelFillList.length === 0) {
+          // attempt to load the list (manager should dedupe multiple calls)
+          if (typeof indexFuelFills === 'function') {
+            await indexFuelFills();
+          }
+        }
+
+        // try to find in the list first
+        let editRecord = (useFuelFillRecordStore.getState().list || []).find(r => r.id.toString() === recordId);
+
+        // fallback: try manager.read(recordId) if available (reads a single record)
+        if (!editRecord && typeof readFuelFill === 'function') {
+          // read may set store.viewingFuelFillRecord or return the record
+          const maybe = await readFuelFill(recordId);
+          // read may return a record or update store; try both
+          editRecord = maybe || useFuelFillRecordStore.getState().viewingFuelFillRecord;
+        }
+
+        if (!mounted) return;
+
+        if (editRecord) {
+          setFormData({
+            km: editRecord.km ?? '',
+            cost: editRecord.cost ?? '',
+            totalKm: editRecord.totalKm ?? '',
+            lt: editRecord.lt ?? '',
+            filledAt: editRecord.filledAt ? new Date(editRecord.filledAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            fuelType: editRecord.fuelType ?? '',
+            station: editRecord.station ?? '',
+            notes: editRecord.notes ?? '',
+          });
+        } else {
+          // record not found: initialize defaults and optionally show a warning
+          toast.warn('Fuel fill record not found. Showing add form.');
+          setFormData({
+            km: '',
+            cost: '',
+            totalKm: '',
+            lt: '',
+            filledAt: new Date().toISOString().split('T')[0],
+            fuelType: '',
+            station: '',
+            notes: ''
+          });
+        }
+      } catch (err) {
+        console.error('Error preparing form:', err);
+        toast.error('Failed to load fuel fill data.');
+        setFormData({
+          km: '',
+          cost: '',
+          totalKm: '',
+          lt: '',
+          filledAt: new Date().toISOString().split('T')[0],
+          fuelType: '',
+          station: '',
+          notes: ''
+        });
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
     }
 
-    return {
-      km: '',
-      cost: '',
-      totalKm: '',
-      lt: '',
-      filledAt: new Date().toISOString().split('T')[0],
-      fuelType: '',
-      station: '',
-      notes: ''
-    };
-  });
+    prepareForm();
+    return () => { mounted = false; };
+  }, [recordId, fuelFillList, indexFuelFills, readFuelFill]);
+
+  // const [formData, setFormData] = useState(() => {
+  //   const editRecord = store.list?.find(r => r.id.toString() === recordId);
+  //   if (!!recordId && editRecord) {
+  //     return {
+  //       km: editRecord.km ?? '',
+  //       cost: editRecord.cost ?? '',
+  //       totalKm: editRecord.totalKm ?? '',
+  //       lt: editRecord.lt ?? '',
+  //       filledAt: editRecord.filledAt ? new Date(editRecord.filledAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+  //       fuelType: editRecord.fuelType ?? '',
+  //       station: editRecord.station ?? '',
+  //       notes: editRecord.notes ?? '',
+  //     };
+  //   }
+
+  //   return {
+  //     km: '',
+  //     cost: '',
+  //     totalKm: '',
+  //     lt: '',
+  //     filledAt: new Date().toISOString().split('T')[0],
+  //     fuelType: '',
+  //     station: '',
+  //     notes: ''
+  //   };
+  // });
 
   const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
-  const fuelFillList = useFuelFillRecordStore((state) => state.list);
-  const [loading, setIsLoading] = useState(false);
+  // const fuelFillList = useFuelFillRecordStore((state) => state.list);
+  // const [loading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fromApi = Array.isArray(fuelFillList)
@@ -99,7 +198,26 @@ function AddFuelFill() {
     }
   };
 
+  if (loading || formData === null) {
+    return (
+      <div className="add-fuel-fill-page">
+        <Container>
+          <Row className="justify-content-center min-vh-100 align-items-center">
+            <Col xs={12} sm={10} md={8} lg={6} xl={5}>
+              <Card className="fuel-fill-card">
+                <Card.Body className="p-5 text-center">
+                  Loading...
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    );
+  }
+
   return (
+    
     <div className="add-fuel-fill-page">
       <Container>
         <Row className="justify-content-center min-vh-100 align-items-center">
@@ -127,7 +245,7 @@ function AddFuelFill() {
                               type="number"
                               id="km"
                               name="km"
-                              value={formData.km}
+                              value={formData?.km}
                               onChange={handleChange}
                               placeholder="e.g. 50000"
                               className="form-input"
@@ -145,7 +263,7 @@ function AddFuelFill() {
                               step="0.01"
                               id="cost"
                               name="cost"
-                              value={formData.cost}
+                              value={formData?.cost}
                               onChange={handleChange}
                               placeholder="e.g. 70.50"
                               className="form-input"
@@ -163,7 +281,7 @@ function AddFuelFill() {
                               step="0.01"
                               id="lt"
                               name="lt"
-                              value={formData.lt}
+                              value={formData?.lt}
                               onChange={handleChange}
                               placeholder="e.g. 45.2"
                               className="form-input"
@@ -181,7 +299,7 @@ function AddFuelFill() {
                           type="number"
                           id="totalKm"
                           name="totalKm"
-                          value={formData.totalKm}
+                          value={formData?.totalKm}
                           onChange={handleChange}
                           placeholder="e.g. 120000"
                           className="form-input"
@@ -199,7 +317,7 @@ function AddFuelFill() {
                               type="date"
                               id="filledAt"
                               name="filledAt"
-                              value={formData.filledAt}
+                              value={formData?.filledAt}
                               onChange={handleChange}
                               className="form-input"
                               required
@@ -234,7 +352,7 @@ function AddFuelFill() {
                               name="fuelType"
                               type="text"
                               list="fuelTypeOptions"
-                              value={formData.fuelType}
+                              value={formData?.fuelType}
                               onChange={handleChange}
                               className="form-input"
                               placeholder="e.g. 95 Octane"
@@ -256,7 +374,7 @@ function AddFuelFill() {
                               type="text"
                               id="station"
                               name="station"
-                              value={formData.station}
+                              value={formData?.station}
                               onChange={handleChange}
                               placeholder="e.g. Shell Station"
                               className="form-input"
@@ -275,7 +393,7 @@ function AddFuelFill() {
                               as="textarea"
                               id="notes"
                               name="notes"
-                              value={formData.notes}
+                              value={formData?.notes}
                               onChange={handleChange}
                               placeholder="Any additional notes about this fuel fill..."
                               rows={3}
