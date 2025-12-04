@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useCarStore } from '../services/managers/CarManager.ts';
 import { useNavigate } from "react-router";
-import {toast, ToastContainer} from "react-toastify";
 
 function Register() {
   const carStore = useCarStore();
@@ -59,7 +58,6 @@ function Register() {
   return (
     <div className="register-page">
       <Container>
-        <ToastContainer />
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={4}>
             <div className="register-container">

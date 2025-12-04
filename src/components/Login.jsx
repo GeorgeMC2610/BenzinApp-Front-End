@@ -2,7 +2,6 @@ import { Container, Row, Col, Card, Form, Button, Spinner, InputGroup } from 're
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarStore } from '../services/managers/CarManager.ts';
-import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -51,7 +50,6 @@ function Login() {
   return (
     <div className="login-page">
       <Container>
-        <ToastContainer />
         <Row className="justify-content-center align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={4}>
             <div className="login-container">

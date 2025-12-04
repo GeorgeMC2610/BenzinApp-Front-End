@@ -19,12 +19,14 @@ import SpecificTripRecord from './components/SpecificTripRecord';
 import SpecificMalfunctionRecord from './components/SpecificMalfunctionRecord';
 import EditCar from './components/EditCar';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { ToastContainer } from 'react-toastify';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="App">
+        <ToastContainer />
         <Navbar />
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -34,12 +36,15 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/add-fuel-fill" element={<AddFuelFill />} />
+          <Route path="/edit-fuel-fill/:id" element={<AddFuelFill />} />
           <Route path="/fuel-fills" element={<FuelFills />} />
           <Route path="/malfunctions" element={<Malfunctions />} />
           <Route path="/add-malfunction" element={<AddMalfunction />} />
+          <Route path="/edit-malfunction/:id" element={<AddMalfunction />} />
           <Route path="/malfunction/:id" element={<SpecificMalfunctionRecord />} />
           <Route path="/services" element={<Services />} />
           <Route path="/add-service" element={<AddService />} />
+          <Route path="/edit-service/:id" element={<AddService />} />
           <Route path="/service/:id" element={<SpecificServiceRecord />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/add-trip" element={<AddTrip />} />
