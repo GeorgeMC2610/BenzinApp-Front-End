@@ -162,14 +162,12 @@ function Services() {
                           </td>
                           <td>
                             <div className="action-buttons">
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="edit-btn me-2"
+                              <Link to={`/edit-service/${service.id}`}
+                                className="btn btn-sm btn-outline-primary edit-btn me-2"
                                 onClick={() => handleEdit(service.id)}
                               >
                                 Edit
-                              </Button>
+                              </Link>
                               <Button
                                 variant="outline-danger"
                                 size="sm"
