@@ -242,7 +242,7 @@ function Register() {
                           className='spinner-border spinner-border-sm mr-3'
                           aria-hidden="true"
                         />
-                        Logging in...
+                        Registering...
                       </>
                         ) : (
                           'Login'
