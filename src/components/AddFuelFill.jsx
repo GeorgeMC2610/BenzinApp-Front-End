@@ -2,24 +2,45 @@ import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import { FuelFillRecord } from '../classes/FuelFillRecord';
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 
 function AddFuelFill() {
+  const params = useParams();
+  const recordId = params?.id;
+
+  const store = useFuelFillRecordStore();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    km: '',
-    cost: '',
-    totalKm: '',
-    lt: '',
-    filledAt: new Date().toISOString().split('T')[0],
-    fuelType: '',
-    station: '',
-    notes: ''
+  const [formData, setFormData] = useState(() => {
+    const editRecord = useFuelFillRecordStore.getState().list.find(r => r.id.toString() === recordId);
+    console.log(useFuelFillRecordStore.getState().list);
+    if (!!recordId && editRecord) {
+      return {
+        km: editRecord.km ?? '',
+        cost: editRecord.cost ?? '',
+        totalKm: editRecord.totalKm ?? '',
+        lt: editRecord.lt ?? '',
+        filledAt: editRecord.filledAt ? new Date(editRecord.filledAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        fuelType: editRecord.fuelType ?? '',
+        station: editRecord.station ?? '',
+        notes: editRecord.notes ?? '',
+      };
+    }
+
+    return {
+      km: '',
+      cost: '',
+      totalKm: '',
+      lt: '',
+      filledAt: new Date().toISOString().split('T')[0],
+      fuelType: '',
+      station: '',
+      notes: ''
+    };
   });
+
   const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
   const fuelFillList = useFuelFillRecordStore((state) => state.list);
-  const store = useFuelFillRecordStore();
   const [loading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -43,6 +64,9 @@ function AddFuelFill() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (recordId) {
+    }
+
     const normalizeToNull = (value) => {
       if (value === null || value === undefined) return null;
       const trimmed = String(value).trim();
@@ -57,14 +81,22 @@ function AddFuelFill() {
     };
 
     const fuelFill = new FuelFillRecord(normalizedData);
-    await store.create(fuelFill);
-
-    toast.success("Successfully added Fuel Fill Record.", { position: 'top-center' });
+    const editRecord = useFuelFillRecordStore.getState().list.find(r => r.id.toString() === recordId);
+    if (!!editRecord && !!recordId) {
+      // Edit mode: PATCH      
+      await store.update(new FuelFillRecord({ ...normalizedData, id: editRecord.id }));
+      toast.success("Successfully updated Fuel Fill Record.", { position: 'top-center' });
+    } 
+    else {
+      // Add mode: POST
+      await store.create(fuelFill);
+      toast.success("Successfully added Fuel Fill Record.", { position: 'top-center' });
+    }
     if (window.history.state && window.history.state.idx > 0) {
       navigate(-1);
     } 
     else {
-      navigate('fuel-fills', { replace: true });
+      navigate('/fuel-fills', { replace: true });
     }
   };
 
@@ -262,7 +294,7 @@ function AddFuelFill() {
                         className="confirm-btn"
                         size="lg"
                       >
-                        Confirm Add
+                        {!!recordId ? 'Confirm Edit' : 'Confirm Add'}
                       </Button>
                     </div>
                   </Form>
