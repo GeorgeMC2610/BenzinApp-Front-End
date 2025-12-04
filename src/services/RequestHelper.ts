@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import TokenHelper from './TokenHelper';
+import { toast } from 'react-toastify';
 
 class RequestHelper {
     public static _baseUrl: string = '/api';
@@ -39,14 +40,14 @@ class RequestHelper {
                     const status = resp?.status;
                     const data = resp?.data;
 
-                    const isExpiredMessage =
-                        data && (data.message === 'Missing token' || data.message === 'Not enough or too many segments');
+                    const failingMessages = ['Signature has expired', 'Missing token', 'Not enough or too many segments'];
+                    const isExpiredMessage = data && failingMessages.includes(data.message);
 
                     if (isExpiredMessage) {
-                        // remove token and redirect to login page
                         TokenHelper.getInstance().removeToken();
                         if (typeof window !== 'undefined') {
                             window.location.href = '/login';
+                            toast.error('Session expired. Please log in again.', { position: 'top-center' });
                         }
                     }
                 } catch (e) {
