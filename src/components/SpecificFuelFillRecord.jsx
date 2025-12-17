@@ -161,6 +161,7 @@ function SpecificFuelFillRecord() {
                     <div className="fuel-station-info text-center mt-3">
                       <div className="fuel-type">{fuelFill.fuelType}</div>
                       <div className="station-name">{fuelFill.station}</div>
+                      <div className='station-name'><i>@ {fuelFill.totalKm.toLocaleString(undefined, { maximumFractionDigits: 2 })} km</i></div>
                     </div>
                   </div>
 
