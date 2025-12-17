@@ -56,12 +56,7 @@ function SpecificFuelFillRecord() {
   const handleEdit = () => {
     // Navigate to edit page - for now, we'll redirect to the add fuel fill page
     // In a real app, this would navigate to a dedicated edit form with pre-filled data
-    navigate('/add-fuel-fill', { 
-      state: { 
-        editMode: true, 
-        fuelFillData: fuelFill 
-      } 
-    });
+    navigate(`/edit-fuel-fill/${fuelFill.id}`);
   };
 
   const handleDelete = () => {

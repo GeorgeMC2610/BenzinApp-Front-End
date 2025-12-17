@@ -39,12 +39,7 @@ function SpecificServiceRecord() {
   }, [id]);
 
   const handleEdit = () => {
-    navigate('/add-service', {
-      state: {
-        editMode: true,
-        serviceData: service
-      }
-    });
+    navigate(`/edit-service/${fuelFill.id}`);
   };
 
   const handleDelete = () => {

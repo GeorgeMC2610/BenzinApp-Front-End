@@ -39,12 +39,7 @@ function SpecificMalfunctionRecord() {
   }, [id]);
 
   const handleEdit = () => {
-    navigate('/add-malfunction', {
-      state: {
-        editMode: true,
-        malfunctionData: malfunction
-      }
-    });
+    navigate(`/edit-malfunction/${malfunction.id}`);
   };
 
   const handleDelete = () => {
