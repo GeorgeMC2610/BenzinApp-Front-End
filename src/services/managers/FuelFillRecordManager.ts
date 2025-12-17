@@ -103,7 +103,18 @@ export const useFuelFillRecordStore = create<FuelFillRecordState & FuelFillRecor
             },
 
             delete: async (id) => {
-
+                try {
+                    await RequestHelper.getInstance().sendDeleteRequest(
+                        fuelFillUrlId(id)
+                    );
+                    if (!!get().list) {
+                        const newList = get().list!.filter((r) => r.id !== id);
+                        set({ list: newList });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
 
             destroyValues: () => {

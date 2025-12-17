@@ -81,7 +81,18 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
                 }
             },
             delete: async (id) => {
-
+                try {
+                    await RequestHelper.getInstance().sendDeleteRequest(
+                        serviceUrlId(id)
+                    );
+                    if (!!get().list) {
+                        const newList = get().list!.filter((r) => r.id !== id);
+                        set({ list: newList });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             destroyValues: () => {
                 set({ viewingService: null });
