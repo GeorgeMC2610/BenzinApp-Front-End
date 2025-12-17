@@ -139,7 +139,7 @@ function User() {
       } else {
         serviceDateStatusLevel = 'danger';
         const overdueDays = Math.abs(daysRemaining);
-        serviceDateStatusText = `Service overdue by ${overdueDays} days (danger)`;
+        serviceDateStatusText = `Service overdue by ${overdueDays} days`;
       }
     }
   }
@@ -377,8 +377,13 @@ function User() {
                                   : 'service-danger-btn'
                               }
                             >
-                              {serviceKmStatusLevel === 'ok' ? 'OK' : serviceKmStatusLevel === 'warning' ? 'Warning' : 'Overdue'}
-                            </Button>
+                              {serviceKmStatusLevel === 'ok' ? 'OK' : 
+                              serviceKmStatusLevel === 'warning' ? (
+                                <FontAwesomeIcon icon={faClock} />
+                              ) : 
+                                (<FontAwesomeIcon icon={faWarning} />)
+                              }                            
+                              </Button>
                           </div>
                         </div>
                       )}
