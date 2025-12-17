@@ -41,7 +41,7 @@ class RequestHelper {
                     const data = resp?.data;
 
                     const failingMessages = ['Signature has expired', 'Missing token', 'Not enough or too many segments'];
-                    const isExpiredMessage = data && failingMessages.includes(data.message);
+                    const isExpiredMessage = (status == 401) || (data && failingMessages.includes(data.message));
 
                     if (isExpiredMessage) {
                         TokenHelper.getInstance().removeToken();
