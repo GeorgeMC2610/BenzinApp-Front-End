@@ -5,6 +5,8 @@ import { normalizeToNull } from '../utils/fields';
 import { Malfunction } from '../classes/Malfunction';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
 import { toast } from "react-toastify";
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function AddMalfunction() {
   const params = useParams();
@@ -176,9 +178,25 @@ function AddMalfunction() {
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="add-malfunction-container">
-              <div className="text-center mb-4">
-                <h1 className="page-title">{!!recordId ? 'Edit ' : 'Add '}Malfunction Record</h1>
-              </div>
+              <Row className="align-items-center mb-4">
+                <Col xs={2} className="text-start">
+                  <Button
+                    className="btn btn-secondary"
+                    onClick={() => navigate(-1)}
+                    aria-label="Go back"
+                  >
+                    <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+                  </Button>
+                </Col>
+
+                <Col xs={8} className="text-center">
+                  <h1 className="page-title mb-0">
+                    {!!recordId ? 'Edit ' : 'Add '} Malfunction
+                  </h1>
+                </Col>
+
+                <Col xs={2} />
+              </Row>
 
               <Card className="malfunction-card">
                 <Card.Body className="p-5">

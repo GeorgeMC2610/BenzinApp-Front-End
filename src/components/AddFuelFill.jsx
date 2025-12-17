@@ -4,6 +4,8 @@ import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManag
 import { FuelFillRecord } from '../classes/FuelFillRecord';
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 function AddFuelFill() {
   const params = useParams();
@@ -223,9 +225,25 @@ function AddFuelFill() {
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="add-fuel-fill-container">
-              <div className="text-center mb-4">
-                <h1 className="page-title">{!!recordId ? 'Edit ' : 'Add ' } Fuel Fill Record</h1>
-              </div>
+              <Row className="align-items-center mb-4">
+                <Col xs={2} className="text-start">
+                  <Button
+                    className="btn btn-secondary"
+                    onClick={() => navigate(-1)}
+                    aria-label="Go back"
+                  >
+                    <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+                  </Button>
+                </Col>
+
+                <Col xs={8} className="text-center">
+                  <h1 className="page-title mb-0">
+                    {!!recordId ? 'Edit ' : 'Add '} Fuel Fill Record
+                  </h1>
+                </Col>
+
+                <Col xs={2} />
+              </Row>
 
               {/* Form */}
               <Card className="fuel-fill-card">
