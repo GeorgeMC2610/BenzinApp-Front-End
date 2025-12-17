@@ -63,7 +63,23 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
                 }
             },
             update: async (malfunction) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendPatchRequest(
+                        malfunctionUrlId(malfunction.id), malfunction.toJson()
+                    );
+                    const updatedMalfunction = Malfunction.fromJson(response.data.malfunction);
+                    if (!!get().list) {
+                        const index = get().list!.findIndex((r) => r.id === updatedMalfunction.id);
+                        if (~index) {
+                            const newList = [...get().list!];
+                            newList[index] = updatedMalfunction;
+                            set({ list: newList });
+                        }
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             delete: async (id) => {
 

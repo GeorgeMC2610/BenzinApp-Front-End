@@ -62,7 +62,23 @@ export const useServiceStore = create<ServiceState & ServiceActions>() (
                 }
             },
             update: async (service) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendPatchRequest(
+                        serviceUrlId(service.id), service.toJson()
+                    );
+                    const updatedService = Service.fromJson(response.data.service);
+                    if (!!get().list) {
+                        const index = get().list!.findIndex((r) => r.id === updatedService.id);
+                        if (~index) {
+                            const newList = [...get().list!];
+                            newList[index] = updatedService;
+                            set({ list: newList });
+                        }
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             delete: async (id) => {
 
