@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import { Malfunction } from '../classes/Malfunction';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
 
@@ -51,13 +52,20 @@ function SpecificMalfunctionRecord() {
   };
 
   const confirmDelete = () => {
-    console.log('Delete malfunction:', malfunction.id);
-    setShowDeleteModal(false);
-    setFeedbackMessage('Malfunction record deleted successfully.');
-
-    deleteRedirectTimeout.current = setTimeout(() => {
-      navigate('/malfunctions');
-    }, 1200);
+    (async () => {
+      try {
+        await store.delete(malfunction.id);
+        setShowDeleteModal(false);
+        setFeedbackMessage('Malfunction record deleted successfully.');
+        deleteRedirectTimeout.current = setTimeout(() => {
+          navigate('/malfunctions');
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to delete malfunction:', err);
+        setShowDeleteModal(false);
+        toast?.error && toast.error('Failed to delete malfunction.');
+      }
+    })();
   };
 
   const cancelDelete = () => {

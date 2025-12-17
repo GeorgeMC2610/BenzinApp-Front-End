@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import { Service } from '../classes/Service';
 import { useServiceStore } from '../services/managers/ServiceManager';
 
@@ -51,13 +52,20 @@ function SpecificServiceRecord() {
   };
 
   const confirmDelete = () => {
-    console.log('Delete service:', service.id);
-    setShowDeleteModal(false);
-    setFeedbackMessage('Service record deleted successfully.');
-
-    deleteRedirectTimeout.current = setTimeout(() => {
-      navigate('/services');
-    }, 1200);
+    (async () => {
+      try {
+        await store.delete(service.id);
+        setShowDeleteModal(false);
+        setFeedbackMessage('Service record deleted successfully.');
+        deleteRedirectTimeout.current = setTimeout(() => {
+          navigate('/services');
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to delete service:', err);
+        setShowDeleteModal(false);
+        toast?.error && toast.error('Failed to delete service.');
+      }
+    })();
   };
 
   const cancelDelete = () => {

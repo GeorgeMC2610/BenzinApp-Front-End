@@ -39,7 +39,16 @@ export const useTripStore = create<TripState & TripActions>() (
                 }
             },
             create: async (trip) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendPostRequest(repeatedTripUrl, trip.toJson());
+                    const newTrip = Trip.fromJson(response.data.repeated_trip);
+                    if (!!get().list) {
+                        set({ list: [...get().list!, newTrip] });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             read: async (id) => {
                 try {
@@ -52,10 +61,33 @@ export const useTripStore = create<TripState & TripActions>() (
                 }
             },
             update: async (trip) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendPatchRequest(repeatedTripUrlId(trip.id), trip.toJson());
+                    const updatedTrip = Trip.fromJson(response.data.repeated_trip);
+                    if (!!get().list) {
+                        const index = get().list!.findIndex((r) => r.id === updatedTrip.id);
+                        if (~index) {
+                            const newList = [...get().list!];
+                            newList[index] = updatedTrip;
+                            set({ list: newList });
+                        }
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             delete: async (id) => {
-
+                try {
+                    await RequestHelper.getInstance().sendDeleteRequest(repeatedTripUrlId(id));
+                    if (!!get().list) {
+                        const newList = get().list!.filter((r) => r.id !== id);
+                        set({ list: newList });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             destroyValues: () => {
                 set({ viewingTrip: null });

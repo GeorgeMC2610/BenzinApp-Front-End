@@ -1,6 +1,8 @@
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup, ProgressBar } from 'react-bootstrap';
 import {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
+import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faCar, faRefresh } from '@fortawesome/free-solid-svg-icons';
@@ -11,6 +13,7 @@ function Trips() {
 
     const trips = useTripStore((state) => state.list);
     const indexTrips = useTripStore((state) => state.index);
+    const store = useTripStore();
 
     useEffect(() => {
         if (trips === null) indexTrips();
@@ -54,14 +57,35 @@ function Trips() {
   const repeatingTrips = filteredTrips.filter(trip => trip.timesRepeating > 1);
   const oneTimeTrips = filteredTrips.filter(trip => trip.timesRepeating === 1);
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
   const handleEdit = (id) => {
-    console.log('Edit trip:', id);
-    // Handle edit logic here
+    // navigate to edit page or open edit form
   };
 
   const handleDelete = (id) => {
-    console.log('Delete trip:', id);
-    // Handle delete logic here
+    setDeleteTargetId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
+    try {
+      await store.delete(deleteTargetId);
+      setShowDeleteModal(false);
+      setDeleteTargetId(null);
+      toast.success('Trip deleted', { position: 'top-center' });
+    } catch (err) {
+      console.error('Failed to delete trip:', err);
+      toast.error('Failed to delete trip', { position: 'top-center' });
+      setShowDeleteModal(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setDeleteTargetId(null);
   };
 
   const renderTripTable = (tripList, title, emptyMessage) => (
@@ -146,6 +170,15 @@ function Trips() {
         <Container>
           <Row>
             <Col>
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Delete Trip"
+        message="Are you sure you want to delete this trip record? This action cannot be undone."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
               {/* Header */}
               <div className="page-header mb-4">
               <div className="d-flex justify-content-between align-items-center">

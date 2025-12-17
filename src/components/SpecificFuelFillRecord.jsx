@@ -5,6 +5,7 @@ import DrawerMenu from './DrawerMenu';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import { FuelFillRecord } from '../classes/FuelFillRecord';
 import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 
 const MAX_COMMENT_LENGTH = 150;
 
@@ -14,6 +15,9 @@ function SpecificFuelFillRecord() {
   const [fuelFill, setFuelFill] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showFullComments, setShowFullComments] = useState(false);
+  const deleteRedirectTimeout = useRef(null);
   const store = useFuelFillRecordStore();
 
   useEffect(() => {
@@ -65,13 +69,21 @@ function SpecificFuelFillRecord() {
   };
 
   const confirmDelete = () => {
-    console.log('Delete fuel fill:', fuelFill.id);
-    setShowDeleteModal(false);
-    setFeedbackMessage('Fuel fill record deleted successfully.');
-
-    deleteRedirectTimeout.current = setTimeout(() => {
-      navigate('/fuel-fills');
-    }, 1200);
+    // perform delete via store
+    (async () => {
+      try {
+        await store.delete(fuelFill.id);
+        setShowDeleteModal(false);
+        setFeedbackMessage('Fuel fill record deleted successfully.');
+        deleteRedirectTimeout.current = setTimeout(() => {
+          navigate('/fuel-fills');
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to delete fuel fill:', err);
+        setShowDeleteModal(false);
+        toast?.error && toast.error('Failed to delete fuel fill.');
+      }
+    })();
   };
 
   const cancelDelete = () => {

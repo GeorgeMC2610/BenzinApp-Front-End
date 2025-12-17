@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import LocationMapModal from './LocationMapModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faRepeat } from '@fortawesome/free-solid-svg-icons';
@@ -73,13 +74,20 @@ function SpecificTripRecord() {
   };
 
   const confirmDelete = () => {
-    console.log('Delete trip:', trip.id);
-    setShowDeleteModal(false);
-    setFeedbackMessage('Trip record deleted successfully.');
-
-    deleteRedirectTimeout.current = setTimeout(() => {
-      navigate('/trips');
-    }, 1200);
+    (async () => {
+      try {
+        await store.delete(trip.id);
+        setShowDeleteModal(false);
+        setFeedbackMessage('Trip record deleted successfully.');
+        deleteRedirectTimeout.current = setTimeout(() => {
+          navigate('/trips');
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to delete trip:', err);
+        setShowDeleteModal(false);
+        toast?.error && toast.error('Failed to delete trip.');
+      }
+    })();
   };
 
   const cancelDelete = () => {
