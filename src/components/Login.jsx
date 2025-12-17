@@ -2,7 +2,7 @@ import { Container, Row, Col, Card, Form, Button, Spinner, InputGroup } from 're
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarStore } from '../services/managers/CarManager.ts';
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router";
