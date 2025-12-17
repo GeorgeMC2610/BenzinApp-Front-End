@@ -11,6 +11,9 @@ import { useServiceStore } from '../services/managers/ServiceManager';
 function Services() {
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
     const services = useServiceStore((state) => state.list);
     const indexServices = useServiceStore((state) => state.index);
     const store = useServiceStore();
@@ -51,8 +54,7 @@ function Services() {
     service.description.toString().includes(searchTerm)
   );
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  
 
   const handleEdit = (id) => {
     // navigate to edit page or open edit form

@@ -12,6 +12,9 @@ import { faMagnifyingGlass, faRefresh } from '@fortawesome/free-solid-svg-icons'
 function FuelFills() {
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
   const fuelFills = useFuelFillRecordStore((state) => state.list);
   const indexFuelFills = useFuelFillRecordStore((state) => state.index);
   const store = useFuelFillRecordStore();
@@ -81,8 +84,7 @@ function FuelFills() {
     return filtered;
   }, {});
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  
 
   const handleEdit = (id) => {
     // navigate to edit page or open edit form

@@ -11,6 +11,9 @@ import { useTripStore } from '../services/managers/TripManager';
 function Trips() {
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
     const trips = useTripStore((state) => state.list);
     const indexTrips = useTripStore((state) => state.index);
     const store = useTripStore();
@@ -57,8 +60,7 @@ function Trips() {
   const repeatingTrips = filteredTrips.filter(trip => trip.timesRepeating > 1);
   const oneTimeTrips = filteredTrips.filter(trip => trip.timesRepeating === 1);
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  
 
   const handleEdit = (id) => {
     // navigate to edit page or open edit form

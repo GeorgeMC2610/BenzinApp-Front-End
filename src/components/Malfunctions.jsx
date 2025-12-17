@@ -11,6 +11,9 @@ import { faMagnifyingGlass, faRefresh, faWrench } from '@fortawesome/free-solid-
 function Malfunctions() {
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
   const malfunctions = useMalfunctionStore((state) => state.list);
   const indexMalfunctions = useMalfunctionStore((state) => state.index);
   const store = useMalfunctionStore();
@@ -53,8 +56,7 @@ function Malfunctions() {
     malfunction.dateStarted.toString().includes(searchTerm)
   );
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  
 
   const handleEdit = (id) => {
     // navigate to edit page or open edit form
