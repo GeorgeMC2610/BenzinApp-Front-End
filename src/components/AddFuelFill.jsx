@@ -224,7 +224,7 @@ function AddFuelFill() {
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="add-fuel-fill-container">
               <div className="text-center mb-4">
-                <h1 className="page-title">Add Fuel Fill Record</h1>
+                <h1 className="page-title">{!!recordId ? 'Edit ' : 'Add ' } Fuel Fill Record</h1>
               </div>
 
               {/* Form */}
