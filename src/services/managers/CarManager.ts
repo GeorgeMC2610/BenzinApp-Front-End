@@ -76,7 +76,25 @@ export const useCarStore = create<CarState & CarActions>()(
             },
 
             update: async (manufacturer, model, year) => {
+                try {
+                    const data = {
+                        manufacturer: manufacturer,
+                        model: model,
+                        year: year
+                    };
 
+                    const response = await RequestHelper.getInstance().sendPatchRequest(
+                        RequestHelper._baseUrl + '/car', data
+                    );
+
+                    if (!!get().car) {
+                        const updatedCar = Car.fromJson(response.data);
+                        set({ car: updatedCar });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             }
         }),
         {
