@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
-import { FuelFillRecord } from '../classes/FuelFillRecord';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faRefresh } from '@fortawesome/free-solid-svg-icons';
 
