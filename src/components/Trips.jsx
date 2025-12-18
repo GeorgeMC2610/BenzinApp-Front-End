@@ -60,12 +60,6 @@ function Trips() {
   const repeatingTrips = filteredTrips.filter(trip => trip.timesRepeating > 1);
   const oneTimeTrips = filteredTrips.filter(trip => trip.timesRepeating === 1);
 
-  
-
-  const handleEdit = (id) => {
-    // navigate to edit page or open edit form
-  };
-
   const handleDelete = (id) => {
     setDeleteTargetId(id);
     setShowDeleteModal(true);
@@ -136,14 +130,6 @@ function Trips() {
                   <td>
                     <div className="action-buttons">
                       <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="edit-btn me-2"
-                        onClick={() => handleEdit(trip.id)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
                         variant="outline-danger"
                         size="sm"
                         className="delete-btn"
@@ -198,9 +184,6 @@ function Trips() {
                   </div>
                   <p className="page-subtitle">{trips?.length} total trips</p>
                 </div>
-                <Button as={Link} to="/add-trip" className="add-btn">
-                  + Add New Trip
-                </Button>
               </div>
             </div>
 

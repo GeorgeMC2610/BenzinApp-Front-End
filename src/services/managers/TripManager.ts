@@ -2,7 +2,6 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Trip } from "../../classes/Trip"
 import RequestHelper from '../RequestHelper';
-import {FuelFillRecord} from "../../classes/FuelFillRecord";
 
 type TripState = {
     viewingTrip: Trip | null;
@@ -39,16 +38,7 @@ export const useTripStore = create<TripState & TripActions>() (
                 }
             },
             create: async (trip) => {
-                try {
-                    const response = await RequestHelper.getInstance().sendPostRequest(repeatedTripUrl, trip.toJson());
-                    const newTrip = Trip.fromJson(response.data.repeated_trip);
-                    if (!!get().list) {
-                        set({ list: [...get().list!, newTrip] });
-                    }
-                }
-                catch (error) {
-                    console.log(error);
-                }
+                // not implemented in the web app.
             },
             read: async (id) => {
                 try {
@@ -61,21 +51,7 @@ export const useTripStore = create<TripState & TripActions>() (
                 }
             },
             update: async (trip) => {
-                try {
-                    const response = await RequestHelper.getInstance().sendPatchRequest(repeatedTripUrlId(trip.id), trip.toJson());
-                    const updatedTrip = Trip.fromJson(response.data.repeated_trip);
-                    if (!!get().list) {
-                        const index = get().list!.findIndex((r) => r.id === updatedTrip.id);
-                        if (~index) {
-                            const newList = [...get().list!];
-                            newList[index] = updatedTrip;
-                            set({ list: newList });
-                        }
-                    }
-                }
-                catch (error) {
-                    console.log(error);
-                }
+                // not implemented in the web app.
             },
             delete: async (id) => {
                 try {
