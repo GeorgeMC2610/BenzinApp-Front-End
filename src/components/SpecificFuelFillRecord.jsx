@@ -6,6 +6,8 @@ import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManag
 import { FuelFillRecord } from '../classes/FuelFillRecord';
 import ConfirmModal from './ConfirmModal';
 import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const MAX_COMMENT_LENGTH = 150;
 
@@ -143,7 +145,8 @@ function SpecificFuelFillRecord() {
                     <p className="page-subtitle">Detailed information about this fuel fill</p>
                   </div>
                   <Link to="/fuel-fills" className="btn btn-outline-secondary">
-                    ← Back to Fuel Fills
+                    <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+                    Back to Fuel Fills
                   </Link>
                 </div>
               </div>

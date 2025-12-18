@@ -6,6 +6,8 @@ import ConfirmModal from './ConfirmModal';
 import { toast } from 'react-toastify';
 import { Service } from '../classes/Service';
 import { useServiceStore } from '../services/managers/ServiceManager';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const MAX_DESCRIPTION_LENGTH = 150;
 
@@ -141,7 +143,8 @@ function SpecificServiceRecord() {
                       </p>
                     </div>
                     <Link to="/services" className="btn btn-outline-secondary">
-                      ← Back to Services
+                      <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+                      Back to Services
                     </Link>
                   </div>
                 </div>

@@ -6,11 +6,10 @@ import ConfirmModal from './ConfirmModal';
 import { toast } from 'react-toastify';
 import LocationMapModal from './LocationMapModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faLocationDot, faRepeat } from '@fortawesome/free-solid-svg-icons';
 import { faLongArrowAltRight } from '@fortawesome/free-solid-svg-icons/faLongArrowAltRight';
 import { Trip } from '../classes/Trip';
 import { useTripStore } from '../services/managers/TripManager';
-import { useCarStore } from '../services/managers/CarManager';
 import { Car } from '../classes/Car';
 
 function SpecificTripRecord() {
@@ -166,7 +165,8 @@ function SpecificTripRecord() {
                       <p className="page-subtitle">Detailed insights about your saved trip</p>
                     </div>
                     <Link to="/trips" className="btn btn-outline-secondary">
-                      ← Back to Trips
+                      <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+                      Back to Trips
                     </Link>
                   </div>
                 </div>

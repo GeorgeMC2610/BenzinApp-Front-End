@@ -6,6 +6,8 @@ import ConfirmModal from './ConfirmModal';
 import { toast } from 'react-toastify';
 import { Malfunction } from '../classes/Malfunction';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const MAX_DESCRIPTION_LENGTH = 150;
 
@@ -163,7 +165,8 @@ function SpecificMalfunctionRecord() {
                       <p className="page-subtitle">Investigate the history of this malfunction</p>
                     </div>
                     <Link to="/malfunctions" className="btn btn-outline-secondary">
-                      ← Back to Malfunctions
+                      <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+                      Back to Malfunctions
                     </Link>
                   </div>
                 </div>
