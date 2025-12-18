@@ -126,7 +126,7 @@ function Trips() {
                     {trip.timesRepeating > 1 ? `${trip.timesRepeating} times per week` : 'One-time'}
                   </td>
                   <td>{trip.totalKm.toFixed(2)} km</td>
-                  <td>{trip.created}</td>
+                  <td>{(new Date(trip.created)).toLocaleString('en-UK')}</td>
                   <td>
                     <div className="action-buttons">
                       <Button
