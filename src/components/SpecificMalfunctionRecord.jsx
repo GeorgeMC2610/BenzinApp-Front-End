@@ -7,7 +7,8 @@ import { toast } from 'react-toastify';
 import { Malfunction } from '../classes/Malfunction';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import LocationMapModal from './LocationMapModal';
 
 const MAX_DESCRIPTION_LENGTH = 150;
 
@@ -18,6 +19,8 @@ function SpecificMalfunctionRecord() {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [mapLocation, setMapLocation] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const deleteRedirectTimeout = useRef(null);
   const store = useMalfunctionStore();
@@ -109,7 +112,23 @@ function SpecificMalfunctionRecord() {
     );
   }
 
-  const locationFixed = !!malfunction.location ? (malfunction.location.includes('|') ? malfunction.location.split('|')[0] : malfunction.location) : 'Unassigned'
+  const locationParts = malfunction.location ? malfunction.location.split('|') : null;
+  const locationName = locationParts ? locationParts[0] : null;
+  const coordsPart = locationParts && locationParts.length > 1 ? locationParts[1] : null;
+  let locationCoords = null;
+  if (coordsPart) {
+    const [latStr, lngStr] = coordsPart.split(',');
+    const lat = parseFloat((latStr || '').trim());
+    const lng = parseFloat((lngStr || '').trim());
+    if (!isNaN(lat) && !isNaN(lng)) {
+      locationCoords = { lat, lng };
+    }
+  }
+
+  const openMapFor = (title, coords) => {
+    setMapLocation({ label: title, coords });
+    setShowMapModal(true);
+  };
   const discoveryDate = new Date(malfunction.dateStarted);
   const resolvedDate = malfunction.dateEnded ? new Date(malfunction.dateEnded) : null;
   const today = new Date();
@@ -239,7 +258,19 @@ function SpecificMalfunctionRecord() {
                             <div className="metric-item">
                               <div className="metric-label">Repair location</div>
                               <div className="metric-value text-end">
-                                {locationFixed}
+                                {locationName ?? (malfunction.location ?? 'Unassigned')}
+                                {locationCoords && (
+                                  <div>
+                                    <button
+                                      type="button"
+                                      className="address-link"
+                                      onClick={() => openMapFor(locationName || malfunction.location, locationCoords)}
+                                    >
+                                      <FontAwesomeIcon icon={faLocationDot} className="me-2" />
+                                      View on map
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                             <div className="metric-item">
@@ -288,6 +319,11 @@ function SpecificMalfunctionRecord() {
         confirmVariant="danger"
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+      />
+      <LocationMapModal
+        show={showMapModal}
+        onHide={() => setShowMapModal(false)}
+        location={mapLocation}
       />
     </div>
   );
