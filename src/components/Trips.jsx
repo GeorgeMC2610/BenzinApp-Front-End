@@ -234,7 +234,7 @@ function Trips() {
               </>
             )}
 
-            {/* Empty State for No Trips */}
+            {/* Empty State for No Trips
             {filteredTrips.length === 0 && !searchTerm && (
               <Card className="no-results-card">
                 <Card.Body className="text-center p-5">
@@ -248,7 +248,7 @@ function Trips() {
                   </Button>
                 </Card.Body>
               </Card>
-            )}
+            )} */}
             </Col>
           </Row>
         </Container>
