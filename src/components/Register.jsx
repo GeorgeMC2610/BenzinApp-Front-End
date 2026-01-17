@@ -3,16 +3,19 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { faGasPump } from '@fortawesome/free-solid-svg-icons';
+import { useCarStore } from '../services/managers/CarManager.ts';
+import { useNavigate } from "react-router";
 
 function Register() {
+  const carStore = useCarStore();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
-    carManufacturer: '',
-    carModel: '',
+    manufacturer: '',
+    model: '',
     year: '',
     password: '',
-    confirmPassword: ''
+    password_confirmation: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -24,10 +27,32 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log('Registration attempt:', formData);
+    setIsLoggingIn(true);
+    const username = formData.username
+    const password = formData.password
+    const confirmPassword = formData.password_confirmation
+    const manufacturer = formData.manufacturer
+    const model = formData.model
+    const year = formData.year
+    const response = await carStore.register(username, password, confirmPassword, manufacturer, model, parseInt(year));
+
+    if (response) {
+        toast.success("Successfully registered! Welcome to BenzinApp.", { position: 'top-center' });
+        navigate('/dashboard');
+    }
+    else {
+        toast.error("This username is already taken. Please try again, with a different username.", { position: 'top-center' });
+        setFormData({
+          ...formData,
+          password: '',
+          password_confirmation: ''
+        })
+    }
+    setIsLoggingIn(false);
   };
 
   return (
@@ -69,6 +94,7 @@ function Register() {
                         id="username"
                         name="username"
                         value={formData.username}
+                        disabled={isLoggingIn}
                         onChange={handleChange}
                         placeholder="Enter your username"
                         className="form-input"
@@ -77,14 +103,15 @@ function Register() {
                     </div>
 
                     <div className="form-group mb-3">
-                      <Form.Label htmlFor="carManufacturer" className="form-label">
+                      <Form.Label htmlFor="manufacturer" className="form-label">
                         Car Manufacturer
                       </Form.Label>
                       <Form.Control
                         type="text"
-                        id="carManufacturer"
-                        name="carManufacturer"
-                        value={formData.carManufacturer}
+                        id="manufacturer"
+                        name="manufacturer"
+                        value={formData.manufacturer}
+                        disabled={isLoggingIn}
                         onChange={handleChange}
                         placeholder="e.g. Toyota, Honda, Ford"
                         className="form-input"
@@ -93,14 +120,15 @@ function Register() {
                     </div>
 
                     <div className="form-group mb-3">
-                      <Form.Label htmlFor="carModel" className="form-label">
+                      <Form.Label htmlFor="model" className="form-label">
                         Car Model
                       </Form.Label>
                       <Form.Control
                         type="text"
-                        id="carModel"
-                        name="carModel"
-                        value={formData.carModel}
+                        id="model"
+                        name="model"
+                        disabled={isLoggingIn}
+                        value={formData.model}
                         onChange={handleChange}
                         placeholder="e.g. Camry, Civic, Focus"
                         className="form-input"
@@ -118,6 +146,7 @@ function Register() {
                         name="year"
                         value={formData.year}
                         onChange={handleChange}
+                        disabled={isLoggingIn}
                         placeholder="e.g. 2020"
                         className="form-input"
                         min="1900"
@@ -137,6 +166,7 @@ function Register() {
                           name="password"
                           value={formData.password}
                           onChange={handleChange}
+                          disabled={isLoggingIn}
                           placeholder="Create a password"
                           className="form-input password-input"
                           required
@@ -153,16 +183,17 @@ function Register() {
                     </div>
 
                     <div className="form-group mb-4">
-                      <Form.Label htmlFor="confirmPassword" className="form-label">
+                      <Form.Label htmlFor="password_confirmation" className="form-label">
                         Confirm Password
                       </Form.Label>
                       <InputGroup>
                         <Form.Control
                           type={showConfirmPassword ? "text" : "password"}
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          value={formData.confirmPassword}
+                          id="password_confirmation"
+                          name="password_confirmation"
+                          value={formData.password_confirmation}
                           onChange={handleChange}
+                          disabled={isLoggingIn}
                           placeholder="Confirm your password"
                           className="form-input password-input"
                           required
@@ -201,10 +232,21 @@ function Register() {
 
                     <Button
                       type="submit"
-                      className="register-btn w-100 mb-3"
+                      disabled={isLoggingIn}
+                      className={isLoggingIn ? 'login-btn-disabled w-100 mb-3' : 'login-btn w-100 mb-3'}
                       size="lg"
                     >
-                      Create account
+                      {isLoggingIn ? (
+                      <>
+                        <span
+                          className='spinner-border spinner-border-sm mr-3'
+                          aria-hidden="true"
+                        />
+                        Registering...
+                      </>
+                        ) : (
+                          'Login'
+                        )}
                     </Button>
 
                     <div className="text-center">

@@ -3,13 +3,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import LocationMapModal from './LocationMapModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faLocationDot, faRepeat } from '@fortawesome/free-solid-svg-icons';
 import { faLongArrowAltRight } from '@fortawesome/free-solid-svg-icons/faLongArrowAltRight';
 import { Trip } from '../classes/Trip';
 import { useTripStore } from '../services/managers/TripManager';
-import { useCarStore } from '../services/managers/CarManager';
 import { Car } from '../classes/Car';
 
 function SpecificTripRecord() {
@@ -73,13 +73,20 @@ function SpecificTripRecord() {
   };
 
   const confirmDelete = () => {
-    console.log('Delete trip:', trip.id);
-    setShowDeleteModal(false);
-    setFeedbackMessage('Trip record deleted successfully.');
-
-    deleteRedirectTimeout.current = setTimeout(() => {
-      navigate('/trips');
-    }, 1200);
+    (async () => {
+      try {
+        await store.delete(trip.id);
+        setShowDeleteModal(false);
+        setFeedbackMessage('Trip record deleted successfully.');
+        deleteRedirectTimeout.current = setTimeout(() => {
+          navigate('/trips');
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to delete trip:', err);
+        setShowDeleteModal(false);
+        toast?.error && toast.error('Failed to delete trip.');
+      }
+    })();
   };
 
   const cancelDelete = () => {
@@ -158,7 +165,8 @@ function SpecificTripRecord() {
                       <p className="page-subtitle">Detailed insights about your saved trip</p>
                     </div>
                     <Link to="/trips" className="btn btn-outline-secondary">
-                      ← Back to Trips
+                      <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+                      Back to Trips
                     </Link>
                   </div>
                 </div>

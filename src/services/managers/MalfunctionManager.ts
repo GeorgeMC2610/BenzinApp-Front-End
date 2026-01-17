@@ -39,7 +39,18 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
                 }
             },
             create: async (malfunction) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendPostRequest(
+                        malfunctionUrl, malfunction.toJson()
+                    );
+                    const newMalfunction = Malfunction.fromJson(response.data.malfunction);
+                    if (!!get().list) {
+                        set({ list: [...get().list!, newMalfunction] });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             read: async (id) => {
                 try {
@@ -52,10 +63,37 @@ export const useMalfunctionStore = create<MalfunctionState & MalfunctionActions>
                 }
             },
             update: async (malfunction) => {
-
+                try {
+                    const response = await RequestHelper.getInstance().sendPatchRequest(
+                        malfunctionUrlId(malfunction.id), malfunction.toJson()
+                    );
+                    const updatedMalfunction = Malfunction.fromJson(response.data.malfunction);
+                    if (!!get().list) {
+                        const index = get().list!.findIndex((r) => r.id === updatedMalfunction.id);
+                        if (~index) {
+                            const newList = [...get().list!];
+                            newList[index] = updatedMalfunction;
+                            set({ list: newList });
+                        }
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             delete: async (id) => {
-
+                try {
+                    await RequestHelper.getInstance().sendDeleteRequest(
+                        malfunctionUrlId(id)
+                    );
+                    if (!!get().list) {
+                        const newList = get().list!.filter((r) => r.id !== id);
+                        set({ list: newList });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             destroyValues: () => {
                 set({ viewingMalfunction: null });

@@ -1,15 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
+import { useCarStore } from '../services/managers/CarManager';
 import DrawerMenu from './DrawerMenu';
 
 const initialCarData = {
-  manufacturer: 'Volkswagen',
-  model: 'Polo',
-  year: '2006'
+  manufacturer: '',
+  model: '',
+  year: ''
 };
 
 function EditCar() {
-  const [formData, setFormData] = useState(initialCarData);
+  const car = useCarStore((s) => s.car);
+  const getCarDetails = useCarStore((s) => s.getCarDetails);
+
+  const [formData, setFormData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const updateCar = useCarStore((s) => s.update);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -20,14 +30,97 @@ function EditCar() {
   };
 
   const handleReset = () => {
-    setFormData(initialCarData);
+    if (car) {
+      setFormData({
+        manufacturer: car.manufacturer ?? '',
+        model: car.model ?? '',
+        year: car.year ?? ''
+      });
+    } else {
+      setFormData(initialCarData);
+    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log('Updated car details:', formData);
-    // Trigger API call or state update here
+    const performUpdate = async () => {
+      try {
+        setIsSubmitting(true);
+        // call manager update (manufacturer, model, year)
+        await updateCar(formData.manufacturer, formData.model, Number(formData.year));
+        toast.success('Car updated successfully', { position: 'top-center' });
+        // navigate back if possible
+        if (window.history.state && window.history.state.idx > 0) {
+          navigate(-1);
+        }
+      } catch (err) {
+        console.error('Failed to update car:', err);
+        toast.error('Failed to update car', { position: 'top-center' });
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    performUpdate();
   };
+
+  useEffect(() => {
+    let mounted = true;
+
+    const ensureData = async () => {
+      setLoading(true);
+      try {
+        if (!car) {
+          await getCarDetails();
+        }
+
+        const current = useCarStore.getState().car;
+        if (mounted) {
+          if (current) {
+            setFormData({
+              manufacturer: current.manufacturer ?? '',
+              model: current.model ?? '',
+              year: current.year ?? ''
+            });
+          } else {
+            setFormData(initialCarData);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load car details:', err);
+        if (mounted) setFormData(initialCarData);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    ensureData();
+
+    return () => { mounted = false; };
+  }, [car, getCarDetails]);
+
+  if (loading || formData === null) {
+    return (
+      <div className="edit-car-page">
+        <DrawerMenu />
+
+        <div className="drawer-content">
+          <Container>
+            <Row className="justify-content-center">
+              <Col lg={8} xl={6}>
+                <Card className="edit-car-card">
+                  <Card.Body className="p-4 p-lg-5 text-center">
+                    Loading...
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          </Container>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="edit-car-page">
@@ -111,8 +204,8 @@ function EditCar() {
                         >
                           Reset
                         </Button>
-                        <Button type="submit" className="confirm-btn">
-                          Save Changes
+                        <Button type="submit" className="confirm-btn" disabled={isSubmitting}>
+                          {isSubmitting ? 'Saving...' : 'Save Changes'}
                         </Button>
                       </div>
                     </Form>

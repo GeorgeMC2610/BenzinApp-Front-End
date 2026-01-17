@@ -12,7 +12,7 @@ type CarActions = {
     login: (username: string, password: string) => Promise<boolean>;
     logout: () => void;
     getCarDetails: () => Promise<void>;
-    register: (manufacturer: string, model: string, year: number) => Promise<boolean>;
+    register: (username: string, password: string, confirmPassword: string, manufacturer: string, model: string, year: number) => Promise<boolean>;
     update: (manufacturer: string, model: string, year: number) => Promise<void>;
 }
 
@@ -53,12 +53,48 @@ export const useCarStore = create<CarState & CarActions>()(
                 set({ car: null });
             },
 
-            register: async (manufacturer, model, year) => {
-                return true;
+            register: async (username, password, confrimPassword, manufacturer, model, year) => {
+                try {
+                    const response = await RequestHelper.getInstance().sendPostRequest(
+                        RequestHelper._baseUrl + '/signup', {
+                            username: username,
+                            password: password,
+                            confirm_password: confrimPassword,
+                            manufacturer: manufacturer,
+                            model: model,
+                            year: year
+                        }, false
+                    );
+
+                    TokenHelper.getInstance().removeToken();
+                    TokenHelper.getInstance().setToken(response.data.auth_token)
+                    return true;
+                }
+                catch (error) {
+                    return false;
+                }
             },
 
             update: async (manufacturer, model, year) => {
+                try {
+                    const data = {
+                        manufacturer: manufacturer,
+                        model: model,
+                        year: year
+                    };
 
+                    const response = await RequestHelper.getInstance().sendPatchRequest(
+                        RequestHelper._baseUrl + '/car', data
+                    );
+
+                    if (!!get().car) {
+                        const updatedCar = Car.fromJson(response.data);
+                        set({ car: updatedCar });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             }
         }),
         {

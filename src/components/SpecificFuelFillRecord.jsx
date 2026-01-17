@@ -5,6 +5,9 @@ import DrawerMenu from './DrawerMenu';
 import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
 import { FuelFillRecord } from '../classes/FuelFillRecord';
 import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const MAX_COMMENT_LENGTH = 150;
 
@@ -14,6 +17,9 @@ function SpecificFuelFillRecord() {
   const [fuelFill, setFuelFill] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showFullComments, setShowFullComments] = useState(false);
+  const deleteRedirectTimeout = useRef(null);
   const store = useFuelFillRecordStore();
 
   useEffect(() => {
@@ -52,12 +58,7 @@ function SpecificFuelFillRecord() {
   const handleEdit = () => {
     // Navigate to edit page - for now, we'll redirect to the add fuel fill page
     // In a real app, this would navigate to a dedicated edit form with pre-filled data
-    navigate('/add-fuel-fill', { 
-      state: { 
-        editMode: true, 
-        fuelFillData: fuelFill 
-      } 
-    });
+    navigate(`/edit-fuel-fill/${fuelFill.id}`);
   };
 
   const handleDelete = () => {
@@ -65,13 +66,21 @@ function SpecificFuelFillRecord() {
   };
 
   const confirmDelete = () => {
-    console.log('Delete fuel fill:', fuelFill.id);
-    setShowDeleteModal(false);
-    setFeedbackMessage('Fuel fill record deleted successfully.');
-
-    deleteRedirectTimeout.current = setTimeout(() => {
-      navigate('/fuel-fills');
-    }, 1200);
+    // perform delete via store
+    (async () => {
+      try {
+        await store.delete(fuelFill.id);
+        setShowDeleteModal(false);
+        setFeedbackMessage('Fuel fill record deleted successfully.');
+        deleteRedirectTimeout.current = setTimeout(() => {
+          navigate('/fuel-fills');
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to delete fuel fill:', err);
+        setShowDeleteModal(false);
+        toast?.error && toast.error('Failed to delete fuel fill.');
+      }
+    })();
   };
 
   const cancelDelete = () => {
@@ -136,7 +145,8 @@ function SpecificFuelFillRecord() {
                     <p className="page-subtitle">Detailed information about this fuel fill</p>
                   </div>
                   <Link to="/fuel-fills" className="btn btn-outline-secondary">
-                    ← Back to Fuel Fills
+                    <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+                    Back to Fuel Fills
                   </Link>
                 </div>
               </div>
@@ -154,6 +164,7 @@ function SpecificFuelFillRecord() {
                     <div className="fuel-station-info text-center mt-3">
                       <div className="fuel-type">{fuelFill.fuelType}</div>
                       <div className="station-name">{fuelFill.station}</div>
+                      <div className='station-name'><i>@ {fuelFill.totalKm.toLocaleString(undefined, { maximumFractionDigits: 2 })} km</i></div>
                     </div>
                   </div>
 

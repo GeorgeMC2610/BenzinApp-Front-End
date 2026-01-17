@@ -1,6 +1,8 @@
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup, ProgressBar } from 'react-bootstrap';
 import {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
+import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faRefresh, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
@@ -9,8 +11,12 @@ import { useServiceStore } from '../services/managers/ServiceManager';
 function Services() {
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
     const services = useServiceStore((state) => state.list);
     const indexServices = useServiceStore((state) => state.index);
+    const store = useServiceStore();
 
     useEffect(() => {
         if (services === null) indexServices();
@@ -48,14 +54,34 @@ function Services() {
     service.description.toString().includes(searchTerm)
   );
 
+  
+
   const handleEdit = (id) => {
-    console.log('Edit service:', id);
-    // Handle edit logic here
+    // navigate to edit page or open edit form
   };
 
   const handleDelete = (id) => {
-    console.log('Delete service:', id);
-    // Handle delete logic here
+    setDeleteTargetId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
+    try {
+      await store.delete(deleteTargetId);
+      setShowDeleteModal(false);
+      setDeleteTargetId(null);
+      toast.success('Service deleted', { position: 'top-center' });
+    } catch (err) {
+      console.error('Failed to delete service:', err);
+      toast.error('Failed to delete service', { position: 'top-center' });
+      setShowDeleteModal(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setDeleteTargetId(null);
   };
 
   return (
@@ -68,6 +94,15 @@ function Services() {
         <Container>
           <Row>
             <Col>
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Delete Service"
+        message="Are you sure you want to delete this service record? This action cannot be undone."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
               {/* Header */}
               <div className="page-header mb-4">
               <div className="d-flex justify-content-between align-items-center">
@@ -162,14 +197,12 @@ function Services() {
                           </td>
                           <td>
                             <div className="action-buttons">
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="edit-btn me-2"
+                              <Link to={`/edit-service/${service.id}`}
+                                className="btn btn-sm btn-outline-primary edit-btn me-2"
                                 onClick={() => handleEdit(service.id)}
                               >
                                 Edit
-                              </Button>
+                              </Link>
                               <Button
                                 variant="outline-danger"
                                 size="sm"

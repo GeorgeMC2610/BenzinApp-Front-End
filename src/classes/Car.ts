@@ -50,9 +50,7 @@ export class Car {
         if (fuelFills === null) return NaN;
         if (fuelFills.length <= 1) return 0;
 
-        const totalKilometers = fuelFills
-            .slice(1)
-            .reduce((sum, f) => sum + f.km, 0);
+        const totalKilometers = fuelFills.reduce((sum, f) => sum + f.km, 0);
         const totalLiters = fuelFills.reduce((sum, f) => sum + f.lt, 0);
 
         return totalKilometers === 0 ? 0 : (100 * totalLiters) / totalKilometers;
@@ -63,9 +61,7 @@ export class Car {
         if (fuelFills === null) return NaN;
         if (fuelFills.length <= 1) return 0;
 
-        const totalKilometers = fuelFills
-            .slice(1)
-            .reduce((sum, f) => sum + f.km, 0);
+        const totalKilometers = fuelFills.reduce((sum, f) => sum + f.km, 0);
         const totalLiters = fuelFills.reduce((sum, f) => sum + f.lt, 0);
 
         return totalLiters === 0 ? 0 : totalKilometers / totalLiters;
@@ -77,9 +73,7 @@ export class Car {
         if (fuelFills.length <= 1) return 0;
 
         const totalCost = fuelFills.reduce((sum, f) => sum + f.cost, 0);
-        const totalKilometers = fuelFills
-            .slice(1)
-            .reduce((sum, f) => sum + f.km, 0);
+        const totalKilometers = fuelFills.reduce((sum, f) => sum + f.km, 0);
 
         return totalKilometers === 0 ? 0 : totalCost / totalKilometers;
     }

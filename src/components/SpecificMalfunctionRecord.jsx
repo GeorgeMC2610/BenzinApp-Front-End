@@ -3,8 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import { Malfunction } from '../classes/Malfunction';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import LocationMapModal from './LocationMapModal';
 
 const MAX_DESCRIPTION_LENGTH = 150;
 
@@ -15,6 +19,8 @@ function SpecificMalfunctionRecord() {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [mapLocation, setMapLocation] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const deleteRedirectTimeout = useRef(null);
   const store = useMalfunctionStore();
@@ -38,12 +44,7 @@ function SpecificMalfunctionRecord() {
   }, [id]);
 
   const handleEdit = () => {
-    navigate('/add-malfunction', {
-      state: {
-        editMode: true,
-        malfunctionData: malfunction
-      }
-    });
+    navigate(`/edit-malfunction/${malfunction.id}`);
   };
 
   const handleDelete = () => {
@@ -51,13 +52,20 @@ function SpecificMalfunctionRecord() {
   };
 
   const confirmDelete = () => {
-    console.log('Delete malfunction:', malfunction.id);
-    setShowDeleteModal(false);
-    setFeedbackMessage('Malfunction record deleted successfully.');
-
-    deleteRedirectTimeout.current = setTimeout(() => {
-      navigate('/malfunctions');
-    }, 1200);
+    (async () => {
+      try {
+        await store.delete(malfunction.id);
+        setShowDeleteModal(false);
+        setFeedbackMessage('Malfunction record deleted successfully.');
+        deleteRedirectTimeout.current = setTimeout(() => {
+          navigate('/malfunctions');
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to delete malfunction:', err);
+        setShowDeleteModal(false);
+        toast?.error && toast.error('Failed to delete malfunction.');
+      }
+    })();
   };
 
   const cancelDelete = () => {
@@ -104,7 +112,23 @@ function SpecificMalfunctionRecord() {
     );
   }
 
-  const locationFixed = !!malfunction.location ? (malfunction.location.includes('|') ? malfunction.location.split('|')[0] : malfunction.location) : 'Unassigned'
+  const locationParts = malfunction.location ? malfunction.location.split('|') : null;
+  const locationName = locationParts ? locationParts[0] : null;
+  const coordsPart = locationParts && locationParts.length > 1 ? locationParts[1] : null;
+  let locationCoords = null;
+  if (coordsPart) {
+    const [latStr, lngStr] = coordsPart.split(',');
+    const lat = parseFloat((latStr || '').trim());
+    const lng = parseFloat((lngStr || '').trim());
+    if (!isNaN(lat) && !isNaN(lng)) {
+      locationCoords = { lat, lng };
+    }
+  }
+
+  const openMapFor = (title, coords) => {
+    setMapLocation({ label: title, coords });
+    setShowMapModal(true);
+  };
   const discoveryDate = new Date(malfunction.dateStarted);
   const resolvedDate = malfunction.dateEnded ? new Date(malfunction.dateEnded) : null;
   const today = new Date();
@@ -160,7 +184,8 @@ function SpecificMalfunctionRecord() {
                       <p className="page-subtitle">Investigate the history of this malfunction</p>
                     </div>
                     <Link to="/malfunctions" className="btn btn-outline-secondary">
-                      ← Back to Malfunctions
+                      <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+                      Back to Malfunctions
                     </Link>
                   </div>
                 </div>
@@ -233,7 +258,19 @@ function SpecificMalfunctionRecord() {
                             <div className="metric-item">
                               <div className="metric-label">Repair location</div>
                               <div className="metric-value text-end">
-                                {locationFixed}
+                                {locationName ?? (malfunction.location ?? 'Unassigned')}
+                                {locationCoords && (
+                                  <div>
+                                    <button
+                                      type="button"
+                                      className="address-link"
+                                      onClick={() => openMapFor(locationName || malfunction.location, locationCoords)}
+                                    >
+                                      <FontAwesomeIcon icon={faLocationDot} className="me-2" />
+                                      View on map
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                             <div className="metric-item">
@@ -282,6 +319,11 @@ function SpecificMalfunctionRecord() {
         confirmVariant="danger"
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+      />
+      <LocationMapModal
+        show={showMapModal}
+        onHide={() => setShowMapModal(false)}
+        location={mapLocation}
       />
     </div>
   );

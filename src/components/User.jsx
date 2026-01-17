@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGasPump, faWrench, faCalendar, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faGasPump, faWrench, faCalendar, faClock, faWarning } from '@fortawesome/free-solid-svg-icons';
 import { Pie } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
@@ -139,7 +139,7 @@ function User() {
       } else {
         serviceDateStatusLevel = 'danger';
         const overdueDays = Math.abs(daysRemaining);
-        serviceDateStatusText = `Service overdue by ${overdueDays} days (danger)`;
+        serviceDateStatusText = `Service overdue by ${overdueDays} days`;
       }
     }
   }
@@ -377,8 +377,13 @@ function User() {
                                   : 'service-danger-btn'
                               }
                             >
-                              {serviceKmStatusLevel === 'ok' ? 'OK' : serviceKmStatusLevel === 'warning' ? 'Warning' : 'Overdue'}
-                            </Button>
+                              {serviceKmStatusLevel === 'ok' ? 'OK' : 
+                              serviceKmStatusLevel === 'warning' ? (
+                                <FontAwesomeIcon icon={faClock} />
+                              ) : 
+                                (<FontAwesomeIcon icon={faWarning} />)
+                              }                            
+                              </Button>
                           </div>
                         </div>
                       )}

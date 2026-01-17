@@ -3,8 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DrawerMenu from './DrawerMenu';
 import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import { Service } from '../classes/Service';
 import { useServiceStore } from '../services/managers/ServiceManager';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import LocationMapModal from './LocationMapModal';
 
 const MAX_DESCRIPTION_LENGTH = 150;
 
@@ -15,6 +19,8 @@ function SpecificServiceRecord() {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [mapLocation, setMapLocation] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const deleteRedirectTimeout = useRef(null);
   const store = useServiceStore();
@@ -38,12 +44,7 @@ function SpecificServiceRecord() {
   }, [id]);
 
   const handleEdit = () => {
-    navigate('/add-service', {
-      state: {
-        editMode: true,
-        serviceData: service
-      }
-    });
+    navigate(`/edit-service/${service.id}`);
   };
 
   const handleDelete = () => {
@@ -51,13 +52,20 @@ function SpecificServiceRecord() {
   };
 
   const confirmDelete = () => {
-    console.log('Delete service:', service.id);
-    setShowDeleteModal(false);
-    setFeedbackMessage('Service record deleted successfully.');
-
-    deleteRedirectTimeout.current = setTimeout(() => {
-      navigate('/services');
-    }, 1200);
+    (async () => {
+      try {
+        await store.delete(service.id);
+        setShowDeleteModal(false);
+        setFeedbackMessage('Service record deleted successfully.');
+        deleteRedirectTimeout.current = setTimeout(() => {
+          navigate('/services');
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to delete service:', err);
+        setShowDeleteModal(false);
+        toast?.error && toast.error('Failed to delete service.');
+      }
+    })();
   };
 
   const cancelDelete = () => {
@@ -114,6 +122,24 @@ function SpecificServiceRecord() {
   const costLabel =
     typeof service.cost === 'number' ? `€${service.cost.toFixed(2)}` : 'Not recorded yet';
 
+  const locationParts = service.location ? service.location.split('|') : null;
+  const locationName = locationParts ? locationParts[0] : null;
+  const coordsPart = locationParts && locationParts.length > 1 ? locationParts[1] : null;
+  let locationCoords = null;
+  if (coordsPart) {
+    const [latStr, lngStr] = coordsPart.split(',');
+    const lat = parseFloat((latStr || '').trim());
+    const lng = parseFloat((lngStr || '').trim());
+    if (!isNaN(lat) && !isNaN(lng)) {
+      locationCoords = { lat, lng };
+    }
+  }
+
+  const openMapFor = (title, coords) => {
+    setMapLocation({ label: title, coords });
+    setShowMapModal(true);
+  };
+
   return (
     <div className="services-page">
       <DrawerMenu />
@@ -138,7 +164,8 @@ function SpecificServiceRecord() {
                       </p>
                     </div>
                     <Link to="/services" className="btn btn-outline-secondary">
-                      ← Back to Services
+                      <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+                      Back to Services
                     </Link>
                   </div>
                 </div>
@@ -216,7 +243,19 @@ function SpecificServiceRecord() {
                             <div className="metric-item">
                               <div className="metric-label">Service center</div>
                               <div className="metric-value text-end">
-                                {!!service.location ? (service.location.includes('|') ? service.location.split('|')[0] : service.location) : 'Unassigned'}
+                                {locationName ?? (service.location ?? 'Unassigned')}
+                                {locationCoords && (
+                                  <div>
+                                    <button
+                                      type="button"
+                                      className="address-link"
+                                      onClick={() => openMapFor(locationName || service.location, locationCoords)}
+                                    >
+                                      <FontAwesomeIcon icon={faLocationDot} className="me-2" />
+                                      View on map
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </Card.Body>
@@ -258,6 +297,11 @@ function SpecificServiceRecord() {
         confirmVariant="danger"
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+      />
+      <LocationMapModal
+        show={showMapModal}
+        onHide={() => setShowMapModal(false)}
+        location={mapLocation}
       />
     </div>
   );

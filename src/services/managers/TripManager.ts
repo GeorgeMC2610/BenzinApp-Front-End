@@ -2,7 +2,6 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import { Trip } from "../../classes/Trip"
 import RequestHelper from '../RequestHelper';
-import {FuelFillRecord} from "../../classes/FuelFillRecord";
 
 type TripState = {
     viewingTrip: Trip | null;
@@ -39,7 +38,7 @@ export const useTripStore = create<TripState & TripActions>() (
                 }
             },
             create: async (trip) => {
-
+                // not implemented in the web app.
             },
             read: async (id) => {
                 try {
@@ -52,10 +51,19 @@ export const useTripStore = create<TripState & TripActions>() (
                 }
             },
             update: async (trip) => {
-
+                // not implemented in the web app.
             },
             delete: async (id) => {
-
+                try {
+                    await RequestHelper.getInstance().sendDeleteRequest(repeatedTripUrlId(id));
+                    if (!!get().list) {
+                        const newList = get().list!.filter((r) => r.id !== id);
+                        set({ list: newList });
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             },
             destroyValues: () => {
                 set({ viewingTrip: null });

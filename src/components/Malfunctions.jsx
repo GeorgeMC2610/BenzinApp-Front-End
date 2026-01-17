@@ -1,6 +1,8 @@
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup, ProgressBar } from 'react-bootstrap';
 import {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
+import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-toastify';
 import DrawerMenu from './DrawerMenu';
 import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,8 +11,12 @@ import { faMagnifyingGlass, faRefresh, faWrench } from '@fortawesome/free-solid-
 function Malfunctions() {
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
   const malfunctions = useMalfunctionStore((state) => state.list);
   const indexMalfunctions = useMalfunctionStore((state) => state.index);
+  const store = useMalfunctionStore();
 
   useEffect(() => {
     if (malfunctions === null) indexMalfunctions();
@@ -50,14 +56,34 @@ function Malfunctions() {
     malfunction.dateStarted.toString().includes(searchTerm)
   );
 
+  
+
   const handleEdit = (id) => {
-    console.log('Edit malfunction:', id);
-    // Handle edit logic here
+    // navigate to edit page or open edit form
   };
 
   const handleDelete = (id) => {
-    console.log('Delete malfunction:', id);
-    // Handle delete logic here
+    setDeleteTargetId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
+    try {
+      await store.delete(deleteTargetId);
+      setShowDeleteModal(false);
+      setDeleteTargetId(null);
+      toast.success('Malfunction deleted', { position: 'top-center' });
+    } catch (err) {
+      console.error('Failed to delete malfunction:', err);
+      toast.error('Failed to delete malfunction', { position: 'top-center' });
+      setShowDeleteModal(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setDeleteTargetId(null);
   };
 
   return (
@@ -70,6 +96,15 @@ function Malfunctions() {
         <Container>
           <Row>
             <Col>
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Delete Malfunction"
+        message="Are you sure you want to delete this malfunction record? This action cannot be undone."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
               {/* Header */}
               <div className="page-header mb-4">
               <div className="d-flex justify-content-between align-items-center">
@@ -169,14 +204,12 @@ function Malfunctions() {
                           <td>{malfunction.kilometersDiscovered.toLocaleString()} km</td>
                           <td>
                             <div className="action-buttons">
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="edit-btn me-2"
+                              <Link to={`/edit-malfunction/${malfunction.id}`}
+                                className="btn btn-sm btn-outline-primary edit-btn me-2"
                                 onClick={() => handleEdit(malfunction.id)}
                               >
                                 Edit
-                              </Button>
+                              </Link>
                               <Button
                                 variant="outline-danger"
                                 size="sm"

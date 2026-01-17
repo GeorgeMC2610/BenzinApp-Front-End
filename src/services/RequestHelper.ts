@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import TokenHelper from './TokenHelper';
+import { toast } from 'react-toastify';
 
 class RequestHelper {
     public static _baseUrl: string = '/api';
@@ -29,6 +30,33 @@ class RequestHelper {
             withCredentials: false,
             headers: this.getBasicHeaders(),
         });
+        // Central response interceptor: if the server returns 401 or an
+        // "Expired token" message, clear stored token and redirect to login.
+        this.axiosInstance.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                try {
+                    const resp = error?.response;
+                    const status = resp?.status;
+                    const data = resp?.data;
+
+                    const failingMessages = ['Signature has expired', 'Missing token', 'Not enough or too many segments'];
+                    const isExpiredMessage = (status == 401) || (data && failingMessages.includes(data.message));
+
+                    if (isExpiredMessage) {
+                        TokenHelper.getInstance().removeToken();
+                        if (typeof window !== 'undefined') {
+                            window.location.href = '/login';
+                            toast.error('Session expired. Please log in again.', { position: 'top-center' });
+                        }
+                    }
+                } catch (e) {
+                    // swallow any errors while trying to handle auth expiry
+                    // and continue to reject the original error
+                }
+                return Promise.reject(error);
+            }
+        );
     }
 
     public static getInstance(): RequestHelper {

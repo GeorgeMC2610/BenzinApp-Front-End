@@ -1,33 +1,124 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from "react-router";
+import { normalizeToNull } from '../utils/fields';
+import { Malfunction } from '../classes/Malfunction';
+import { useMalfunctionStore } from '../services/managers/MalfunctionManager';
+import { toast } from "react-toastify";
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function AddMalfunction() {
-  const [formData, setFormData] = useState({
-    name: '',
-    date: new Date().toISOString().split('T')[0],
-    status: 'Ongoing',
-    discoveredAt: '',
-    severity: '3',
-    repairCost: '',
-    endDate: '',
-    location: '',
-    description: ''
-  });
+  const params = useParams();
+  const recordId = params?.id;
+  const navigate = useNavigate();
+  const store = useMalfunctionStore();
+
+  const malfunctionList = useMalfunctionStore((s) => s.list);
+  const indexMalfunctions = useMalfunctionStore((s) => s.index);
+  const readMalfunction = useMalfunctionStore((s) => s.read);
+
+  const [formData, setFormData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function prepareForm() {
+      if (!recordId) {
+        if (!mounted) return;
+        setFormData({
+          title: '',
+          dateStarted: new Date().toISOString().split('T')[0],
+          status: 'Ongoing',
+          kilometersDiscovered: '',
+          severity: '3',
+          cost: '',
+          dateEnded: '',
+          location: '',
+          description: ''
+        });
+        setLoading(false);
+        return;
+      }
+
+      try {
+        if (!malfunctionList || malfunctionList.length === 0) {
+          if (typeof indexMalfunctions === 'function') {
+            await indexMalfunctions();
+          }
+        }
+
+        let editRecord = (useMalfunctionStore.getState().list || []).find(r => r.id.toString() === recordId);
+
+        if (!editRecord && typeof readMalfunction === 'function') {
+          const maybe = await readMalfunction(recordId);
+          editRecord = maybe || useMalfunctionStore.getState().viewingMalfunction;
+        }
+
+        if (!mounted) return;
+
+        if (editRecord) {
+          setFormData({
+            title: editRecord.title ?? '',
+            dateStarted: editRecord.dateStarted ? new Date(editRecord.dateStarted).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            status: editRecord.status ?? 'Ongoing',
+            kilometersDiscovered: editRecord.kilometersDiscovered ?? '',
+            severity: editRecord.severity?.toString() ?? '3',
+            cost: editRecord.cost ?? '',
+            dateEnded: editRecord.dateEnded ?? '',
+            location: editRecord.location ?? '',
+            description: editRecord.description ?? ''
+          });
+        } else {
+          toast.warn('Malfunction record not found. Showing add form.');
+          setFormData({
+            title: '',
+            dateStarted: new Date().toISOString().split('T')[0],
+            status: 'Ongoing',
+            kilometersDiscovered: '',
+            severity: '3',
+            cost: '',
+            dateEnded: '',
+            location: '',
+            description: ''
+          });
+        }
+      } catch (err) {
+        console.error('Error preparing malfunction form:', err);
+        toast.error('Failed to load malfunction data.');
+        setFormData({
+          title: '',
+          dateStarted: new Date().toISOString().split('T')[0],
+          status: 'Ongoing',
+          kilometersDiscovered: '',
+          severity: '3',
+          cost: '',
+          dateEnded: '',
+          location: '',
+          description: ''
+        });
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    prepareForm();
+    return () => { mounted = false; };
+  }, [recordId, malfunctionList, indexMalfunctions, readMalfunction]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prevData) => {
       if (name === 'status' && value !== 'Fixed') {
         return {
           ...prevData,
           status: value,
-          repairCost: '',
-          endDate: '',
+          cost: '',
+          dateEnded: '',
           location: ''
         };
       }
-
       return {
         ...prevData,
         [name]: value
@@ -35,12 +126,51 @@ function AddMalfunction() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Malfunction record:', formData);
-    // Redirect to malfunctions page or show success message
+
+    const normalizedData = {
+      ...formData,
+      dateEnded: normalizeToNull(formData.dateEnded),
+      cost: normalizeToNull(formData.cost),
+      location: normalizeToNull(formData.location),
+    };
+
+    const malfunction = new Malfunction(normalizedData);
+    const editRecord = useMalfunctionStore.getState().list?.find(r => r.id.toString() === recordId);
+
+    if (!!editRecord && !!recordId) {
+      // Edit mode: PATCH (manager.update should implement actual update)
+      await store.update(new Malfunction({ ...normalizedData, id: editRecord.id }));
+      toast.success("Successfully updated Malfunction.", { position: 'top-center' });
+    } else {
+      // Add mode: POST
+      await store.create(malfunction);
+      toast.success("Successfully added Malfunction.", { position: 'top-center' });
+    }
+
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/malfunctions', { replace: true });
+    }
   };
+
+  if (loading || formData === null) {
+    return (
+      <div className="add-malfunction-page">
+        <Container>
+          <Row className="justify-content-center min-vh-100 align-items-center">
+            <Col xs={12} sm={10} md={8} lg={6} xl={5}>
+              <Card className="malfunction-card">
+                <Card.Body className="p-5 text-center">Loading...</Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="add-malfunction-page">
@@ -48,27 +178,39 @@ function AddMalfunction() {
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="add-malfunction-container">
-              <div className="text-center mb-4">
-                <h1 className="page-title">Add Malfunction Record</h1>
-              </div>
+              <Row className="align-items-center mb-4">
+                <Col xs={2} className="text-start">
+                  <Button
+                    className="btn btn-secondary"
+                    onClick={() => navigate(-1)}
+                    aria-label="Go back"
+                  >
+                    <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+                  </Button>
+                </Col>
 
-              {/* Form */}
+                <Col xs={8} className="text-center">
+                  <h1 className="page-title mb-0">
+                    {!!recordId ? 'Edit ' : 'Add '} Malfunction
+                  </h1>
+                </Col>
+
+                <Col xs={2} />
+              </Row>
+
               <Card className="malfunction-card">
                 <Card.Body className="p-5">
                   <Form onSubmit={handleSubmit}>
-                    {/* Required Fields */}
                     <div className="required-fields mb-4">
                       <h3 className="section-title">Required Information</h3>
-                      
+
                       <Form.Group className="mb-3">
-                        <Form.Label htmlFor="name" className="form-label">
-                          Malfunction Name *
-                        </Form.Label>
+                        <Form.Label htmlFor="title" className="form-label">Malfunction Title *</Form.Label>
                         <Form.Control
                           type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
+                          id="title"
+                          name="title"
+                          value={formData.title}
                           onChange={handleChange}
                           placeholder="e.g. Engine Misfire"
                           className="form-input"
@@ -76,17 +218,30 @@ function AddMalfunction() {
                         />
                       </Form.Group>
 
-                      <Row className="g-3">
+                      <Form.Group>
+                        <Form.Label htmlFor="description" className="form-label">Description *</Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          id="description"
+                          name="description"
+                          value={formData.description}
+                          onChange={handleChange}
+                          placeholder="Describe the malfunction in detail..."
+                          rows={3}
+                          className="form-input"
+                          required
+                        />
+                      </Form.Group>
+
+                      <Row className="g-3 mt-1">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="date" className="form-label">
-                              Date *
-                            </Form.Label>
+                            <Form.Label htmlFor="dateStarted" className="form-label">Date *</Form.Label>
                             <Form.Control
                               type="date"
-                              id="date"
-                              name="date"
-                              value={formData.date}
+                              id="dateStarted"
+                              name="dateStarted"
+                              value={formData.dateStarted}
                               onChange={handleChange}
                               className="form-input"
                               required
@@ -95,9 +250,7 @@ function AddMalfunction() {
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="status" className="form-label">
-                              Status *
-                            </Form.Label>
+                            <Form.Label htmlFor="status" className="form-label">Status *</Form.Label>
                             <Form.Select
                               id="status"
                               name="status"
@@ -132,14 +285,12 @@ function AddMalfunction() {
                       </Form.Group>
 
                       <Form.Group className="mt-3">
-                        <Form.Label htmlFor="discoveredAt" className="form-label">
-                          Discovered at (km) *
-                        </Form.Label>
+                        <Form.Label htmlFor="kilometersDiscovered" className="form-label">Discovered at (km) *</Form.Label>
                         <Form.Control
                           type="number"
-                          id="discoveredAt"
-                          name="discoveredAt"
-                          value={formData.discoveredAt}
+                          id="kilometersDiscovered"
+                          name="kilometersDiscovered"
+                          value={formData.kilometersDiscovered}
                           onChange={handleChange}
                           placeholder="e.g. 28500"
                           className="form-input"
@@ -148,92 +299,59 @@ function AddMalfunction() {
                       </Form.Group>
                     </div>
 
-                    {/* Optional Fields */}
-                    <div className="optional-fields">
-                      <h3 className="section-title">Additional Information</h3>
-                      
-                      {formData.status === 'Fixed' && (
-                        <>
-                          <Row className="g-3">
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label htmlFor="endDate" className="form-label">
-                                  End Date *
-                                </Form.Label>
-                                <Form.Control
-                                  type="date"
-                                  id="endDate"
-                                  name="endDate"
-                                  value={formData.endDate}
-                                  onChange={handleChange}
-                                  className="form-input"
-                                  required={formData.status === 'Fixed'}
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label htmlFor="repairCost" className="form-label">
-                                  Repair Cost (€) *
-                                </Form.Label>
-                                <Form.Control
-                                  type="number"
-                                  step="0.01"
-                                  id="repairCost"
-                                  name="repairCost"
-                                  value={formData.repairCost}
-                                  onChange={handleChange}
-                                  placeholder="e.g. 150.00"
-                                  className="form-input"
-                                  required={formData.status === 'Fixed'}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
+                    {formData.status === 'Fixed' && (
+                      <div className="optional-fields">
+                        <h3 className="section-title">Repair Information</h3>
+                        <Row className="g-3">
+                          <Col md={6}>
+                            <Form.Group>
+                              <Form.Label htmlFor="dateEnded" className="form-label">End Date *</Form.Label>
+                              <Form.Control
+                                type="date"
+                                id="dateEnded"
+                                name="dateEnded"
+                                value={formData.dateEnded}
+                                onChange={handleChange}
+                                className="form-input"
+                                required={formData.status === 'Fixed'}
+                              />
+                            </Form.Group>
+                          </Col>
+                          <Col md={6}>
+                            <Form.Group>
+                              <Form.Label htmlFor="cost" className="form-label">Repair Cost (€)</Form.Label>
+                              <Form.Control
+                                type="number"
+                                step="0.01"
+                                id="cost"
+                                name="cost"
+                                value={formData.cost}
+                                onChange={handleChange}
+                                placeholder="e.g. 150.00"
+                                className="form-input"
+                              />
+                            </Form.Group>
+                          </Col>
+                        </Row>
 
-                          <Form.Group className="mt-3">
-                            <Form.Label htmlFor="location" className="form-label">
-                              Repair Location *
-                            </Form.Label>
-                            <Form.Control
-                              type="text"
-                              id="location"
-                              name="location"
-                              value={formData.location}
-                              onChange={handleChange}
-                              placeholder="e.g. Auto Service Center"
-                              className="form-input"
-                              required={formData.status === 'Fixed'}
-                            />
-                          </Form.Group>
-                        </>
-                      )}
+                        <Form.Group className="mt-3">
+                          <Form.Label htmlFor="location" className="form-label">Repair Location</Form.Label>
+                          <Form.Control
+                            type="text"
+                            id="location"
+                            name="location"
+                            value={formData.location}
+                            onChange={handleChange}
+                            placeholder="e.g. Auto Service Center"
+                            className="form-input"
+                          />
+                        </Form.Group>
+                      </div>
+                    )}
 
-                      <Form.Group>
-                        <Form.Label htmlFor="description" className="form-label">
-                          Description
-                        </Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          id="description"
-                          name="description"
-                          value={formData.description}
-                          onChange={handleChange}
-                          placeholder="Describe the malfunction in detail..."
-                          rows={3}
-                          className="form-input"
-                        />
-                      </Form.Group>
-                    </div>
-
-                    {/* Submit Button */}
                     <div className="text-center mt-4">
-                      <Button
-                        type="submit"
-                        className="confirm-btn"
-                        size="lg"
-                      >
-                        Confirm Add
+                      <Button type="submit" className="confirm-btn" size="lg">
+                        {!!recordId ? 'Confirm Edit' : 'Confirm Add'}
                       </Button>
                     </div>
                   </Form>

@@ -1,41 +1,159 @@
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
-
-const defaultFuelTypes = ['95 Octane', '98 Octane', 'Diesel', 'E10', 'E5', 'LPG'];
+import { use, useEffect, useState } from 'react';
+import { useFuelFillRecordStore } from '../services/managers/FuelFillRecordManager';
+import { FuelFillRecord } from '../classes/FuelFillRecord';
+import { useNavigate, useParams } from "react-router";
+import { toast } from "react-toastify";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 function AddFuelFill() {
-  const [formData, setFormData] = useState({
-    mileage: '',
-    cost: '',
-    liters: '',
-    date: new Date().toISOString().split('T')[0], // Today's date as default
-    fuelType: '',
-    stationName: '',
-    comments: ''
-  });
-  const [fuelTypeOptions, setFuelTypeOptions] = useState(defaultFuelTypes);
+  const params = useParams();
+  const recordId = params?.id;
+
+  const store = useFuelFillRecordStore();
+  const navigate = useNavigate();
+
+  const fuelFillList = useFuelFillRecordStore((s) => s.list);
+  const indexFuelFills = useFuelFillRecordStore((s) => s.index);
+  const readFuelFill = useFuelFillRecordStore((s) => s.read);
+
+  // null = still resolving (loading). Non-null = form ready.
+  const [formData, setFormData] = useState(null);
+  const [loading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedOptions = window.localStorage.getItem('fuelTypeOptions');
-      if (storedOptions) {
-        try {
-          const parsedOptions = JSON.parse(storedOptions);
-          if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
-            setFuelTypeOptions(parsedOptions);
+    let mounted = true;
+
+    async function prepareForm() {
+      // Add mode: initialize with defaults immediately
+      if (!recordId) {
+        if (!mounted) return;
+        setFormData({
+          km: '',
+          cost: '',
+          totalKm: '',
+          lt: '',
+          filledAt: new Date().toISOString().split('T')[0],
+          fuelType: '',
+          station: '',
+          notes: ''
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Edit mode: ensure list is loaded (try index), then find record
+      try {
+        if (!fuelFillList || fuelFillList.length === 0) {
+          // attempt to load the list (manager should dedupe multiple calls)
+          if (typeof indexFuelFills === 'function') {
+            await indexFuelFills();
           }
-        } catch (error) {
-          console.error('Failed to parse stored fuel type options:', error);
         }
+
+        // try to find in the list first
+        let editRecord = (useFuelFillRecordStore.getState().list || []).find(r => r.id.toString() === recordId);
+
+        // fallback: try manager.read(recordId) if available (reads a single record)
+        if (!editRecord && typeof readFuelFill === 'function') {
+          // read may set store.viewingFuelFillRecord or return the record
+          const maybe = await readFuelFill(recordId);
+          // read may return a record or update store; try both
+          editRecord = maybe || useFuelFillRecordStore.getState().viewingFuelFillRecord;
+        }
+
+        if (!mounted) return;
+
+        if (editRecord) {
+          setFormData({
+            km: editRecord.km ?? '',
+            cost: editRecord.cost ?? '',
+            totalKm: editRecord.totalKm ?? '',
+            lt: editRecord.lt ?? '',
+            filledAt: editRecord.filledAt ? new Date(editRecord.filledAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            fuelType: editRecord.fuelType ?? '',
+            station: editRecord.station ?? '',
+            notes: editRecord.notes ?? '',
+          });
+        } else {
+          // record not found: initialize defaults and optionally show a warning
+          toast.warn('Fuel fill record not found. Showing add form.');
+          setFormData({
+            km: '',
+            cost: '',
+            totalKm: '',
+            lt: '',
+            filledAt: new Date().toISOString().split('T')[0],
+            fuelType: '',
+            station: '',
+            notes: ''
+          });
+        }
+      } catch (err) {
+        console.error('Error preparing form:', err);
+        toast.error('Failed to load fuel fill data.');
+        setFormData({
+          km: '',
+          cost: '',
+          totalKm: '',
+          lt: '',
+          filledAt: new Date().toISOString().split('T')[0],
+          fuelType: '',
+          station: '',
+          notes: ''
+        });
+      } finally {
+        if (mounted) setIsLoading(false);
       }
     }
-  }, []);
+
+    prepareForm();
+    return () => { mounted = false; };
+  }, [recordId, fuelFillList, indexFuelFills, readFuelFill]);
+
+  // const [formData, setFormData] = useState(() => {
+  //   const editRecord = store.list?.find(r => r.id.toString() === recordId);
+  //   if (!!recordId && editRecord) {
+  //     return {
+  //       km: editRecord.km ?? '',
+  //       cost: editRecord.cost ?? '',
+  //       totalKm: editRecord.totalKm ?? '',
+  //       lt: editRecord.lt ?? '',
+  //       filledAt: editRecord.filledAt ? new Date(editRecord.filledAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+  //       fuelType: editRecord.fuelType ?? '',
+  //       station: editRecord.station ?? '',
+  //       notes: editRecord.notes ?? '',
+  //     };
+  //   }
+
+  //   return {
+  //     km: '',
+  //     cost: '',
+  //     totalKm: '',
+  //     lt: '',
+  //     filledAt: new Date().toISOString().split('T')[0],
+  //     fuelType: '',
+  //     station: '',
+  //     notes: ''
+  //   };
+  // });
+
+  const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
+  // const fuelFillList = useFuelFillRecordStore((state) => state.list);
+  // const [loading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('fuelTypeOptions', JSON.stringify(fuelTypeOptions));
-    }
-  }, [fuelTypeOptions]);
+    const fromApi = Array.isArray(fuelFillList)
+      ? fuelFillList
+          .map((f) => f?.fuelType)
+          .filter((t) => typeof t === 'string' && t.trim() !== '')
+          .map((s) => s.trim())
+      : [];
+
+    const unique = Array.from(new Set(fromApi));
+    setFuelTypeOptions(unique);
+  }, [fuelFillList]);
 
   const handleChange = (e) => {
     setFormData({
@@ -44,34 +162,88 @@ function AddFuelFill() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Fuel fill record:', formData);
-    const normalizedFuelType = formData.fuelType.trim();
-    if (normalizedFuelType) {
-      setFuelTypeOptions((prevOptions) => {
-        const exists = prevOptions.some(
-          (option) => option.toLowerCase() === normalizedFuelType.toLowerCase()
-        );
-        if (exists) {
-          return prevOptions;
-        }
-        return [...prevOptions, normalizedFuelType];
-      });
+    if (recordId) {
     }
-    // Redirect to fuel fills page or show success message
+
+    const normalizeToNull = (value) => {
+      if (value === null || value === undefined) return null;
+      const trimmed = String(value).trim();
+      return trimmed === '' ? null : trimmed;
+    };
+
+    const normalizedData = {
+      ...formData,
+      fuelType: normalizeToNull(formData.fuelType),
+      station: normalizeToNull(formData.station),
+      notes: normalizeToNull(formData.notes),
+    };
+
+    const fuelFill = new FuelFillRecord(normalizedData);
+    const editRecord = useFuelFillRecordStore.getState().list.find(r => r.id.toString() === recordId);
+    if (!!editRecord && !!recordId) {
+      // Edit mode: PATCH      
+      await store.update(new FuelFillRecord({ ...normalizedData, id: editRecord.id }));
+      toast.success("Successfully updated Fuel Fill Record.", { position: 'top-center' });
+    } 
+    else {
+      // Add mode: POST
+      await store.create(fuelFill);
+      toast.success("Successfully added Fuel Fill Record.", { position: 'top-center' });
+    }
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } 
+    else {
+      navigate('/fuel-fills', { replace: true });
+    }
   };
 
+  if (loading || formData === null) {
+    return (
+      <div className="add-fuel-fill-page">
+        <Container>
+          <Row className="justify-content-center min-vh-100 align-items-center">
+            <Col xs={12} sm={10} md={8} lg={6} xl={5}>
+              <Card className="fuel-fill-card">
+                <Card.Body className="p-5 text-center">
+                  Loading...
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    );
+  }
+
   return (
+    
     <div className="add-fuel-fill-page">
       <Container>
         <Row className="justify-content-center min-vh-100 align-items-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="add-fuel-fill-container">
-              <div className="text-center mb-4">
-                <h1 className="page-title">Add Fuel Fill Record</h1>
-              </div>
+              <Row className="align-items-center mb-4">
+                <Col xs={2} className="text-start">
+                  <Button
+                    className="btn btn-secondary"
+                    onClick={() => navigate(-1)}
+                    aria-label="Go back"
+                  >
+                    <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+                  </Button>
+                </Col>
+
+                <Col xs={8} className="text-center">
+                  <h1 className="page-title mb-0">
+                    {!!recordId ? 'Edit ' : 'Add '} Fuel Fill Record
+                  </h1>
+                </Col>
+
+                <Col xs={2} />
+              </Row>
 
               {/* Form */}
               <Card className="fuel-fill-card">
@@ -84,14 +256,14 @@ function AddFuelFill() {
                       <Row className="g-3">
                         <Col md={4}>
                           <Form.Group>
-                            <Form.Label htmlFor="mileage" className="form-label">
-                              Mileage *
+                            <Form.Label htmlFor="km" className="form-label">
+                              Mileage (in km) *
                             </Form.Label>
                             <Form.Control
                               type="number"
-                              id="mileage"
-                              name="mileage"
-                              value={formData.mileage}
+                              id="km"
+                              name="km"
+                              value={formData?.km}
                               onChange={handleChange}
                               placeholder="e.g. 50000"
                               className="form-input"
@@ -109,7 +281,7 @@ function AddFuelFill() {
                               step="0.01"
                               id="cost"
                               name="cost"
-                              value={formData.cost}
+                              value={formData?.cost}
                               onChange={handleChange}
                               placeholder="e.g. 70.50"
                               className="form-input"
@@ -119,15 +291,15 @@ function AddFuelFill() {
                         </Col>
                         <Col md={4}>
                           <Form.Group>
-                            <Form.Label htmlFor="liters" className="form-label">
+                            <Form.Label htmlFor="lt" className="form-label">
                               Liters *
                             </Form.Label>
                             <Form.Control
                               type="number"
                               step="0.01"
-                              id="liters"
-                              name="liters"
-                              value={formData.liters}
+                              id="lt"
+                              name="lt"
+                              value={formData?.lt}
                               onChange={handleChange}
                               placeholder="e.g. 45.2"
                               className="form-input"
@@ -137,17 +309,33 @@ function AddFuelFill() {
                         </Col>
                       </Row>
 
+                      <Form.Group>
+                        <Form.Label htmlFor="totalKm" className="form-label mt-3">
+                          Car's Total Mileage (in km) *
+                        </Form.Label>
+                        <Form.Control
+                          type="number"
+                          id="totalKm"
+                          name="totalKm"
+                          value={formData?.totalKm}
+                          onChange={handleChange}
+                          placeholder="e.g. 120000"
+                          className="form-input"
+                          required
+                        />
+                      </Form.Group>
+
                       <Row className="mt-3">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="date" className="form-label">
+                            <Form.Label htmlFor="filledAt" className="form-label">
                               Date *
                             </Form.Label>
                             <Form.Control
                               type="date"
-                              id="date"
-                              name="date"
-                              value={formData.date}
+                              id="filledAt"
+                              name="filledAt"
+                              value={formData?.filledAt}
                               onChange={handleChange}
                               className="form-input"
                               required
@@ -159,7 +347,7 @@ function AddFuelFill() {
                             type="button"
                             variant="outline-secondary"
                             className="today-btn"
-                            onClick={() => setFormData({...formData, date: new Date().toISOString().split('T')[0]})}
+                            onClick={() => setFormData({...formData, filledAt: new Date().toISOString().split('T')[0]})}
                           >
                             Today's Date
                           </Button>
@@ -182,7 +370,7 @@ function AddFuelFill() {
                               name="fuelType"
                               type="text"
                               list="fuelTypeOptions"
-                              value={formData.fuelType}
+                              value={formData?.fuelType}
                               onChange={handleChange}
                               className="form-input"
                               placeholder="e.g. 95 Octane"
@@ -197,14 +385,14 @@ function AddFuelFill() {
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label htmlFor="stationName" className="form-label">
+                            <Form.Label htmlFor="station" className="form-label">
                               Station Name
                             </Form.Label>
                             <Form.Control
                               type="text"
-                              id="stationName"
-                              name="stationName"
-                              value={formData.stationName}
+                              id="station"
+                              name="station"
+                              value={formData?.station}
                               onChange={handleChange}
                               placeholder="e.g. Shell Station"
                               className="form-input"
@@ -216,14 +404,14 @@ function AddFuelFill() {
                       <Row className="mt-3">
                         <Col>
                           <Form.Group>
-                            <Form.Label htmlFor="comments" className="form-label">
+                            <Form.Label htmlFor="notes" className="form-label">
                               Comments
                             </Form.Label>
                             <Form.Control
                               as="textarea"
-                              id="comments"
-                              name="comments"
-                              value={formData.comments}
+                              id="notes"
+                              name="notes"
+                              value={formData?.notes}
                               onChange={handleChange}
                               placeholder="Any additional notes about this fuel fill..."
                               rows={3}
@@ -241,7 +429,7 @@ function AddFuelFill() {
                         className="confirm-btn"
                         size="lg"
                       >
-                        Confirm Add
+                        {!!recordId ? 'Confirm Edit' : 'Confirm Add'}
                       </Button>
                     </div>
                   </Form>
